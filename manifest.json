@@ -1,0 +1,13 @@
+{
+  "name": "AMA UPRM — American Marketing Association Collegiate Chapter",
+  "short_name": "AMA UPRM",
+  "description": "AMA UPRM is the American Marketing Association collegiate chapter at UPR Mayagüez.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f304f",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
