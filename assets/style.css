@@ -194,7 +194,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .date{background:var(--green);color:#fff;border-radius:14px;text-align:center;padding:12px 8px}
 .date strong{display:block;font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--gold)}
 .date span{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase}
-.event h3{font-size:1.1rem;color:var(--green-dark)}
+.event h2,.event h3{font-size:1.1rem;color:var(--green-dark)}
 .event p{font-size:.9rem;color:var(--gray)}
 .event .meta{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700;margin-top:4px}
 .month-label{font-family:var(--serif);font-size:1.6rem;color:var(--green-dark);margin:44px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:inline-block}
@@ -208,7 +208,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .member{text-align:center}
 .member .ph{aspect-ratio:1;border-radius:50%;width:150px;margin:0 auto 16px;transition:transform .5s var(--ease),box-shadow .5s}
 .member:hover .ph{transform:scale(1.06);box-shadow:0 20px 40px rgba(6,77,54,.25)}
-.member h4{font-size:1rem;color:var(--green-dark)}
+.member h3,.member h4{font-size:1rem;color:var(--green-dark)}
 .member span{font-size:.78rem;color:var(--gray);display:block}
 .member a{font-size:.72rem;color:var(--green);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:6px;display:inline-block}
 
@@ -217,7 +217,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .step{padding:34px 26px;border-radius:var(--radius);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);position:relative;transition:all .4s var(--ease)}
 .step:hover{background:rgba(255,255,255,.12);transform:translateY(-8px);border-color:var(--gold)}
 .step::before{counter-increment:step;content:'0' counter(step);font-family:var(--serif);font-size:2.6rem;color:var(--gold);display:block;line-height:1;margin-bottom:14px}
-.step h4{font-size:1.05rem;margin-bottom:8px}
+.step h3{font-size:1.05rem;margin-bottom:8px}
 .step p{font-size:.9rem;color:rgba(255,255,255,.7)}
 
 /* ---------- Case studies ---------- */
@@ -258,11 +258,12 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .pkg.featured{border-color:var(--gold);background:var(--green-dark);color:#fff}
 .pkg.featured .price,.pkg.featured h3{color:#fff}
 .pkg.featured li{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.12)}
+.pkg.featured li::before{color:var(--gold)}
 .pkg .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800;padding:6px 14px;border-radius:99px}
 .pkg h3{font-size:1.3rem;color:var(--green-dark)}
 .pkg .price{font-family:var(--serif);font-size:2.4rem;color:var(--green);margin:8px 0 18px}
 .pkg li{padding:9px 0;border-top:1px solid #eee;font-size:.9rem;color:var(--gray)}
-.pkg li::before{content:'✓ ';color:var(--gold);font-weight:800}
+.pkg li::before{content:'✓ ';color:var(--green);font-weight:800}
 
 /* ---------- Blog ---------- */
 .post{border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 10px 40px rgba(6,77,54,.08);transition:all .45s var(--ease)}
@@ -271,13 +272,13 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .post-img .ph{border-radius:0;aspect-ratio:16/10;transition:transform .8s var(--ease)}
 .post:hover .post-img .ph{transform:scale(1.08)}
 .post-body{padding:26px}
-.post h3{font-size:1.15rem;margin:8px 0 10px;color:var(--green-dark)}
+.post h2,.post h3{font-size:1.15rem;margin:8px 0 10px;color:var(--green-dark)}
 .post p{font-size:.9rem;color:var(--gray)}
 .post .meta{margin-top:16px;font-size:.75rem;color:#8a938f}
 .post.feature{display:grid;grid-template-columns:1.2fr 1fr;grid-column:1/-1}
 .post.feature .post-img .ph{aspect-ratio:auto;height:100%;min-height:320px}
 .post.feature .post-body{padding:44px;display:flex;flex-direction:column;justify-content:center}
-.post.feature h3{font-family:var(--serif);font-size:1.9rem}
+.post.feature h2,.post.feature h3{font-family:var(--serif);font-size:1.9rem}
 
 /* ---------- Instagram ---------- */
 .insta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -316,7 +317,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .doc{display:flex;align-items:center;gap:22px;padding:26px 30px;border-radius:var(--radius);background:#fff;border:1px solid #e7ece9;transition:all .4s var(--ease)}
 .doc:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 20px 40px rgba(6,77,54,.1)}
 .doc .ico{width:56px;height:56px;border-radius:14px;background:var(--mist);display:grid;place-items:center;font-size:1.5rem;flex-shrink:0}
-.doc h4{color:var(--green-dark);font-size:1rem}
+.doc h3{color:var(--green-dark);font-size:1rem}
 .doc p{font-size:.82rem;color:var(--gray)}
 .doc .btn{margin-left:auto}
 
@@ -330,7 +331,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 /* ---------- Footer ---------- */
 footer{background:#121c30;color:rgba(255,255,255,.72);padding:70px 0 30px}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px}
-footer h5{color:#fff;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+footer h2,footer h3{color:#fff;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
 footer li{margin-bottom:10px;font-size:.9rem}
 footer li a{transition:all .3s}
 footer li a:hover{color:var(--gold);padding-left:6px}
@@ -435,7 +436,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .deliverables{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 20px}
 .deliverables>div{background:var(--mist);border-radius:14px;padding:22px}
 .deliverables strong{font-family:var(--serif);font-size:1.6rem;color:var(--green);display:block;line-height:1}
-.deliverables h4{color:var(--green-dark);margin:8px 0 4px;font-size:1rem}
+.deliverables h3{color:var(--green-dark);margin:8px 0 4px;font-size:1rem}
 .deliverables p{font-size:.88rem;color:var(--gray);margin:0}
 .embed{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--mist);box-shadow:0 10px 40px rgba(31,48,79,.08)}
 .embed iframe{display:block;width:100%;height:600px;border:0}

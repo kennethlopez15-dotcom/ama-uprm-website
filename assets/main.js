@@ -85,8 +85,19 @@
       });
     }, { threshold: 0.6 });
     document.querySelectorAll('[data-count]').forEach(function (el) { cio.observe(el); });
+
+    /* ---------- Lazy-load placeholder photos ---------- */
+    var bgIo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.style.backgroundImage = e.target.dataset.bg;
+        bgIo.unobserve(e.target);
+      });
+    }, { rootMargin: '300px 0px' });
+    document.querySelectorAll('[data-bg]').forEach(function (el) { bgIo.observe(el); });
   } else {
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(function (el) { el.classList.add('visible'); });
+    document.querySelectorAll('[data-bg]').forEach(function (el) { el.style.backgroundImage = el.dataset.bg; });
   }
 
   /* ---------- Hero parallax ---------- */
