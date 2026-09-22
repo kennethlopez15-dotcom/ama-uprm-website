@@ -171,6 +171,30 @@
       });
     });
   }
+
+  /* ---------- Mark past events instead of showing them as upcoming ---------- */
+  var eventList = document.getElementById('event-list');
+  if (eventList) {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var anyUpcoming = false;
+    eventList.querySelectorAll('.event[data-date]').forEach(function (ev) {
+      var d = new Date(ev.dataset.date + 'T00:00:00');
+      if (d < today) {
+        ev.classList.add('past');
+        var link = ev.querySelector('a.btn');
+        if (link) {
+          var tag = document.createElement('span');
+          tag.className = 'completed-tag';
+          tag.textContent = getLang() === 'es' ? 'Evento finalizado' : 'Event completed';
+          link.replaceWith(tag);
+        }
+      } else {
+        anyUpcoming = true;
+      }
+    });
+    var notice = document.getElementById('no-upcoming');
+    if (notice && !anyUpcoming) notice.style.display = 'block';
+  }
 })();
 
 /* ---------- Audience switcher ---------- */

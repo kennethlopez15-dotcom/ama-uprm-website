@@ -215,6 +215,10 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .event p{font-size:.9rem;color:var(--gray)}
 .event .meta{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700;margin-top:4px}
 .month-label{font-family:var(--serif);font-size:1.6rem;color:var(--green-dark);margin:44px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:inline-block}
+.event.past{opacity:.55}
+.event.past .date{background:var(--gray)}
+.event.past .date strong{color:#fff}
+.event .completed-tag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--gray)}
 
 /* ---------- Team ---------- */
 .team-group{margin-bottom:60px}
