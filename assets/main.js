@@ -38,7 +38,7 @@
 
   /* ---------- Preloader ---------- */
   var pre = document.getElementById('preloader');
-  if (pre) window.addEventListener('load', function () { setTimeout(function () { pre.classList.add('done'); }, 1300); });
+  if (pre) window.addEventListener('load', function () { setTimeout(function () { pre.classList.add('done'); }, 300); });
 
   /* ---------- Header + back to top ---------- */
   var header = document.getElementById('header'), toTop = document.getElementById('toTop');
