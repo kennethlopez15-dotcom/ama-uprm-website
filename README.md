@@ -6,7 +6,7 @@ Sitio estático (HTML/CSS/JS). No requiere build ni servidor.
 - index.html, about.html, elevate.html, programs.html, events.html, membership.html, sponsors.html, blog.html
 - assets/style.css — colores de marca en las variables al inicio (--green, --gold...)
 - assets/main.js — animaciones, menú, toggle EN/ES, FAQ, filtros, newsletter
-- assets/*.pdf — placeholders: reemplazar por Chapter Plan, Annual Report, deck de auspicio y guía de puntos
+- Los 4 PDFs placeholder (Chapter Plan, Annual Report, deck de auspicio, guía de puntos) se eliminaron: contenían literalmente el texto "placeholder, replace this file" y un juez podía descargarlos. Los botones que los enlazaban ahora dicen "Coming soon" o piden el documento por correo. Cuando haya PDFs reales, subirlos a `assets/` con esos mismos nombres y volver a enlazarlos en about.html, sponsors.html y membership.html.
 
 ## Idioma
 Todo texto con `data-en` / `data-es` se traduce con el botón EN/ES. Para editar un texto, cambia ambos atributos y el contenido visible.
