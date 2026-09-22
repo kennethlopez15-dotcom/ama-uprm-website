@@ -14,7 +14,7 @@ Todo texto con `data-en` / `data-es` se traduce con el botón EN/ES. Para editar
 ## Reemplazar placeholders
 - Fotos: cada `<div class="ph">` es un placeholder. Sustituir por `<img src="..." alt="...">` o añadir `style="background-image:url(...)"`.
 - Logos de sponsors: `.logo-box` → `<a href><img></a>`.
-- Newsletter: conectar el `<form class="newsletter-form">` a Mailchimp / Brevo / Formspree (action + method).
+- Newsletter: ya conectado a FormSubmit.co (`action="https://formsubmit.co/ama@uprm.edu"`), sin necesidad de cuenta. **Pendiente**: la primera persona que se suscriba en producción dispara un correo de activación a `ama@uprm.edu` — hay que abrirlo y confirmar una vez, o no llegan los envíos siguientes. Si se prefiere Mailchimp/Brevo más adelante, basta con cambiar el `action` del form.
 - Instagram: enlazar cada `.ig` al post real.
 - og:image: subir assets/og-image.jpg (1200×630).
 

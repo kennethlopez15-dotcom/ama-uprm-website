@@ -318,6 +318,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .form-row input::placeholder{color:rgba(255,255,255,.6)}
 .form-note{font-size:.75rem;color:rgba(255,255,255,.6);margin-top:12px}
 .form-ok{display:none;margin-top:14px;font-weight:600;color:var(--gold)}
+.form-error{display:none;margin-top:14px;font-weight:600;color:#ff8080}
 
 /* ---------- FAQ ---------- */
 .faq{border-bottom:1px solid #e7ece9}
