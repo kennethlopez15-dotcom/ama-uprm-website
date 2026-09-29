@@ -42,7 +42,7 @@ ul{list-style:none}
 .left .accent-line{margin-left:0;transform-origin:left}
 .reveal.visible .accent-line,.visible .accent-line{transform:scaleX(1)}
 .eyebrow{font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;font-weight:700;color:var(--green);display:block;margin-bottom:12px}
-.hero .eyebrow,.page-hero .eyebrow,.bg-dark .eyebrow,.newsletter .eyebrow{color:var(--gold)}
+.hero .eyebrow,.page-hero .eyebrow,.bg-dark .eyebrow{color:var(--gold)}
 
 /* language: elements carry data-en / data-es; JS swaps textContent */
 [data-es]{}
@@ -311,19 +311,6 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .ig:hover::after{opacity:1}
 .ig:hover .ph{transform:scale(1.12)}
 
-/* ---------- Newsletter ---------- */
-.newsletter{background:linear-gradient(120deg,#141f36,var(--green-dark),var(--green));background-size:200% 200%;animation:gradientMove 10s ease infinite;color:#fff}
-@keyframes gradientMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.newsletter .inner{display:grid;grid-template-columns:1.1fr 1fr;gap:50px;align-items:center}
-.newsletter h2{font-family:var(--serif);font-size:clamp(1.9rem,3.5vw,2.8rem);line-height:1.15;margin-bottom:12px}
-.newsletter p{color:rgba(255,255,255,.8)}
-.form-row{display:flex;gap:10px;background:rgba(255,255,255,.1);padding:8px;border-radius:999px;border:1px solid rgba(255,255,255,.25)}
-.form-row input{flex:1;background:transparent;border:0;color:#fff;padding:12px 18px;font-family:var(--font);font-size:.95rem;outline:none}
-.form-row input::placeholder{color:rgba(255,255,255,.6)}
-.form-note{font-size:.75rem;color:rgba(255,255,255,.6);margin-top:12px}
-.form-ok{display:none;margin-top:14px;font-weight:600;color:var(--gold)}
-.form-error{display:none;margin-top:14px;font-weight:600;color:#ff8080}
-
 /* ---------- FAQ ---------- */
 .faq{border-bottom:1px solid #e7ece9}
 .faq button{width:100%;text-align:left;background:none;border:0;padding:22px 0;font-family:var(--font);font-size:1.05rem;font-weight:600;color:var(--green-dark);display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:20px}
@@ -389,7 +376,7 @@ footer li a:hover{color:var(--gold);padding-left:6px}
   .dropdown a:hover{background:transparent;color:var(--gold)}
   .nav-cta{margin:14px 0 0}
   .lang{margin:14px 10px 0;width:max-content}
-  .grid-2,.newsletter .inner,.post.feature{grid-template-columns:1fr}
+  .grid-2,.post.feature{grid-template-columns:1fr}
   .event{grid-template-columns:70px 1fr}
   .event .btn{grid-column:2}
   .section{padding:70px 0}
@@ -398,7 +385,6 @@ footer li a:hover{color:var(--gold);padding-left:6px}
 @media(max-width:560px){
   .grid-3,.grid-4,.team-grid,.steps,.packages,.stats,.footer-grid,.logos,.logos.big{grid-template-columns:1fr}
   .hero-proof{gap:22px}
-  .form-row{flex-direction:column;border-radius:20px}
   .doc{flex-wrap:wrap}.doc .btn{margin-left:0}
 }
 @media(prefers-reduced-motion:reduce){
@@ -425,10 +411,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .meet .day{font-family:var(--serif);font-size:2rem;color:var(--gold)}
 .meet .time{display:inline-block;margin:10px 0 16px;padding:6px 14px;border-radius:99px;background:var(--green);font-size:.72rem;font-weight:700;letter-spacing:.08em}
 .meet p{color:rgba(255,255,255,.7);font-size:.95rem}
-.coffee{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:34px 38px;border-radius:var(--radius);background:var(--green-dark);color:#fff;margin-top:20px}
-.coffee h3{font-family:var(--serif);font-size:1.6rem;margin-bottom:6px}
-.coffee p{color:rgba(255,255,255,.75);font-size:.95rem;max-width:620px}
-.coffee .btn{flex-shrink:0}
 .contact-list li{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:12px 0;border-top:1px solid #e3e9e5;font-size:.95rem;color:var(--gray)}
 .contact-list li:first-child{border-top:0}
 .contact-list strong{color:var(--green-dark);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;padding-top:3px}
@@ -437,7 +419,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .contact-form label{display:grid;gap:6px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark)}
 .contact-form input,.contact-form select,.contact-form textarea{font-family:var(--font);font-size:.95rem;padding:12px 14px;border:1px solid #dfe6e2;border-radius:10px;background:var(--mist);color:var(--ink)}
 .contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{border-color:var(--green);background:#fff;outline:none}
-@media(max-width:900px){.meet-grid{grid-template-columns:1fr}.coffee{flex-direction:column;align-items:flex-start}#outcomes .logos{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:900px){.meet-grid{grid-template-columns:1fr}#outcomes .logos{grid-template-columns:repeat(3,1fr)!important}}
 @media(max-width:560px){.aud-panel{padding:30px 22px}.contact-list li{grid-template-columns:1fr;gap:2px}#outcomes .logos{grid-template-columns:repeat(2,1fr)!important}}
 
 /* ---------- Additions v4: detail pages, embeds, hero media, progress, mobile ---------- */

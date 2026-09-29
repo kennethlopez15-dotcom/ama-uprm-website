@@ -116,29 +116,6 @@
     });
   });
 
-  /* ---------- Newsletter (submits to FormSubmit.co) ---------- */
-  document.querySelectorAll('form.newsletter-form').forEach(function (f) {
-    f.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var ok = f.parentElement.querySelector('.form-ok');
-      var err = f.parentElement.querySelector('.form-error');
-      var btn = f.querySelector('button[type="submit"]');
-      if (ok) ok.style.display = 'none';
-      if (err) err.style.display = 'none';
-      if (btn) btn.disabled = true;
-      var ajaxUrl = f.action.replace('formsubmit.co/', 'formsubmit.co/ajax/');
-      fetch(ajaxUrl, { method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(f) })
-        .then(function (res) { if (!res.ok) throw new Error('bad status'); return res.json(); })
-        .then(function () {
-          if (ok) ok.style.display = 'block';
-          trackEvent('newsletter_signup');
-          f.reset();
-        })
-        .catch(function () { if (err) err.style.display = 'block'; })
-        .finally(function () { if (btn) btn.disabled = false; });
-    });
-  });
-
   /* ---------- KPI click tracking: membership interest, event RSVP, sponsor packages ---------- */
   document.addEventListener('click', function (e) {
     var a = e.target.closest('a');
