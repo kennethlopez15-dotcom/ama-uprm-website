@@ -230,7 +230,7 @@
         event_name: (a.closest('.event').querySelector('h2,h3') || {}).textContent || ''
       });
     }
-    if (href.indexOf('sponsors.html#packages') !== -1 || a.closest('#packages')) {
+    if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });
     }
   });

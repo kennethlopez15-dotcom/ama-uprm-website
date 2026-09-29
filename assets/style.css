@@ -482,13 +482,13 @@ main{animation:pageIn .5s var(--ease)}
   .section{padding:56px 0}
   .card,.pkg,.contact-form{padding:26px 20px}
   .event{padding:18px}
-  .team-grid,.case .team-grid{grid-template-columns:repeat(2,1fr)!important}
+  .team-grid{grid-template-columns:repeat(2,1fr)!important}
   .member .ph{width:110px}
   .lang{margin-left:0}
 }
 
 @media(max-width:1200px){nav{visibility:hidden}nav.open{visibility:visible}}
-@media(max-width:900px){.stats,.container.stats{grid-template-columns:repeat(2,1fr)!important}.steps{grid-template-columns:repeat(2,1fr)!important}.case .team-grid,.article .team-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:900px){.stats,.container.stats{grid-template-columns:repeat(2,1fr)!important}.steps{grid-template-columns:repeat(2,1fr)!important}}
 @media(max-width:560px){.steps{grid-template-columns:1fr!important}}
 
 /* ---------- Images ---------- */
