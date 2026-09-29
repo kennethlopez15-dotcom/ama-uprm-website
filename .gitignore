@@ -12,3 +12,7 @@ desktop.ini
 # Env / secrets
 .env
 .env.local
+
+# Local validation artifacts
+.validation/
+__pycache__/
