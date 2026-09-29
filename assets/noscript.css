@@ -1,0 +1,12 @@
+/* Keep content and navigation usable when JavaScript is disabled. */
+#preloader,.burger,#progress,#toTop{display:none}
+.reveal,.reveal-left,.reveal-right,.stagger>*{opacity:1;transform:none}
+header{position:static;background:#1f304f}
+header .container{display:block}
+nav{position:static;visibility:visible;width:100%;height:auto;max-height:none;padding:20px 0;box-shadow:none}
+nav ul{flex-wrap:wrap}
+.dropdown{position:static;visibility:visible;opacity:1;transform:none}
+.lang{display:none}
+.aud-tabs,.event-controls,[data-filter],.faq .ico{display:none}
+.aud-panel[hidden]{display:block!important}
+.aud-panel+.aud-panel{margin-top:20px}
