@@ -246,9 +246,9 @@ nav li:hover .dropdown,nav li:focus-within .dropdown{opacity:1;visibility:visibl
 
 /* ---------- Case studies ---------- */
 .case{border-radius:var(--radius);overflow:hidden;background:#fff;box-shadow:0 10px 40px rgba(6,77,54,.08);transition:all .45s var(--ease)}
-.case:hover{transform:translateY(-10px);box-shadow:0 30px 60px rgba(6,77,54,.16)}
+.case:not(.static):hover{transform:translateY(-10px);box-shadow:0 30px 60px rgba(6,77,54,.16)}
 .case .ph{border-radius:0;aspect-ratio:16/10;transition:transform .8s var(--ease)}
-.case:hover .ph{transform:scale(1.05)}
+.case:not(.static):hover .ph{transform:scale(1.05)}
 .case-img{overflow:hidden}
 .case-body{padding:26px}
 .tag{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--green);font-weight:700}
