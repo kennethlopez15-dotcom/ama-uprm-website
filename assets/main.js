@@ -216,6 +216,23 @@
     if (motion.matches && heroC) { heroC.style.transform = ''; heroC.style.opacity = ''; }
   });
 
+  /* ---------- Click-to-load embeds: no third-party requests or cookies until asked ---------- */
+  document.querySelectorAll('.embed-facade').forEach(function (box) {
+    var btn = box.querySelector('.embed-load');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var frame = document.createElement('iframe');
+      frame.src = box.dataset.embedSrc;
+      frame.title = box.dataset.embedTitle || '';
+      box.classList.add('loading');
+      frame.addEventListener('load', function () { box.classList.remove('loading'); });
+      box.replaceChildren(frame);
+      box.classList.remove('embed-facade');
+      frame.tabIndex = 0; frame.focus({ preventScroll: true });
+      trackEvent('embed_load', { embed: frame.title });
+    });
+  });
+
   /* ---------- Forms: contact, membership application, newsletter ----------
      With config.formEndpoint set they POST as JSON; otherwise they open a pre-filled email draft. */
   var formEndpoint = config.formEndpoint || '';

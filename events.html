@@ -123,7 +123,15 @@
     <p class="section-sub" style="margin-top:30px;text-align:center" data-en="More activities are added to the chapter calendar throughout the semester — the live embed below always shows the current schedule." data-es="Se agregan más actividades al calendario del capítulo durante el semestre — el calendario en vivo de abajo siempre muestra el horario actual.">More activities are added to the chapter calendar throughout the semester — the live embed below always shows the current schedule.</p>
     <div class="reveal" style="margin-top:60px" id="calendar">
       <h2 class="month-label" data-en="Live calendar" data-es="Calendario en vivo">Live calendar</h2>
-      <div class="embed"><iframe src="https://calendar.google.com/calendar/embed?src=c_8a9abc0be7be501449cb1983c1c28db632aae9ac62fe2d7c57bed1a1c3b64962%40group.calendar.google.com&amp;ctz=America%2FPuerto_Rico" title="AMA UPRM Google Calendar" loading="lazy"></iframe></div>
+      <div class="embed embed-facade" data-embed-src="https://calendar.google.com/calendar/embed?src=c_8a9abc0be7be501449cb1983c1c28db632aae9ac62fe2d7c57bed1a1c3b64962%40group.calendar.google.com&amp;ctz=America%2FPuerto_Rico" data-embed-title="AMA UPRM Google Calendar">
+        <div class="facade-inner">
+          <span class="facade-ico" aria-hidden="true">📅</span>
+          <p data-en="See every confirmed chapter activity in the live Google Calendar." data-es="Mira todas las actividades confirmadas del capítulo en el Google Calendar en vivo.">See every confirmed chapter activity in the live Google Calendar.</p>
+          <button type="button" class="btn btn-green embed-load" data-en="Show live calendar" data-es="Ver calendario en vivo">Show live calendar</button>
+          <p class="embed-note" data-en="Loads content from Google, which may set cookies." data-es="Carga contenido de Google, que puede usar cookies.">Loads content from Google, which may set cookies.</p>
+        </div>
+        <noscript><iframe src="https://calendar.google.com/calendar/embed?src=c_8a9abc0be7be501449cb1983c1c28db632aae9ac62fe2d7c57bed1a1c3b64962%40group.calendar.google.com&amp;ctz=America%2FPuerto_Rico" title="AMA UPRM Google Calendar" loading="lazy"></iframe></noscript>
+      </div>
     </div>
     <div class="reveal" style="margin-top:50px;text-align:center">
       <p class="section-sub" style="margin-bottom:18px" data-en="Prefer your own calendar? Subscribe to our Google Calendar to get every event automatically." data-es="¿Prefieres tu propio calendario? Suscríbete a nuestro Google Calendar para recibir todos los eventos automáticamente.">Prefer your own calendar? Subscribe to our Google Calendar to get every event automatically.</p>
