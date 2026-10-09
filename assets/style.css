@@ -535,3 +535,8 @@ main{animation:pageIn .5s var(--ease)}
   .team-grid .member{width:calc(50% - 12px)}
   .member .ph{max-width:100%}
 }
+
+/* Official logo (wordmark image replaces the "AMA" tile) */
+.logo img{display:block;height:34px;width:auto;max-width:100%}
+footer .logo img{height:40px}
+@media(max-width:560px){.logo img{height:28px}}
