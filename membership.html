@@ -111,13 +111,22 @@
       <div class="accent-line"></div>
     </div>
     <div class="steps stagger">
-      <div class="step"><h3 data-en="Fill out the form" data-es="Llena el formulario">Fill out the form</h3><p data-en="A short Google Form so the Membership team has your info and interests." data-es="Un Google Form corto para que el equipo de Membresía tenga tu información e intereses.">A short Google Form so the Membership team has your info and interests.</p></div>
+      <div class="step"><h3 data-en="Fill out the form" data-es="Llena el formulario">Fill out the form</h3><p data-en="A short form right below so the Membership team has your info and interests." data-es="Un formulario corto aquí abajo para que el equipo de Membresía tenga tu información e intereses.">A short form right below so the Membership team has your info and interests.</p></div>
       <div class="step"><h3 data-en="Choose your payment" data-es="Elige tu pago">Choose your payment</h3><p data-en="One payment or four installments. This semester's dues are announced at kickoff and by email." data-es="Un solo pago o cuatro plazos. La cuota del semestre se anuncia en el kickoff y por correo.">One payment or four installments. This semester's dues are announced at kickoff and by email.</p></div>
       <div class="step"><h3 data-en="Pick a team" data-es="Elige un equipo">Pick a team</h3><p data-en="Tell us your interests; we place you in one of the six teams." data-es="Cuéntanos tus intereses; te ubicamos en uno de los seis equipos.">Tell us your interests; we place you in one of the six teams.</p></div>
       <div class="step"><h3 data-en="Show up" data-es="Participa">Show up</h3><p data-en="Attend kickoff and meet your BIG." data-es="Asiste al kickoff y conoce a tu BIG.">Attend kickoff and meet your BIG.</p></div>
     </div>
     <div style="text-align:center;margin-top:44px" class="reveal">
-            <a href="mailto:kaleb.rios@upr.edu,sara.ribon@upr.edu?subject=Membership application&amp;body=Hi! I'd like to join AMA UPRM. My name is: / My major and year: / A team I'm interested in:" class="btn btn-primary" data-en="Request the membership form" data-es="Solicitar el formulario">Request the membership form</a>
+<form class="join-form" data-ama-form="membership_application" data-mailto="kaleb.rios@upr.edu,sara.ribon@upr.edu" data-subject="Membership application">
+        <h3 data-en="Apply to join" data-es="Solicita unirte">Apply to join</h3>
+        <label><span data-en="Name" data-es="Nombre">Name</span><input type="text" name="name" required autocomplete="name"></label>
+        <label><span data-en="UPR email" data-es="Correo UPR">UPR email</span><input type="email" name="email" required autocomplete="email"></label>
+        <label><span data-en="Major and year" data-es="Concentración y año">Major and year</span><input type="text" name="major_year" required></label>
+        <label><span data-en="Team you are interested in" data-es="Equipo de interés">Team you are interested in</span><input type="text" name="interest"></label>
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn-primary" type="submit" data-en="Submit application" data-es="Enviar solicitud">Submit application</button>
+        <p class="form-status" role="status" aria-live="polite" data-ok-en="Application received! The Membership team will contact you soon." data-ok-es="¡Solicitud recibida! El equipo de Membresía te contactará pronto." data-err-en="Something went wrong. Please email ama@uprm.edu." data-err-es="Algo salió mal. Escríbenos a ama@uprm.edu."></p>
+      </form>
       <p style="font-size:.8rem;color:rgba(255,255,255,.6);margin-top:14px" data-en="Questions: ama@uprm.edu · sara.ribon@upr.edu" data-es="Preguntas: ama@uprm.edu · sara.ribon@upr.edu">Questions: ama@uprm.edu · sara.ribon@upr.edu</p>
     </div>
   </div>
@@ -168,6 +177,15 @@
         <li data-en="College of Business Administration" data-es="Colegio de Administración de Empresas">College of Business Administration</li>
         <li>UPR Mayagüez, PR 00681</li></ul></div>
     </div>
+    <form class="enews" data-ama-form="newsletter_signup" data-mailto="ama@uprm.edu" data-subject="Newsletter signup">
+      <label for="enews-email" data-en="Get chapter news and events" data-es="Recibe noticias y eventos del capítulo">Get chapter news and events</label>
+      <div class="enews-row">
+        <input id="enews-email" type="email" name="email" required autocomplete="email" placeholder="you@email.com" data-en="you@email.com" data-es="tu@correo.com">
+        <button class="btn btn-green btn-sm" type="submit" data-en="Subscribe" data-es="Suscribirme">Subscribe</button>
+      </div>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="form-status" role="status" aria-live="polite" data-ok-en="Thanks! You're on the list." data-ok-es="¡Gracias! Ya estás en la lista." data-err-en="Something went wrong. Please email ama@uprm.edu." data-err-es="Algo salió mal. Escríbenos a ama@uprm.edu."></p>
+    </form>
     <div class="copy"><span>© <span id="year"></span> AMA UPRM Chapter. <span data-en="All rights reserved." data-es="Todos los derechos reservados.">All rights reserved.</span></span><span data-en="Built by the Communications Team" data-es="Hecho por el equipo de Comunicaciones">Built by the Communications Team</span></div>
   </div>
 </footer>

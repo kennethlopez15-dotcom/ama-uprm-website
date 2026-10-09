@@ -544,3 +544,26 @@ footer .logo img{height:40px}
 .doc .btn{white-space:nowrap;flex-shrink:0}
 .doc>div:nth-child(2){flex:1;min-width:0}
 @media(max-width:560px){.doc{flex-wrap:wrap}}
+
+/* Forms: newsletter, membership application, status messages */
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.form-status{font-size:.82rem;min-height:1.2em;margin:0}
+.form-status.ok{color:#2e7d32}
+.form-status.err{color:#b3261e}
+.bg-dark .form-status.ok,footer .form-status.ok{color:#9be3a8}
+.bg-dark .form-status.err,footer .form-status.err{color:#ffb4ab}
+.enews{max-width:460px;margin:0 0 36px}
+.enews label{display:block;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#fff;margin-bottom:10px}
+.enews-row{display:flex;gap:10px}
+.enews input[type=email]{flex:1;min-width:0;font-family:var(--font);font-size:.9rem;padding:11px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff}
+.enews input[type=email]::placeholder{color:rgba(255,255,255,.55)}
+.enews input[type=email]:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.join-form{display:grid;gap:14px;max-width:520px;margin:0 auto;text-align:left}
+.join-form h3{color:#fff;text-align:center;margin-bottom:4px}
+.join-form label{display:grid;gap:6px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.join-form input[type=text],.join-form input[type=email]{font-family:var(--font);font-size:.95rem;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff}
+.join-form input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.join-form .btn{justify-self:center}
+.stats-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.stats-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.enews-row{flex-direction:column}}

@@ -38,7 +38,7 @@
   }
   function setLang(lang, manual) {
     if (lang !== 'en' && lang !== 'es') return;
-    if (manual) { try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} }
+    if (manual) { try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} trackEvent('language_change', { language: lang }); }
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-en]').forEach(function (el) {
       if (!el.dataset.en) el.dataset.en = el.innerHTML; // cache original
@@ -186,14 +186,42 @@
     if (motion.matches && heroC) { heroC.style.transform = ''; heroC.style.opacity = ''; }
   });
 
-  /* Contact opens a reviewable draft in the visitor's mail app. */
-  var contact = document.querySelector('.contact-form[action="mailto:ama@uprm.edu"]');
-  if (contact) contact.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!contact.reportValidity()) return;
-    var fields = new FormData(contact);
-    var body = ['Name: ' + fields.get('name'), 'Email: ' + fields.get('email'), 'I am: ' + fields.get('who'), '', fields.get('message')].join('\n');
-    location.href = 'mailto:ama@uprm.edu?subject=' + encodeURIComponent('AMA UPRM contact') + '&body=' + encodeURIComponent(body);
+  /* ---------- Forms: contact, membership application, newsletter ----------
+     With config.formEndpoint set they POST as JSON; otherwise they open a pre-filled email draft. */
+  var formEndpoint = config.formEndpoint || '';
+  function lang() { return document.documentElement.lang === 'es' ? 'es' : 'en'; }
+  document.querySelectorAll('form[data-ama-form]').forEach(function (form) {
+    var name = form.dataset.amaForm;
+    var status = form.querySelector('.form-status');
+    function say(kind) {
+      if (!status) return;
+      status.textContent = status.dataset[kind + (lang() === 'es' ? 'Es' : 'En')] || '';
+      status.className = 'form-status ' + kind;
+    }
+    if (formEndpoint) document.querySelectorAll('.mailto-note').forEach(function (n) { n.hidden = true; });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      var data = {};
+      new FormData(form).forEach(function (v, k) { data[k] = v; });
+      if (data.website) return; // honeypot: bots fill the hidden field
+      delete data.website;
+      if (formEndpoint) {
+        var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+        fetch(formEndpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ _form: name }, data)) })
+          .then(function (res) {
+            if (!res.ok) throw new Error('bad status');
+            say('ok'); form.reset(); trackEvent(name + '_submit', { method: 'endpoint' });
+          })
+          .catch(function () { say('err'); })
+          .then(function () { if (btn) btn.disabled = false; });
+      } else {
+        var lines = Object.keys(data).map(function (k) { return k + ': ' + data[k]; });
+        location.href = 'mailto:' + form.dataset.mailto + '?subject=' + encodeURIComponent(form.dataset.subject || name) + '&body=' + encodeURIComponent(lines.join('\n'));
+        trackEvent(name + '_submit', { method: 'mailto' });
+        say('ok');
+      }
+    });
   });
 
   /* ---------- FAQ accordion ---------- */
@@ -229,6 +257,12 @@
       trackEvent(a.dataset.analytics === 'event_rsvp_click' ? 'event_rsvp_click' : 'event_calendar_click', {
         event_name: (a.closest('.event').querySelector('h2,h3') || {}).textContent || ''
       });
+    }
+    if (/\.pdf(\?|#|$)/i.test(href)) {
+      trackEvent('resource_download', { file_name: href.split('/').pop().split(/[?#]/)[0] });
+    }
+    if (/^https?:/i.test(href) && href.indexOf(location.hostname) === -1 && /instagram|linkedin|youtube|spotify|facebook/i.test(href)) {
+      trackEvent('social_click', { network: (href.match(/instagram|linkedin|youtube|spotify|facebook/i) || [''])[0].toLowerCase() });
     }
     if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });

@@ -153,7 +153,7 @@
       <div class="card static"><div class="card-icon" aria-hidden="true">🌎</div><h3 data-en="Top 20 Worldwide" data-es="Top 20 Mundial">Top 20 Worldwide</h3><p data-en="Ranked among the Top 20 AMA collegiate chapters internationally." data-es="Entre los 20 mejores capítulos colegiales de AMA a nivel internacional.">Ranked among the Top 20 AMA collegiate chapters internationally.</p></div>
       <div class="card static"><div class="card-icon" aria-hidden="true">🏆</div><h3 data-en="ICC Delegation" data-es="Delegación a ICC">ICC Delegation</h3><p data-en="Represents Puerto Rico each year at AMA's International Collegiate Conference in Chicago." data-es="Representa a Puerto Rico cada año en la International Collegiate Conference de AMA en Chicago.">Represents Puerto Rico each year at AMA's International Collegiate Conference in Chicago.</p></div>
     </div>
-    <p class="section-sub" style="margin-top:22px;font-size:.85rem" data-en="Pending: the specific award categories and placements from each year's ICC results — send us the chapter's award letters or AMA program and we'll list them here by name." data-es="Pendiente: las categorías y posiciones exactas de los resultados de cada ICC — envíanos las cartas de premiación o el programa de AMA y las listamos aquí con su nombre.">Pending: the specific award categories and placements from each year's ICC results — send us the chapter's award letters or AMA program and we'll list them here by name.</p>
+    <p class="section-sub" style="margin-top:22px;font-size:.85rem" data-en="Results by year, including ICC participation and awards, are documented in our annual reports below." data-es="Los resultados de cada año, incluyendo la participación y premios del ICC, están documentados en nuestros reportes anuales abajo.">Results by year, including ICC participation and awards, are documented in our annual reports below.</p>
   </div>
 </section>
 
@@ -189,13 +189,15 @@
       <div class="ph has-img" style="aspect-ratio:16/9;border-radius:var(--radius);margin-bottom:16px" data-bg="url(assets/img/event-real-wide.jpg)" role="img" aria-label="The College of Business Administration (ADEM) building at UPR Mayagüez, home of AMA UPRM"></div>
       <div class="embed map"><iframe src="https://www.google.com/maps?q=Colegio+de+Administraci%C3%B3n+de+Empresas+UPR+Mayag%C3%BCez&amp;output=embed" title="Map — College of Business Administration, UPR Mayagüez" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
     </div>
-    <form class="contact-form reveal-right" action="mailto:ama@uprm.edu" method="post" enctype="text/plain">
+    <form class="contact-form reveal-right" data-ama-form="contact_form" data-mailto="ama@uprm.edu" data-subject="AMA UPRM contact">
       <label><span data-en="Name" data-es="Nombre">Name</span><input type="text" name="name" required></label>
       <label><span data-en="Email" data-es="Correo">Email</span><input type="email" name="email" required></label>
       <label><span data-en="I am a…" data-es="Soy…">I am a…</span><select name="who"><option data-en="Student" data-es="Estudiante">Student</option><option data-en="Business / client" data-es="Negocio / cliente">Business / client</option><option data-en="Sponsor" data-es="Auspiciador">Sponsor</option><option data-en="Alum" data-es="Exalumno">Alum</option><option data-en="Other" data-es="Otro">Other</option></select></label>
       <label><span data-en="Message" data-es="Mensaje">Message</span><textarea name="message" rows="5" required></textarea></label>
-      <button class="btn btn-green" type="submit" data-en="Open email app" data-es="Abrir aplicación de correo">Open email app</button>
-      <p class="form-note" style="color:var(--gray)" data-en="This opens your email app. Review and send the message there, or write directly to ama@uprm.edu." data-es="Se abrirá tu aplicación de correo. Revisa y envía el mensaje allí, o escribe directamente a ama@uprm.edu.">This opens your email app. Review and send the message there, or write directly to ama@uprm.edu.</p>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn btn-green" type="submit" data-en="Send message" data-es="Enviar mensaje">Send message</button>
+      <p class="form-status" role="status" aria-live="polite" data-ok-en="Message sent. We reply within two business days." data-ok-es="Mensaje enviado. Respondemos en dos días laborables." data-err-en="Something went wrong. Please email ama@uprm.edu." data-err-es="Algo salió mal. Escríbenos a ama@uprm.edu."></p>
+      <p class="form-note mailto-note" style="color:var(--gray)" data-en="This opens your email app. Review and send the message there, or write directly to ama@uprm.edu." data-es="Se abrirá tu aplicación de correo. Revisa y envía el mensaje allí, o escribe directamente a ama@uprm.edu.">This opens your email app. Review and send the message there, or write directly to ama@uprm.edu.</p>
     </form>
   </div>
 </section>
@@ -240,6 +242,15 @@
         <li data-en="College of Business Administration" data-es="Colegio de Administración de Empresas">College of Business Administration</li>
         <li>UPR Mayagüez, PR 00681</li></ul></div>
     </div>
+    <form class="enews" data-ama-form="newsletter_signup" data-mailto="ama@uprm.edu" data-subject="Newsletter signup">
+      <label for="enews-email" data-en="Get chapter news and events" data-es="Recibe noticias y eventos del capítulo">Get chapter news and events</label>
+      <div class="enews-row">
+        <input id="enews-email" type="email" name="email" required autocomplete="email" placeholder="you@email.com" data-en="you@email.com" data-es="tu@correo.com">
+        <button class="btn btn-green btn-sm" type="submit" data-en="Subscribe" data-es="Suscribirme">Subscribe</button>
+      </div>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="form-status" role="status" aria-live="polite" data-ok-en="Thanks! You're on the list." data-ok-es="¡Gracias! Ya estás en la lista." data-err-en="Something went wrong. Please email ama@uprm.edu." data-err-es="Algo salió mal. Escríbenos a ama@uprm.edu."></p>
+    </form>
     <div class="copy"><span>© <span id="year"></span> AMA UPRM Chapter. <span data-en="All rights reserved." data-es="Todos los derechos reservados.">All rights reserved.</span></span><span data-en="Built by the Communications Team" data-es="Hecho por el equipo de Comunicaciones">Built by the Communications Team</span></div>
   </div>
 </footer>
