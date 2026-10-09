@@ -36,11 +36,11 @@
     }
     return 'en';
   }
-  function setLang(lang, manual) {
+  function setLang(lang, manual, root) {
     if (lang !== 'en' && lang !== 'es') return;
     if (manual) { try { localStorage.setItem(LANG_KEY, lang); } catch (e) {} trackEvent('language_change', { language: lang }); }
     document.documentElement.lang = lang;
-    document.querySelectorAll('[data-en]').forEach(function (el) {
+    (root || document).querySelectorAll('[data-en]').forEach(function (el) {
       if (!el.dataset.en) el.dataset.en = el.innerHTML; // cache original
       var txt = lang === 'es' ? el.dataset.es : el.dataset.en;
       if (txt !== undefined) {
@@ -52,7 +52,7 @@
       b.classList.toggle('on', b.dataset.lang === lang);
       b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
     });
-    document.querySelectorAll('[data-aria-en]').forEach(function (el) {
+    (root || document).querySelectorAll('[data-aria-en]').forEach(function (el) {
       el.setAttribute('aria-label', lang === 'es' ? el.dataset.ariaEs : el.dataset.ariaEn);
     });
   }
@@ -63,22 +63,46 @@
   document.querySelectorAll('[data-en]').forEach(function (el) {
     if (!el.dataset.en) el.dataset.en = (el.tagName === 'INPUT') ? el.placeholder : el.innerHTML;
   });
-  setLang(getLang());
+  // Pages ship in English: only rewrite the DOM when another language is needed.
+  var startLang = getLang();
+  if (startLang !== 'en') setLang(startLang);
+  else document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === 'en'); b.setAttribute('aria-pressed', String(b.dataset.lang === 'en')); });
 
   /* ---------- Preloader ---------- */
   var pre = document.getElementById('preloader');
   // Script runs after the content. Do not wait for embeds, fonts or a timer.
-  if (pre) { pre.classList.add('done'); pre.setAttribute('aria-hidden', 'true'); }
+  if (pre) {
+    pre.classList.add('done'); pre.setAttribute('aria-hidden', 'true');
+    // Remove it after the fade so its looping spinner stops costing frames.
+    setTimeout(function () { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 800);
+  }
 
   /* ---------- Header + back to top ---------- */
   var header = document.getElementById('header'), toTop = document.getElementById('toTop');
+  // One rAF-throttled scroll handler; DOM is only touched when a state actually changes.
+  var heroC = document.querySelector('.hero-content');
+  var scrolledState = null, topState = null, ticking = false, heroVisible = true;
   function onScroll() {
+    ticking = false;
     var y = window.scrollY;
-    if (header) header.classList.toggle('scrolled', y > 60);
-    if (toTop) toTop.classList.toggle('show', y > 600);
-    if (toTop) { toTop.tabIndex = y > 600 ? 0 : -1; toTop.setAttribute('aria-hidden', String(y <= 600)); }
+    var scrolled = y > 60, showTop = y > 600;
+    if (header && scrolled !== scrolledState) { header.classList.toggle('scrolled', scrolled); scrolledState = scrolled; }
+    if (toTop && showTop !== topState) {
+      toTop.classList.toggle('show', showTop);
+      toTop.tabIndex = showTop ? 0 : -1;
+      toTop.setAttribute('aria-hidden', String(!showTop));
+      topState = showTop;
+    }
+    if (heroC && heroVisible && !motion.matches) {
+      var h = window.innerHeight, k = Math.min(y, h);
+      heroC.style.transform = 'translate3d(0,' + (k * 0.25).toFixed(1) + 'px,0)';
+      heroC.style.opacity = String(Math.max(0, 1 - k / (h * 0.9)).toFixed(3));
+    }
   }
-  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
+  requestAnimationFrame(onScroll);
   if (toTop) toTop.addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: motion.matches ? 'instant' : 'smooth' });
     var main = document.getElementById('main');
@@ -139,7 +163,12 @@
   /* ---------- Scroll reveal ---------- */
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        el.classList.add('visible'); io.unobserve(el);
+        if (el.classList.contains('stagger')) setTimeout(function () { el.classList.add('settled'); }, 1500);
+      });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(function (el) { io.observe(el); });
 
@@ -175,13 +204,14 @@
     document.querySelectorAll('[data-bg]').forEach(function (el) { el.style.backgroundImage = el.dataset.bg; });
   }
 
-  /* ---------- Hero parallax ---------- */
-  var heroC = document.querySelector('.hero-content');
-  if (heroC) window.addEventListener('scroll', function () {
-    if (motion.matches) { heroC.style.transform = ''; heroC.style.opacity = ''; return; }
-    var y = window.scrollY, h = window.innerHeight;
-    if (y < h) { heroC.style.transform = 'translateY(' + (y * 0.25) + 'px)'; heroC.style.opacity = 1 - y / (h * 0.9); }
-  }, { passive: true });
+  /* ---------- Pause decorative hero loops while off screen ---------- */
+  var heroEl = document.querySelector('.hero,.page-hero');
+  if (heroEl && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      heroVisible = entries[0].isIntersecting;
+      heroEl.classList.toggle('hero-off', !heroVisible);
+    }).observe(heroEl);
+  }
   motion.addEventListener('change', function () {
     if (motion.matches && heroC) { heroC.style.transform = ''; heroC.style.opacity = ''; }
   });
@@ -339,7 +369,7 @@
 
   /* Home reads the maintained event list; its HTML fallback links to the calendar. */
   var preview = document.getElementById('home-events');
-  if (preview) fetch('events.html').then(function (res) {
+  function loadPreview() { fetch('events.html').then(function (res) {
     if (!res.ok) throw new Error('Events unavailable'); return res.text();
   }).then(function (html) {
     var source = new DOMParser().parseFromString(html, 'text/html');
@@ -358,8 +388,16 @@
       if (heading) { var h3 = document.createElement('h3'); Array.from(heading.attributes).forEach(function (a) { h3.setAttribute(a.name, a.value); }); h3.innerHTML = heading.innerHTML; heading.replaceWith(h3); }
       preview.appendChild(ev);
     });
-    setLang(document.documentElement.lang);
-  }).catch(function () { /* The visible calendar link remains useful offline/on file://. */ });
+    setLang(document.documentElement.lang, false, preview);
+  }).catch(function () { /* The visible calendar link remains useful offline/on file://. */ }); }
+  if (preview) {
+    if ('IntersectionObserver' in window) {
+      var pio = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) { pio.disconnect(); loadPreview(); }
+      }, { rootMargin: '800px 0px' });
+      pio.observe(preview);
+    } else loadPreview();
+  }
 })();
 
 /* ---------- Audience switcher ---------- */
