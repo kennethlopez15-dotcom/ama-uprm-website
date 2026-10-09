@@ -540,3 +540,7 @@ main{animation:pageIn .5s var(--ease)}
 .logo img{display:block;height:34px;width:auto;max-width:100%}
 footer .logo img{height:40px}
 @media(max-width:560px){.logo img{height:28px}}
+
+.doc .btn{white-space:nowrap;flex-shrink:0}
+.doc>div:nth-child(2){flex:1;min-width:0}
+@media(max-width:560px){.doc{flex-wrap:wrap}}
