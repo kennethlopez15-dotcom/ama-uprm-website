@@ -9,7 +9,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-ORIGIN = 'https://www.amauprm.org'
+ORIGIN = 'https://amauprm.org'
 errors = []
 
 def check(ok, message):
@@ -69,7 +69,7 @@ for name, page in pages.items():
             url = urlsplit(ref)
             if url.scheme and not ref.startswith(ORIGIN + '/'):
                 continue
-            if url.netloc and url.netloc != 'www.amauprm.org': continue
+            if url.netloc and url.netloc != 'amauprm.org': continue
             target = unquote(url.path).lstrip('/') or name
             if ref == ORIGIN + '/': target = 'index.html'
             if target.endswith('/'): target += 'index.html'
@@ -86,7 +86,7 @@ for name, page in pages.items():
             for item in items:
                 check('@type' in item and '@context' in item, f'{name}: incomplete JSON-LD')
                 if item.get('@type') == 'Organization':
-                    check(item['logo'].endswith('/assets/img/logo-full.png'), f'{name}: wrong organization logo')
+                    check(item['logo'].endswith('/assets/img/ama-uprm-logo-schema.png'), f'{name}: wrong organization logo')
         except (ValueError, KeyError) as e: errors.append(f'{name}: invalid JSON-LD: {e}')
 
 navs = {re.search(r'<nav\b.*?</nav>',s,re.S)[0] for s in texts.values()}
@@ -103,7 +103,9 @@ expected = {ORIGIN+('/' if name=='index.html' else '/'+name) for name in texts i
 check(set(urls) == expected and len(urls)==len(expected), 'Sitemap mismatch')
 robots=(ROOT/'robots.txt').read_text(encoding='utf-8')
 check('Disallow: /' not in robots and ORIGIN+'/sitemap.xml' in robots, 'robots.txt blocks site or has wrong sitemap')
-check(len(pages['events.html'].select('div', **{'class':'event'})) == 8, 'The eight existing official events must remain')
+official = {'e-business-plan','e-beer-pong','e-panel-icc','e-team-spirit','e-bl-activity','e-sunset-beach','e-pitch','e-job-fair'}
+event_ids = {e.get('id') for e in pages['events.html'].select('div', **{'class':'event'})}
+check(official <= event_ids, 'The eight existing official events must remain')
 check(not list(ROOT.glob('assets/*.pdf')), 'Unexpected PDF: verify it is not a restored placeholder')
 
 if errors:

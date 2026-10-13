@@ -520,7 +520,8 @@ main{animation:pageIn .5s var(--ease)}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap;border:0}
 .stat strong .counter-value{display:inline;font:inherit;color:inherit;letter-spacing:inherit;margin:0}
 .article-more h2{font-family:var(--serif);font-size:1.5rem;margin-bottom:22px;color:var(--green-dark)}
-.insta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.insta-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1024px){.insta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:1200px){
   nav{height:100dvh;max-height:100dvh}
   .event .completed-tag{grid-column:2}
