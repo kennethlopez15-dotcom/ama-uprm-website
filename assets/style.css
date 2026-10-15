@@ -2,6 +2,9 @@
    AMA UPRM — shared stylesheet
    Edit brand tokens below to match official colors.
    =================================================== */
+/* Self-hosted variable fonts (latin subset covers English and Spanish). */
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/montserrat-latin.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:600 700;font-display:swap;src:url(fonts/playfair-display-latin.woff2) format('woff2')}
 :root{
   /* Base: AMA central brand (French Navy, Bone White). Details: AMA UPRM 2026–27 palette */
   --green:#8E1825;        /* Cherry Red (chapter) — primary accent: buttons, links, tags */
@@ -129,14 +132,16 @@ nav li:hover .dropdown,nav li:focus-within .dropdown{opacity:1;visibility:visibl
 @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-30px) rotate(12deg)}}
 .hero-content{position:relative;z-index:2;max-width:760px;padding:140px 0 80px}
 .hero .eyebrow{opacity:0;animation:fadeUp .9s var(--ease) .3s forwards}
-.hero h1{font-family:var(--serif);font-size:clamp(2.6rem,6.5vw,5rem);line-height:1.05;margin:6px 0 22px;opacity:0;animation:fadeUp 1s var(--ease) .5s forwards}
+.hero h1{font-family:var(--serif);font-size:clamp(2.6rem,6.5vw,5rem);line-height:1.05;margin:6px 0 22px;animation:riseIn 1s var(--ease) both}
 .hero h1 em{font-style:normal;color:var(--gold)}
-.hero p.lead{font-size:1.15rem;color:rgba(255,255,255,.85);max-width:560px;margin-bottom:32px;opacity:0;animation:fadeUp 1s var(--ease) .7s forwards}
+.hero p.lead{font-size:1.15rem;color:rgba(255,255,255,.85);max-width:560px;margin-bottom:32px;animation:riseIn 1s var(--ease) .1s both}
 .hero-btns{display:flex;gap:14px;flex-wrap:wrap;opacity:0;animation:fadeUp 1s var(--ease) .9s forwards}
 .hero-proof{display:flex;gap:36px;margin-top:54px;flex-wrap:wrap;opacity:0;animation:fadeUp 1s var(--ease) 1.1s forwards}
 .hero-proof div strong{display:block;font-family:var(--serif);font-size:2rem;color:var(--gold);line-height:1}
 .hero-proof div span{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+/* Headline text stays visible from the first frame (fast LCP); it only slides into place. */
+@keyframes riseIn{from{transform:translateY(24px)}to{transform:none}}
 .scroll-hint{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:2;width:26px;height:42px;border:2px solid rgba(255,255,255,.5);border-radius:14px;opacity:0;animation:fadeUp 1s 1.4s forwards}
 .scroll-hint::before{content:'';position:absolute;top:8px;left:50%;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:wheel 1.8s ease-in-out infinite}
 @keyframes wheel{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(16px)}}
@@ -145,8 +150,8 @@ nav li:hover .dropdown,nav li:focus-within .dropdown{opacity:1;visibility:visibl
 .page-hero{padding:170px 0 90px;background:linear-gradient(160deg,#141f36,#1f304f 60%,#8E1825 170%);color:#fff;position:relative;overflow:hidden}
 .page-hero::after{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(255,237,173,.25),transparent 70%);top:-250px;right:-150px;animation:float 12s ease-in-out infinite}
 .page-hero .container{position:relative;z-index:1}
-.page-hero h1{font-family:var(--serif);font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;margin-bottom:16px;opacity:0;animation:fadeUp .9s var(--ease) .2s forwards}
-.page-hero p{max-width:620px;font-size:1.1rem;color:rgba(255,255,255,.85);opacity:0;animation:fadeUp .9s var(--ease) .4s forwards}
+.page-hero h1{font-family:var(--serif);font-size:clamp(2.4rem,5vw,4rem);line-height:1.1;margin-bottom:16px;animation:riseIn .9s var(--ease) both}
+.page-hero p{max-width:620px;font-size:1.1rem;color:rgba(255,255,255,.85);animation:riseIn .9s var(--ease) .1s both}
 .page-hero .eyebrow{opacity:0;animation:fadeUp .9s var(--ease) .1s forwards}
 .breadcrumb{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:14px}
 .breadcrumb a:hover{color:var(--gold)}
@@ -250,6 +255,10 @@ nav li:hover .dropdown,nav li:focus-within .dropdown{opacity:1;visibility:visibl
 .case .ph{border-radius:0;aspect-ratio:16/10;transition:transform .8s var(--ease)}
 .case:not(.static):hover .ph{transform:scale(1.05)}
 .case-img{overflow:hidden}
+.logo-panel{aspect-ratio:16/10;display:grid;place-items:center;padding:8% 12%;background:#fff;border-bottom:1px solid #eee}
+.logo-panel img{width:100%;height:100%;object-fit:contain;transition:transform .8s var(--ease)}
+.case:not(.static):hover .logo-panel img{transform:scale(1.04)}
+.logo-panel.wide{aspect-ratio:16/9;border:1px solid #eee;border-radius:var(--radius)}
 .case-body{padding:26px}
 .tag{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--green);font-weight:700}
 .case h3{font-size:1.15rem;margin:8px 0 10px;color:var(--green-dark)}
@@ -454,9 +463,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .hero-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.55}
 .hero-bg,.hero-grid,.shape{z-index:0}
 .hero .hero-grid{z-index:1}
-#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--gold);z-index:1500;transition:width .1s linear}
+#progress{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--gold);z-index:1500;transform:scaleX(0);transform-origin:0 50%;will-change:transform}
 main{animation:pageIn .5s var(--ease)}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pageIn{from{transform:translateY(8px)}to{transform:none}}
 @media(max-width:900px){
   .hero{min-height:100svh}
   .hero h1{font-size:clamp(2.2rem,9vw,3.4rem)}

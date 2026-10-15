@@ -11,7 +11,9 @@ calendario porque el navegador puede bloquear la lectura de `events.html`.
   es el nombre heredado del rojo de marca, no una indicación de color verde.
 - assets/main.js — animaciones, menú, toggle EN/ES, FAQ, filtros.
 - assets/config.js — configuración pública única para analytics, sin secretos.
-- blog-post.html, case.html y 404.html — artículo ICC, caso ilustrativo y error.
+- blog-post.html y 404.html — artículo ICC y error.
+- case-ppm.html y case-cancer-relief.html — proyectos reales de ELEVATE.
+- case.html — caso ilustrativo antiguo; ya no se enlaza desde ELEVATE (candidato a borrar).
 - docs/integration-audit.md — auditoría de los 40 apartados, evidencia y plan.
 - scripts/validate.py y scripts/browser_checks.py — validación estática y pruebas de navegador.
 - Los PDFs placeholder (Chapter Plan, Annual Report, deck de auspicio) se eliminaron: contenían literalmente el texto "placeholder, replace this file" y un juez podía descargarlos. Los botones que los enlazaban ahora dicen "Coming soon" o piden el documento por correo. Cuando haya PDFs reales, subirlos a `assets/` con esos mismos nombres y volver a enlazarlos en about.html, sponsors.html y membership.html.
@@ -34,8 +36,8 @@ elemento traducible: el contenido se sustituye con `innerHTML`.
 - Logos de sponsors: `.logo-box` → `<a href><img></a>`.
 - Instagram: las dos imágenes reales enlazan al perfil oficial; faltan URLs de posts.
 - Auspicios: publicar montos y beneficios únicamente con el deck aprobado.
-- Casos: `case.html` y las tarjetas de ELEVATE son ejemplos ilustrativos; no
-  reportar sus cifras como resultados reales. Los testimonios quedan pendientes.
+- Casos: las tarjetas de ELEVATE muestran proyectos reales (PPM y Caribbean Cancer Care Services),
+  sin cifras de resultados inventadas. Faltan fotos reales y enlaces a los videos. Los testimonios quedan pendientes.
 - Las cifras institucionales se conservaron. Confirmar su vigencia con la junta
   antes de publicar cambios de semestre.
 - El formulario de contacto abre una aplicación de correo; el usuario debe

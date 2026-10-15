@@ -11,10 +11,20 @@
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
     window.gtag('js', new Date());
     window.gtag('config', analyticsId);
-    var analytics = document.createElement('script');
-    analytics.async = true;
-    analytics.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(analyticsId);
-    document.head.appendChild(analytics);
+    // gtag.js is ~176 KB and blocks the main thread while it runs, so fetch it once the
+    // page has loaded and the browser is idle. Calls made earlier wait in dataLayer.
+    var loadAnalytics = function () {
+      var analytics = document.createElement('script');
+      analytics.async = true;
+      analytics.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(analyticsId);
+      document.head.appendChild(analytics);
+    };
+    var whenIdle = function () {
+      if ('requestIdleCallback' in window) requestIdleCallback(loadAnalytics, { timeout: 3000 });
+      else setTimeout(loadAnalytics, 1500);
+    };
+    if (document.readyState === 'complete') whenIdle();
+    else window.addEventListener('load', whenIdle, { once: true });
   }
 
   /* ---------- KPI tracking (Strategic Alignment & Performance) ---------- */
@@ -446,6 +456,12 @@
 /* ---------- Scroll progress bar ---------- */
 (function(){
   var bar=document.getElementById('progress'); if(!bar) return;
-  function upd(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;bar.style.width=(max>0?(d.scrollTop/max)*100:0)+'%';}
-  window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();
+  // Scale on the compositor instead of animating width, and only re-measure the page on resize/load.
+  var max=0, queued=false;
+  function measure(){var d=document.documentElement;max=d.scrollHeight-d.clientHeight;draw();}
+  function draw(){queued=false;bar.style.transform='scaleX('+(max>0?Math.min(window.scrollY/max,1):0)+')';}
+  window.addEventListener('scroll',function(){if(!queued){queued=true;requestAnimationFrame(draw);}},{passive:true});
+  window.addEventListener('resize',measure); window.addEventListener('load',measure);
+  if('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+  measure();
 })();
