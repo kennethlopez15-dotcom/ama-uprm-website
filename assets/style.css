@@ -504,7 +504,8 @@ main{animation:pageIn .5s var(--ease)}
 .ph.has-img{background-size:cover;background-position:center;color:transparent;font-size:0}
 .ph.has-img::after{background:linear-gradient(to top,rgba(20,31,54,.35),transparent 60%)}
 /* Wide photo strip above a section's cards */
-.photo-band{aspect-ratio:21/8;margin:0 0 40px}
+.photo-band{position:relative;overflow:hidden;border-radius:var(--radius);aspect-ratio:21/8;margin:0 0 40px}
+.photo-band img{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .photo-band.slim{aspect-ratio:3/1}
 @media(max-width:700px){.photo-band,.photo-band.slim{aspect-ratio:16/10;margin-bottom:28px}}
 .member .ph.has-img::after{display:none}
