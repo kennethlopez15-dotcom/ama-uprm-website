@@ -32,6 +32,15 @@
     if (analyticsEnabled && typeof window.gtag === 'function') window.gtag('event', name, params || {});
   }
 
+  /* data-bg may use image-set() for sharp screens; browsers without it get the first (1x) url. */
+  function bgValue(el) {
+    var v = el.dataset.bg;
+    if (v.indexOf('image-set(') === 0 && !(window.CSS && CSS.supports && CSS.supports('background-image', v))) {
+      v = (v.match(/url\([^)]*\)/) || [v])[0];
+    }
+    return v;
+  }
+
   /* ---------- Language: saved manual choice, browser preferences, EN fallback ---------- */
   var LANG_KEY = 'ama-lang';
   function getLang() {
@@ -204,14 +213,14 @@
     var bgIo = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
-        e.target.style.backgroundImage = e.target.dataset.bg;
+        e.target.style.backgroundImage = bgValue(e.target);
         bgIo.unobserve(e.target);
       });
     }, { rootMargin: '300px 0px' });
     document.querySelectorAll('[data-bg]').forEach(function (el) { bgIo.observe(el); });
   } else {
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(function (el) { el.classList.add('visible'); });
-    document.querySelectorAll('[data-bg]').forEach(function (el) { el.style.backgroundImage = el.dataset.bg; });
+    document.querySelectorAll('[data-bg]').forEach(function (el) { el.style.backgroundImage = bgValue(el); });
   }
 
   /* ---------- Pause decorative hero loops while off screen ---------- */

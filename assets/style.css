@@ -503,6 +503,10 @@ main{animation:pageIn .5s var(--ease)}
 /* ---------- Images ---------- */
 .ph.has-img{background-size:cover;background-position:center;color:transparent;font-size:0}
 .ph.has-img::after{background:linear-gradient(to top,rgba(20,31,54,.35),transparent 60%)}
+/* Wide photo strip above a section's cards */
+.photo-band{aspect-ratio:21/8;margin:0 0 40px}
+.photo-band.slim{aspect-ratio:3/1}
+@media(max-width:700px){.photo-band,.photo-band.slim{aspect-ratio:16/10;margin-bottom:28px}}
 .member .ph.has-img::after{display:none}
 .logo-box img{width:78%;height:auto;max-height:70%;object-fit:contain;opacity:.9;transition:opacity .3s}
 .logo-box:hover img{opacity:1}
