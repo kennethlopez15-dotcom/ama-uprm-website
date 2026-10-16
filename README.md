@@ -13,7 +13,6 @@ calendario porque el navegador puede bloquear la lectura de `events.html`.
 - assets/config.js — configuración pública única para analytics, sin secretos.
 - blog-post.html y 404.html — artículo ICC y error.
 - case-ppm.html y case-cancer-relief.html — proyectos reales de ELEVATE.
-- case.html — caso ilustrativo antiguo; ya no se enlaza desde ELEVATE (candidato a borrar).
 - docs/integration-audit.md — auditoría de los 40 apartados, evidencia y plan.
 - scripts/validate.py y scripts/browser_checks.py — validación estática y pruebas de navegador.
 - Los PDFs placeholder (Chapter Plan, Annual Report, deck de auspicio) se eliminaron: contenían literalmente el texto "placeholder, replace this file" y un juez podía descargarlos. Los botones que los enlazaban ahora dicen "Coming soon" o piden el documento por correo. Cuando haya PDFs reales, subirlos a `assets/` con esos mismos nombres y volver a enlazarlos en about.html, sponsors.html y membership.html.

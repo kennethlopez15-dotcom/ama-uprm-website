@@ -91,7 +91,7 @@ try:
                             if lang == 'es' and zoom in [1,.5,2,4]:
                                 page.screenshot(path=str(out/f'real-zoom-{round(zoom*100)}.png'))
                         count += 1
-                    print(f'PASS: {lang}, actual browser zoom {zoom*100:g}%, all 13 pages', flush=True)
+                    print(f'PASS: {lang}, actual browser zoom {zoom*100:g}%, all {len(list(ROOT.glob("*.html")))} pages', flush=True)
             assert not errors, errors
             print(f'PASS: {count} real browser zoom/page/language combinations; stable zoom-out composition, readable content, menus and no runtime errors.', flush=True)
         finally:
