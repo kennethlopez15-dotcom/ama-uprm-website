@@ -97,3 +97,10 @@ simula el resultado cambiando únicamente el viewport. Verifica que al alejar
 se conserven el ancho del contenido, la tipografía y las columnas, y que al
 acercar no se corten textos ni se solapen el logo y la navegación. Guarda
 capturas en `.validation/` y elimina el perfil y la extensión temporales.
+
+En móviles, `assets/mobile-zoom.js` cancela los gestos que intentarían bajar
+de escala 1, manteniendo el acercamiento y el retorno desde una vista ampliada.
+Incluye los eventos de gestos de Safari, que ignora `minimum-scale` del viewport.
+`python scripts/mobile_zoom_checks.py` comprueba la cancelación con eventos
+sintéticos en las 13 páginas; no sustituye una prueba física en Safari de iPhone.
+El script no controla el zoom del menú de Safari ni los ajustes del sistema.
