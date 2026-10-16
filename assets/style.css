@@ -24,9 +24,9 @@
   --radius:18px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:clip}
 [hidden]{display:none!important}
-body{font-family:var(--font);color:var(--ink);background:var(--white);line-height:1.65;overflow-x:hidden}
+body{font-family:var(--font);color:var(--ink);background:var(--white);line-height:1.65;overflow-x:hidden;overflow-x:clip}
 p,li,blockquote,.section-sub,.card p,.event p,.meet p,.step p,.quote p,.post p,.case p,.aud-panel p,.article-body,.pkg li,.checks li,.faq .a{font-family:var(--font-body)}
 p,.section-sub{font-size:1.02rem}
 img{max-width:100%;display:block}
@@ -162,6 +162,8 @@ nav li:hover .dropdown,nav li:focus-within .dropdown{opacity:1;visibility:visibl
 .reveal-left{opacity:0;transform:translateX(-60px);transition:transform .9s var(--ease),opacity .9s var(--ease),box-shadow .9s var(--ease),background-color .9s var(--ease),border-color .9s var(--ease),color .9s var(--ease)}
 .reveal-right{opacity:0;transform:translateX(60px);transition:transform .9s var(--ease),opacity .9s var(--ease),box-shadow .9s var(--ease),background-color .9s var(--ease),border-color .9s var(--ease),color .9s var(--ease)}
 .reveal-left.visible,.reveal-right.visible{opacity:1;transform:none}
+/* Phones: rise instead of sliding in from the side, so nothing sits past the screen edge (iOS Safari zoom-out). */
+@media(max-width:900px){.reveal-left,.reveal-right{transform:translateY(30px)}.reveal-left.visible,.reveal-right.visible{transform:none}}
 .stagger>*{opacity:0;transform:translateY(30px);transition:transform .7s var(--ease),opacity .7s var(--ease),box-shadow .7s var(--ease),background-color .7s var(--ease),border-color .7s var(--ease),color .7s var(--ease)}
 .stagger.visible>*{opacity:1;transform:none}
 .stagger.visible>*:nth-child(1){transition-delay:.05s}
@@ -379,8 +381,8 @@ footer li a:hover{color:var(--gold);transform:translateX(6px)}
 }
 @media(max-width:1200px){
   .burger{display:flex}
-  nav{position:fixed;top:0;right:-100%;width:min(340px,88%);height:100vh;background:var(--green-dark);padding:100px 30px 40px;transition:right .45s var(--ease);box-shadow:-10px 0 40px rgba(0,0,0,.3);overflow-y:auto}
-  nav.open{right:0}
+  nav{position:fixed;top:0;right:0;transform:translateX(100%);width:min(340px,88%);height:100vh;background:var(--green-dark);padding:100px 30px 40px;transition:transform .45s var(--ease),visibility .45s;box-shadow:-10px 0 40px rgba(0,0,0,.3);overflow-y:auto}
+  nav.open{transform:none}
   nav ul{flex-direction:column;gap:2px;align-items:stretch}
   nav li>a{font-size:.85rem;padding:12px 10px}
   .dropdown{position:static;opacity:1;visibility:visible;transform:none;background:transparent;box-shadow:none;padding:0 0 8px 16px}
