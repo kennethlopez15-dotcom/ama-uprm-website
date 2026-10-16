@@ -8,8 +8,16 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from threading import Thread
 import json
 import re
+import argparse
 import html5lib
 from playwright.sync_api import sync_playwright, expect
+from responsive_checks import run_responsive_checks
+
+cli = argparse.ArgumentParser(description=__doc__)
+cli.add_argument('--browser', choices=['edge', 'chromium', 'firefox', 'webkit'], default='edge')
+cli.add_argument('--responsive-only', action='store_true')
+cli.add_argument('--quick', action='store_true', help='Use a smaller responsive matrix for diagnosis')
+args = cli.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -38,7 +46,12 @@ try:
         assert not parser.errors, (file.name, parser.errors)
     passed('HTML5 parser: all pages')
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(channel='msedge', headless=True)
+        engine = getattr(pw, 'chromium' if args.browser == 'edge' else args.browser)
+        browser = engine.launch(headless=True, **({'channel':'msedge'} if args.browser == 'edge' else {}))
+        run_responsive_checks(browser, base, ROOT, args.browser, args.quick)
+        if args.responsive_only:
+            browser.close()
+            raise SystemExit(0)
         context = browser.new_context(locale='es-PR', viewport={'width':1440,'height':900}, reduced_motion='reduce')
         context.route('**/*', intercept)
         context.route('**/assets/config.js', lambda r:r.fulfill(content_type='application/javascript', body="window.AMA_CONFIG={analyticsId:''};"))
@@ -95,6 +108,7 @@ try:
         expect(page.locator('[data-aud=student][role=tab]')).to_be_focused()
         passed('Audience tab roles and arrow/Home/End navigation')
         page.set_viewport_size({'width':390,'height':844})
+        assert not page.locator('#nav .dropdown a').first.evaluate('e=>{e.focus();return document.activeElement===e}'), 'Closed mobile submenu must not take focus'
         burger = page.locator('#burger'); burger.click()
         expect(burger).to_have_attribute('aria-expanded','true')
         assert page.evaluate("document.body.classList.contains('menu-open')")
@@ -181,7 +195,7 @@ try:
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_rsvp_click').length")==0
         passed('Mocked calendar click tracking with analytics enabled')
         ctx.close()
-        out=ROOT/'.validation'; out.mkdir(exist_ok=True)
+        out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')
         for file,width in [('index.html',1440),('index.html',390),('events.html',390),('membership.html',390)]:

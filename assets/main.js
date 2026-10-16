@@ -3,6 +3,7 @@
   'use strict';
 
   var config = window.AMA_CONFIG || {};
+  var refreshNavigation = function () {};
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var analyticsId = config.analyticsId || '';
   var analyticsEnabled = /^G-[A-Z0-9]+$/.test(analyticsId) && !/X{5,}/.test(analyticsId);
@@ -74,6 +75,7 @@
     (root || document).querySelectorAll('[data-aria-en]').forEach(function (el) {
       el.setAttribute('aria-label', lang === 'es' ? el.dataset.ariaEs : el.dataset.ariaEn);
     });
+    refreshNavigation();
   }
   document.querySelectorAll('.lang button').forEach(function (b) {
     b.addEventListener('click', function () { setLang(b.dataset.lang, true); });
@@ -100,11 +102,12 @@
   var header = document.getElementById('header'), toTop = document.getElementById('toTop');
   // One rAF-throttled scroll handler; DOM is only touched when a state actually changes.
   var heroC = document.querySelector('.hero-content');
+  var embedsInView = new Set();
   var scrolledState = null, topState = null, ticking = false, heroVisible = true;
   function onScroll() {
     ticking = false;
     var y = window.scrollY;
-    var scrolled = y > 60, showTop = y > 600;
+    var scrolled = y > 60, showTop = y > 600 && embedsInView.size === 0;
     if (header && scrolled !== scrolledState) { header.classList.toggle('scrolled', scrolled); scrolledState = scrolled; }
     if (toTop && showTop !== topState) {
       toTop.classList.toggle('show', showTop);
@@ -124,6 +127,16 @@
   window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
   window.addEventListener('resize', scheduleScrollUpdate);
   requestAnimationFrame(onScroll);
+  if ('IntersectionObserver' in window && document.querySelector('.embed')) {
+    var embedObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) embedsInView.add(entry.target);
+        else embedsInView.delete(entry.target);
+      });
+      requestAnimationFrame(onScroll);
+    });
+    document.querySelectorAll('.embed').forEach(function (embed) { embedObserver.observe(embed); });
+  }
   if (toTop) toTop.addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: motion.matches ? 'instant' : 'smooth' });
     var main = document.getElementById('main');
@@ -134,15 +147,33 @@
   var burger = document.getElementById('burger'), nav = document.getElementById('nav');
   if (burger && nav) {
     var mobile = window.matchMedia('(max-width: 1200px)');
+    function compactMenu() { return mobile.matches || header.classList.contains('compact-nav'); }
+    // Text enlargement and loaded fonts can exhaust the desktop row even when
+    // the viewport is wider than the normal 1200px breakpoint.
+    var navSignature = '';
+    function fitNavigation() {
+      var container = header.querySelector('.container'), logo = header.querySelector('.logo');
+      var signature = container.clientWidth + ':' + getComputedStyle(logo).fontSize + ':' + getComputedStyle(nav.querySelector('a')).fontSize + ':' + nav.textContent;
+      if (signature === navSignature) return;
+      navSignature = signature;
+      var wasCompact = header.classList.contains('compact-nav');
+      header.classList.remove('compact-nav');
+      var crowded = !mobile.matches && logo.getBoundingClientRect().width + nav.scrollWidth + 20 > container.clientWidth;
+      header.classList.toggle('compact-nav', crowded);
+      if (wasCompact !== crowded) closeMenu(nav.contains(document.activeElement));
+      nav.inert = compactMenu() && !nav.classList.contains('open');
+    }
     function closeMenu(restoreFocus) {
       burger.classList.remove('open'); nav.classList.remove('open');
       burger.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('menu-open');
+      nav.inert = compactMenu();
       if (restoreFocus) burger.focus();
     }
     burger.addEventListener('click', function () {
       if (nav.classList.contains('open')) return closeMenu(true);
       burger.classList.add('open'); nav.classList.add('open');
+      nav.inert = false;
       burger.setAttribute('aria-expanded', 'true');
       document.body.classList.add('menu-open');
       nav.querySelector('a').focus();
@@ -160,7 +191,7 @@
       if (nav.classList.contains('open') && !nav.contains(e.target) && !burger.contains(e.target)) closeMenu(true);
     });
     document.addEventListener('keydown', function (e) {
-      if (!mobile.matches || !nav.classList.contains('open')) return;
+      if (!compactMenu() || !nav.classList.contains('open')) return;
       if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); }
       if (e.key === 'Tab') {
         var links = Array.from(nav.querySelectorAll('a,button')).filter(function (el) { return !el.disabled; });
@@ -172,6 +203,16 @@
       }
     });
     mobile.addEventListener('change', function () { closeMenu(nav.contains(document.activeElement) && mobile.matches); });
+    refreshNavigation = fitNavigation;
+    fitNavigation();
+    window.addEventListener('resize', fitNavigation);
+    // Defer layout writes until after observer delivery (not inside its loop).
+    if (window.ResizeObserver) new ResizeObserver(function () { requestAnimationFrame(fitNavigation); }).observe(header);
+    if (document.fonts && document.fonts.ready) {
+      var fontsChanged = function () { navSignature = ''; fitNavigation(); };
+      document.fonts.ready.then(fontsChanged);
+      document.fonts.addEventListener('loadingdone', fontsChanged);
+    }
   }
 
   /* ---------- Active nav item ---------- */

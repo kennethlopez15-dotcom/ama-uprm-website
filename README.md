@@ -88,18 +88,3 @@ interceptan servicios externos, comprueban ambas lenguas a 320, 390, 768, 1024 y
 1440 px y guardan capturas en `.validation/` (ignorado por Git). No envían correos.
 Para evaluar fuentes y embeds reales, hacer también una revisión con red;
 la suite aislada no certifica disponibilidad de servicios externos.
-
-Zoom real del navegador: `python scripts/zoom_checks.py`. Comprueba las 13
-páginas en EN/ES al 50, 67, 80, 100, 125, 150, 200, 300 y 400 % con Edge.
-Una extensión temporal aplica el zoom de la pestaña; no usa `zoom` de CSS ni
-simula el resultado cambiando únicamente el viewport. Verifica que al alejar
-se conserven el ancho del contenido, la tipografía y las columnas, y que al
-acercar no se corten textos ni se solapen el logo y la navegación. Guarda
-capturas en `.validation/` y elimina el perfil y la extensión temporales.
-
-En móviles, `assets/mobile-zoom.js` cancela los gestos que intentarían bajar
-de escala 1, manteniendo el acercamiento y el retorno desde una vista ampliada.
-Incluye los eventos de gestos de Safari, que ignora `minimum-scale` del viewport.
-`python scripts/mobile_zoom_checks.py` comprueba la cancelación con eventos
-sintéticos en las 13 páginas; no sustituye una prueba física en Safari de iPhone.
-El script no controla el zoom del menú de Safari ni los ajustes del sistema.

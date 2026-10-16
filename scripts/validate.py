@@ -56,6 +56,12 @@ for name, page in pages.items():
         if tag == 'a' and attrs.get('target') == '_blank':
             check('noopener' in attrs.get('rel', ''), f'{name}: unsafe new tab')
         refs = [attrs[k] for k in ('href', 'src') if attrs.get(k)]
+        if tag == 'img' and attrs.get('srcset'):
+            candidates = [candidate.strip().split() for candidate in attrs['srcset'].split(',')]
+            check(all(len(c) == 2 and re.fullmatch(r'\d+w', c[1]) for c in candidates), f'{name}: malformed srcset')
+            refs += [candidate[0] for candidate in candidates if candidate]
+            check(bool(attrs.get('sizes')), f'{name}: responsive image missing sizes')
+            check(bool(attrs.get('width')) and bool(attrs.get('height')), f'{name}: responsive image missing intrinsic dimensions')
         for key in ('data-bg', 'style'):
             refs += re.findall(r'url\([\'\"]?([^\)\'\"]+)', attrs.get(key,''))
         if tag == 'meta' and attrs.get('property', attrs.get('name','')) in ('og:image','twitter:image'):
