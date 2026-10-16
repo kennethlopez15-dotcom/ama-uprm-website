@@ -32,7 +32,7 @@ def translate(page, lang):
     expect(page.locator('html')).to_have_attribute('lang', lang)
 
 try:
-    for file in ROOT.glob('*.html'):
+    for file in (p for p in ROOT.glob('*.html') if not p.name.startswith('google')):
         parser = html5lib.HTMLParser()
         parser.parse(file.read_text(encoding='utf-8'))
         assert not parser.errors, (file.name, parser.errors)
@@ -115,7 +115,7 @@ try:
         passed('Mobile menu focus, Escape, link navigation, resize and keyboard dropdown')
         for width in (320,390,768,1024,1440):
             page.set_viewport_size({'width':width,'height':900})
-            for file in sorted(ROOT.glob('*.html')):
+            for file in sorted((p for p in ROOT.glob('*.html') if not p.name.startswith('google'))):
                 page.goto(base+file.name)
                 for lang in ('es','en'):
                     translate(page,lang)

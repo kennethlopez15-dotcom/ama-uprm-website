@@ -58,7 +58,7 @@ try:
                         return await chrome.tabs.getZoom(tab.id);
                     }''', zoom)
                     assert abs(actual-zoom) < .001, (zoom, actual)
-                    for file in sorted(ROOT.glob('*.html')):
+                    for file in sorted((p for p in ROOT.glob('*.html') if not p.name.startswith('google'))):
                         label = (lang, zoom, file.name)
                         page.goto(base+file.name, wait_until='domcontentloaded')
                         page.evaluate('document.fonts.ready')
@@ -91,7 +91,7 @@ try:
                             if lang == 'es' and zoom in [1,.5,2,4]:
                                 page.screenshot(path=str(out/f'real-zoom-{round(zoom*100)}.png'))
                         count += 1
-                    print(f'PASS: {lang}, actual browser zoom {zoom*100:g}%, all {len(list(ROOT.glob("*.html")))} pages', flush=True)
+                    print(f'PASS: {lang}, actual browser zoom {zoom*100:g}%, all {sum(1 for p in ROOT.glob("*.html") if not p.name.startswith("google"))} pages', flush=True)
             assert not errors, errors
             print(f'PASS: {count} real browser zoom/page/language combinations; stable zoom-out composition, readable content, menus and no runtime errors.', flush=True)
         finally:

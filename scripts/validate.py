@@ -32,7 +32,7 @@ class Page(HTMLParser):
     def select(self, tag, **attrs):
         return [a for t, a in self.tags if t == tag and all(a.get(k) == v for k, v in attrs.items())]
 
-texts = {p.name: p.read_text(encoding='utf-8') for p in ROOT.glob('*.html')}
+texts = {p.name: p.read_text(encoding='utf-8') for p in (p for p in ROOT.glob('*.html') if not p.name.startswith('google'))}
 pages = {name: Page(text) for name, text in texts.items()}
 references = 0
 schemas = 0

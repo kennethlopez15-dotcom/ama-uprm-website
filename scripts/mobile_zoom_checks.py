@@ -21,7 +21,7 @@ try:
         page=context.new_page()
         errors=[]
         page.on('pageerror',lambda e:errors.append(str(e)))
-        for file in sorted(ROOT.glob('*.html')):
+        for file in sorted((p for p in ROOT.glob('*.html') if not p.name.startswith('google'))):
             page.goto(base+file.name,wait_until='domcontentloaded')
             results=page.evaluate('''() => {
                 let scale=1;
