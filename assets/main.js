@@ -118,9 +118,11 @@
       heroC.style.opacity = String(Math.max(0, 1 - k / (h * 0.9)).toFixed(3));
     }
   }
-  window.addEventListener('scroll', function () {
+  function scheduleScrollUpdate() {
     if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
-  }, { passive: true });
+  }
+  window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
+  window.addEventListener('resize', scheduleScrollUpdate);
   requestAnimationFrame(onScroll);
   if (toTop) toTop.addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: motion.matches ? 'instant' : 'smooth' });
@@ -229,6 +231,7 @@
     new IntersectionObserver(function (entries) {
       heroVisible = entries[0].isIntersecting;
       heroEl.classList.toggle('hero-off', !heroVisible);
+      if (heroVisible) scheduleScrollUpdate();
     }).observe(heroEl);
   }
   motion.addEventListener('change', function () {
