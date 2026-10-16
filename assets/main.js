@@ -296,7 +296,7 @@
     });
   });
 
-  /* ---------- Forms: contact, membership application, newsletter ----------
+  /* ---------- Forms: contact, membership application ----------
      With config.formEndpoint set they POST as JSON; otherwise they open a pre-filled email draft. */
   var formEndpoint = config.formEndpoint || '';
   function lang() { return document.documentElement.lang === 'es' ? 'es' : 'en'; }

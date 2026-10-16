@@ -639,27 +639,23 @@ footer .logo img{height:40px}
 
 .doc .btn{flex-shrink:1;white-space:normal}
 .doc>div:nth-child(2){flex:1;min-width:0}
+@media(max-width:560px){.doc>div:nth-child(2){flex-basis:calc(100% - 78px)}}
 
-/* Forms: newsletter, membership application, status messages */
+/* Forms: contact, membership application, status messages */
 .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
 .form-status{font-size:.82rem;min-height:1.2em;margin:0}
 .form-status.ok{color:#2e7d32}
 .form-status.err{color:#b3261e}
 .bg-dark .form-status.ok,footer .form-status.ok{color:#9be3a8}
 .bg-dark .form-status.err,footer .form-status.err{color:#ffb4ab}
-.enews{max-width:460px;margin:0 0 36px}
-.enews label{display:block;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#fff;margin-bottom:10px}
-.enews-row{display:flex;gap:10px}
-.enews input[type=email]{flex:1;min-width:0;font-family:var(--font);font-size:1rem;padding:11px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff}
-.enews input[type=email]::placeholder{color:rgba(255,255,255,.55)}
-.enews input[type=email]:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.footer-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:0 0 36px}
+.footer-cta p{margin:0;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#fff}
 .join-form{display:grid;gap:14px;max-width:520px;margin:0 auto;text-align:left}
 .join-form h3{color:#fff;text-align:center;margin-bottom:4px}
 .join-form label{display:grid;gap:6px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
 .join-form input[type=text],.join-form input[type=email]{font-family:var(--font);font-size:1rem;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff}
 .join-form input:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .join-form .btn{justify-self:center}
-@media(max-width:560px){.enews-row{flex-direction:column}}
 
 /* ---------- Performance: compositor-only motion ---------- */
 .hero-bg,.shape,.page-hero::after{will-change:transform}
@@ -713,4 +709,18 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
 :where(header.compact-nav) .lang{margin:14px 10px 0;width:max-content}
 @media(hover:hover) and (pointer:fine){
   :where(header.compact-nav) .dropdown a:hover{background:transparent;color:var(--gold)}
+}
+
+/* ---------- Phone density: shorter scroll, no squeezed text ---------- */
+@media(max-width:560px){
+  .hero p.lead,.page-hero p{font-size:1rem}
+  .card-icon{width:48px;height:48px;font-size:1.3rem;border-radius:12px;margin-bottom:14px}
+  .card h3{font-size:1.08rem}
+  .logos,.logos.big{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .logo-box{aspect-ratio:3/2}
+  .logo-box img{width:auto;max-width:84%;max-height:68%}
+  /* Every card links to the same chapter LinkedIn; the team intro and footer already point to it */
+  .member a[href*="linkedin.com"]{display:none}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px 20px}
+  .footer-grid>div:first-child,.footer-grid>div:last-child{grid-column:1/-1}
 }
