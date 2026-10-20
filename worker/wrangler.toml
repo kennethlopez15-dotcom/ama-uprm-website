@@ -1,0 +1,27 @@
+# RUMi backend on Cloudflare Workers (free plan). Deploy: npx wrangler deploy
+name = "rumi"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+SITE_URL = "https://amauprm.org"
+ALLOWED_ORIGINS = "https://amauprm.org,https://www.amauprm.org"
+# Optional model overrides if a provider retires a model:
+# GROQ_MODEL = "openai/gpt-oss-120b"
+# WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+
+# Last-resort LLM, included in the free plan (10,000 neurons/day). No API key needed.
+[ai]
+binding = "AI"
+
+# 20 chat requests per minute per visitor IP.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }
+
+# Optional: log questions RUMi could not answer (content ideas for the blog and FAQ).
+# Create it with `npx wrangler kv namespace create RUMI_LOG` and paste the id here.
+# [[kv_namespaces]]
+# binding = "RUMI_LOG"
+# id = "PASTE_ID_HERE"

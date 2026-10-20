@@ -1,0 +1,199 @@
+/* RUMi chat assistant — uses the brand tokens from style.css */
+/* RUMi colour tokens: light by default, dark when the device prefers it */
+.rumi{--r-surface:var(--white);--r-bg:var(--mist);--r-text:var(--ink);--r-muted:var(--gray);--r-heading:var(--green-dark);--r-accent:var(--green);--r-line:rgba(31,48,79,.1);--r-line-strong:rgba(31,48,79,.2);--r-soft:rgba(31,48,79,.07);--r-soft-hover:rgba(31,48,79,.14);color-scheme:light}
+@media (prefers-color-scheme:dark){
+  .rumi{--r-surface:#1b2539;--r-bg:#111827;--r-text:#e7ebf2;--r-muted:#a7b1c2;--r-heading:#f3f2ee;--r-accent:#f2919d;--r-line:rgba(255,255,255,.1);--r-line-strong:rgba(255,255,255,.2);--r-soft:rgba(255,255,255,.08);--r-soft-hover:rgba(255,255,255,.16);color-scheme:dark}
+  .rumi-panel{box-shadow:0 24px 70px rgba(0,0,0,.55);outline:1px solid rgba(255,255,255,.08)}
+  .rumi-head{background:#0c1324}
+  .rumi-av,.rumi-av-hero{background:#26324d}
+  .rumi-bot .rumi-text,.rumi-persona .rumi-choice,.rumi-lead,.rumi-teaser{box-shadow:none;border:1px solid var(--r-line)}
+  .rumi-card,.rumi-meter,.rumi-ideas button{background:#232f47}
+  .rumi-date{background:#a8202f}
+  .rumi-pill{color:#3d2722}
+  .rumi-meter .ok{color:#4ade80}.rumi-meter .mid{color:#fbbf24}.rumi-meter .bad{color:#f2919d}
+  .rumi-choice:hover{background:var(--r-heading);color:#111827}
+  .rumi .rumi-form input:focus-visible{outline-color:var(--gold);box-shadow:0 0 0 4px rgba(255,237,173,.25)}
+  .rumi-lead input,.rumi-lead textarea{background:#111827}
+}
+
+.rumi{--rumi-gap:clamp(14px,2vw,26px);position:fixed;right:max(var(--rumi-gap),env(safe-area-inset-right,0px));bottom:max(var(--rumi-gap),env(safe-area-inset-bottom,0px));z-index:1100;font-family:var(--font);display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.has-rumi #toTop{bottom:calc(max(26px,env(safe-area-inset-bottom,0px)) + 72px)}
+.rumi-av{display:inline-grid;place-items:center;flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--green-dark);color:var(--green)}
+.rumi-av svg{width:24px;height:24px}
+.rumi-av-lg{width:42px;height:42px;background:rgba(255,255,255,.12)}
+.rumi-av-lg svg{width:30px;height:30px}
+
+.rumi-launch{display:inline-flex;align-items:center;gap:10px;min-height:56px;padding:8px 20px 8px 10px;border-radius:999px;border:0;background:var(--green-dark);color:#fff;font:700 .82rem/1 var(--font);letter-spacing:.04em;cursor:pointer;box-shadow:0 14px 36px rgba(31,48,79,.35);transition:transform .35s var(--ease),box-shadow .35s var(--ease),background-color .35s var(--ease)}
+.rumi-launch .rumi-av{width:40px;height:40px;background:var(--gold);color:var(--green)}
+.rumi-launch .rumi-av svg{width:28px;height:28px}
+@media (hover:hover) and (pointer:fine){.rumi-launch:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(31,48,79,.45)}}
+.rumi-launch:focus-visible,.rumi button:focus-visible,.rumi a:focus-visible,.rumi input:focus-visible,.rumi textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.rumi.open .rumi-launch-label{display:none}
+.rumi.open .rumi-launch{padding:8px}
+
+.rumi-panel{width:min(400px,calc(100vw - 2 * var(--rumi-gap)));height:min(620px,calc(100dvh - 190px));min-height:320px;display:flex;flex-direction:column;background:var(--r-surface);color:var(--r-text);border-radius:var(--radius);box-shadow:0 24px 70px rgba(31,48,79,.32);overflow:hidden;transform-origin:bottom right;animation:rumi-in .35s var(--ease)}
+@keyframes rumi-in{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.rumi-head{display:flex;align-items:center;gap:12px;padding:14px 12px 14px 16px;background:var(--green-dark);color:#fff}
+.rumi-head>div{flex:1;min-width:0}
+.rumi-head h2{font:700 1.15rem/1.1 var(--serif);color:#fff;margin:0}
+.rumi-sub{font-size:.74rem;color:var(--blue);margin:2px 0 0;letter-spacing:.02em}
+.rumi-head button{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:#fff;cursor:pointer;transition:background-color .25s}
+.rumi-head button svg{width:20px;height:20px}
+.rumi-head button:hover{background:rgba(255,255,255,.12)}
+
+.rumi-log{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--r-bg)}
+.rumi-msg{display:flex;gap:8px;align-items:flex-end;max-width:100%}
+.rumi-text{padding:10px 14px;border-radius:16px;font:400 .9rem/1.5 var(--font-body);overflow-wrap:anywhere}
+.rumi-bot .rumi-text{background:var(--r-surface);border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(31,48,79,.08)}
+.rumi-bot .rumi-text a{color:var(--r-accent);text-decoration:underline;font-weight:600}
+.rumi-user{justify-content:flex-end}
+.rumi-user .rumi-text{background:var(--green);color:#fff;border-bottom-right-radius:4px;max-width:85%}
+.rumi-typing small{display:block;margin-top:4px;color:var(--r-muted);font-size:.75rem}
+.rumi-dots{display:inline-flex;gap:4px;padding:4px 0}
+.rumi-dots i{width:7px;height:7px;border-radius:50%;background:var(--r-muted);animation:rumi-dot 1.1s infinite ease-in-out}
+.rumi-dots i:nth-child(2){animation-delay:.15s}.rumi-dots i:nth-child(3){animation-delay:.3s}
+@keyframes rumi-dot{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+
+.rumi-actions,.rumi-chips{display:flex;flex-wrap:wrap;gap:8px}
+.rumi-actions{padding-left:42px}
+.rumi-chips{padding:10px 16px 0;background:var(--r-bg)}
+.rumi-action,.rumi-chip{display:inline-flex;align-items:center;min-height:36px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--r-accent);background:var(--r-surface);color:var(--r-accent);font:700 .76rem/1.2 var(--font);cursor:pointer;text-align:left;transition:background-color .25s,color .25s}
+.rumi-chip{border-color:var(--r-heading);color:var(--r-heading)}
+.rumi-action:hover,.rumi-chip:hover{background:var(--green);border-color:var(--green);color:#fff}
+
+.rumi-form{display:flex;gap:8px;padding:12px 12px 6px;background:var(--r-surface);border-top:1px solid var(--r-line)}
+.rumi-form input{flex:1;min-width:0;min-height:44px;padding:10px 16px;border:1.5px solid var(--r-line-strong);border-radius:999px;font:400 16px/1.2 var(--font-body);color:var(--r-text);background:var(--r-surface)}
+.rumi-form input:focus{border-color:var(--green-dark);outline:none}
+.rumi-submit{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border:0;border-radius:50%;background:var(--green);color:#fff;cursor:pointer;transition:background-color .25s}
+.rumi-submit:hover{background:var(--green-light)}
+.rumi-submit svg{width:20px;height:20px}
+.rumi-note{padding:0 16px 10px;background:var(--r-surface);font-size:.68rem;line-height:1.4;color:var(--r-muted);text-align:center}
+.rumi-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* tool output */
+.rumi-palette{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;border-radius:10px;overflow:hidden}
+.rumi-swatch{display:flex;flex-direction:column;justify-content:flex-end;min-height:76px;padding:6px 4px;border:0;cursor:pointer;font:600 .6rem/1.25 var(--font);text-align:left}
+.rumi-swatch b{font-size:.62rem;letter-spacing:.02em}
+.rumi-qr{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:10px}
+.rumi-qr img{border-radius:10px;background:#fff}
+
+/* lead form */
+.rumi-lead{display:grid;gap:8px;margin-left:42px;padding:14px;border-radius:14px;background:var(--r-surface);box-shadow:0 1px 2px rgba(31,48,79,.08)}
+.rumi-lead label{display:grid;gap:4px;font:700 .72rem/1.2 var(--font);color:var(--r-heading)}
+.rumi-lead input,.rumi-lead textarea{width:100%;padding:9px 12px;border:1.5px solid var(--r-line-strong);border-radius:10px;font:400 16px/1.3 var(--font-body);color:var(--r-text);resize:vertical}
+.rumi-lead .rumi-hp{position:absolute;left:-9999px;width:1px;height:1px}
+.rumi-send-lead{justify-self:start;min-height:40px;padding:8px 22px;border:0;border-radius:999px;background:var(--green);color:#fff;font:700 .76rem/1 var(--font);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.rumi-send-lead:disabled{opacity:.6;cursor:wait}
+.rumi-lead-status{font-size:.75rem;color:var(--r-accent)}
+
+/* avatar personality: blinking eyes, twinkling "i" spark, online dot */
+.rumi-eyes{transform-origin:20px 17.6px;animation:rumi-blink 5s infinite}
+@keyframes rumi-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.rumi-spark{transform-origin:33.5px 6px;animation:rumi-twinkle 3s ease-in-out infinite}
+@keyframes rumi-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.rumi-online{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-right:6px;vertical-align:1px;box-shadow:0 0 0 2px rgba(74,222,128,.25)}
+
+/* teaser bubble next to the launcher */
+.rumi-teaser{position:relative;display:flex;align-items:flex-start;max-width:260px;background:var(--r-surface);border-radius:16px 16px 4px 16px;box-shadow:0 12px 32px rgba(31,48,79,.22);animation:rumi-in .4s var(--ease)}
+.rumi-teaser-text{flex:1;padding:12px 4px 12px 14px;border:0;background:none;text-align:left;font:600 .84rem/1.35 var(--font);color:var(--r-heading);cursor:pointer}
+.rumi-teaser-x{width:32px;height:32px;min-width:32px;min-height:32px;margin:4px;border:0;border-radius:50%;background:none;color:var(--r-muted);font-size:1.2rem;line-height:1;cursor:pointer}
+.rumi-teaser-x:hover{background:var(--r-bg)}
+.rumi.open .rumi-teaser{display:none}
+
+/* cards: events, people, jobs */
+.rumi-cards{display:grid;gap:8px;margin-top:10px}
+.rumi-card{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:12px;background:var(--r-bg);border:1px solid var(--r-line)}
+.rumi-card-body{min-width:0;flex:1}
+.rumi-card h3{font:700 .86rem/1.3 var(--font);color:var(--r-heading);margin:0 0 2px}
+.rumi-card p{font-size:.8rem;line-height:1.4;margin:2px 0}
+.rumi-meta{color:var(--r-muted);font-weight:600}
+.rumi-date{flex-shrink:0;display:grid;place-items:center;width:46px;padding:6px 0;border-radius:10px;background:var(--green);color:#fff;line-height:1}
+.rumi-date b{font:700 1.15rem/1 var(--serif)}
+.rumi-date span{font:700 .6rem/1.4 var(--font);text-transform:uppercase;letter-spacing:.08em}
+.rumi-person img{width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--blue)}
+.rumi-mini{display:inline-block;margin-top:4px;font:700 .74rem/1.3 var(--font);color:var(--r-accent)!important;text-decoration:none!important}
+.rumi-mini:hover{text-decoration:underline!important}
+.rumi-planned{margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--r-line-strong)}
+.rumi-planned p{font-size:.74rem;color:var(--r-muted);margin:0 0 6px}
+.rumi-planned ul{display:grid;gap:3px;font-size:.8rem}
+.rumi-planned b{display:inline-block;min-width:52px;color:var(--r-heading)}
+.rumi-pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--gold);color:var(--brown);font:700 .64rem/1.6 var(--font);text-transform:uppercase;letter-spacing:.06em}
+.rumi-credit{font-size:.7rem;color:var(--r-muted);margin-top:6px}
+
+/* audit meters, bio score, idea lists */
+.rumi-meters{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.rumi-meter{display:grid;justify-items:center;gap:2px;padding:8px 4px;border-radius:10px;background:var(--r-bg);font-size:.66rem;font-weight:700;color:var(--r-muted);text-align:center}
+.rumi-meter b{font:700 1.3rem/1 var(--serif)}
+.rumi-meter .ok{color:#15803d}.rumi-meter .mid{color:#b45309}.rumi-meter .bad{color:var(--r-accent)}
+.rumi-score{display:inline-flex;align-items:baseline;gap:6px;margin-top:10px;padding:6px 14px;border-radius:999px;background:var(--green-dark);color:#fff}
+.rumi-score b{font:700 1.2rem/1 var(--serif);color:var(--gold)}
+.rumi-score span{font-size:.72rem;font-weight:600}
+.rumi-ideas{margin-top:10px}
+.rumi-ideas-h{font:700 .7rem/1.2 var(--font);text-transform:uppercase;letter-spacing:.08em;color:var(--r-muted);margin:8px 0 6px!important}
+.rumi-ideas ul{display:flex;flex-wrap:wrap;gap:6px}
+.rumi-ideas button{min-height:34px;padding:6px 12px;border-radius:10px;border:1px solid var(--r-line-strong);background:var(--r-bg);cursor:pointer;text-align:left;font:600 .8rem/1.3 var(--font-body);color:var(--r-text)}
+.rumi-ideas button:hover{border-color:var(--green)}
+
+/* persona / quiz choices, suggested follow-ups, feedback */
+.rumi-choices{display:grid;gap:6px;padding-left:42px}
+.rumi-choice{min-height:42px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--r-heading);background:var(--r-surface);color:var(--r-heading);font:700 .82rem/1.3 var(--font);text-align:left;cursor:pointer;transition:background-color .2s,color .2s}
+.rumi-choice:hover{background:var(--green-dark);color:#fff}
+.rumi-follow{display:flex;flex-wrap:wrap;gap:6px;padding-left:42px}
+.rumi-follow button{min-height:32px;padding:5px 12px;border-radius:999px;border:0;background:var(--r-soft);color:var(--r-heading);font:600 .74rem/1.3 var(--font);cursor:pointer;text-align:left}
+.rumi-follow button::before{content:'↳ ';opacity:.6}
+.rumi-follow button:hover{background:var(--r-soft-hover)}
+.rumi-feedback{display:flex;align-items:center;gap:2px;margin-top:8px;padding-top:6px;border-top:1px solid var(--r-line);font-size:.7rem;color:var(--r-muted)}
+.rumi-feedback span{margin-right:4px}
+.rumi-feedback button{min-width:32px;min-height:28px;border:0;border-radius:8px;background:none;cursor:pointer;font-size:.9rem;filter:grayscale(.6);transition:filter .2s,background-color .2s}
+.rumi-feedback button:hover{filter:none;background:var(--r-bg)}
+
+/* welcome card + persona tiles */
+.rumi-hero{display:grid;justify-items:center;gap:6px;padding:18px 12px 6px;text-align:center}
+.rumi-av-hero{width:76px;height:76px;background:var(--green-dark);color:var(--green);box-shadow:0 0 0 6px rgba(31,48,79,.08),0 10px 24px rgba(31,48,79,.18);margin-bottom:6px}
+.rumi-av-hero svg{width:54px;height:54px}
+.rumi-hero-title{font:700 1.3rem/1.2 var(--serif);color:var(--r-heading);margin:0}
+.rumi-hero-sub{font-size:.84rem;line-height:1.45;color:var(--r-muted);max-width:30ch;margin:0}
+.rumi-hero-q{font:700 .78rem/1.2 var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--r-accent);margin:14px 0 0}
+.rumi-choices.rumi-persona{grid-template-columns:1fr 1fr;padding-left:0}
+.rumi-persona .rumi-choice{display:grid;gap:4px;justify-items:start;min-height:76px;padding:12px;border:1.5px solid var(--r-line-strong);border-radius:14px;background:var(--r-surface);box-shadow:0 1px 2px rgba(31,48,79,.06);font-size:.8rem;line-height:1.25;transition:border-color .2s,transform .2s,box-shadow .2s,background-color .2s,color .2s}
+.rumi-tile-ico{font-size:1.45rem;line-height:1}
+.rumi-persona .rumi-choice:hover{border-color:var(--r-accent);background:var(--r-surface);color:var(--r-heading);transform:translateY(-2px);box-shadow:0 8px 18px rgba(31,48,79,.12)}
+
+/* language toggle in the header and the switch note in the log */
+.rumi-head .rumi-lang{width:auto;min-width:44px;height:32px;padding:0 10px;border:1.5px solid rgba(255,255,255,.4);border-radius:999px;font:700 .72rem/1 var(--font);letter-spacing:.08em}
+.rumi-head .rumi-lang:hover{background:#fff;color:var(--green-dark)}
+.rumi-divider{display:flex;align-items:center;gap:10px;margin:2px 0;font:600 .7rem/1.3 var(--font);color:var(--r-muted);text-align:center}
+.rumi-divider::before,.rumi-divider::after{content:'';flex:1;height:1px;background:var(--r-soft-hover)}
+
+/* messages ease in */
+.rumi-msg,.rumi-actions,.rumi-follow,.rumi-choices,.rumi-hero{animation:rumi-msg .32s var(--ease) both}
+@keyframes rumi-msg{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rumi .rumi-form input:focus-visible{outline:2px solid var(--green-dark);outline-offset:1px;box-shadow:0 0 0 4px rgba(255,237,173,.75)}
+.rumi-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* typing reveal caret and voice button */
+.rumi-writing::after{content:'';display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-2px;background:var(--r-accent);animation:rumi-caret .8s steps(1) infinite}
+@keyframes rumi-caret{50%{opacity:0}}
+.rumi-mic{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border:1.5px solid var(--r-line-strong);border-radius:50%;background:var(--r-surface);color:var(--r-heading);cursor:pointer;transition:background-color .25s,color .25s,border-color .25s}
+.rumi-mic svg{width:20px;height:20px}
+.rumi-mic:hover{border-color:var(--r-accent);color:var(--r-accent)}
+.rumi-mic.on{background:var(--green);border-color:var(--green);color:#fff;animation:rumi-pulse 1.2s ease-out infinite}
+@keyframes rumi-pulse{0%{box-shadow:0 0 0 0 rgba(142,24,37,.55)}100%{box-shadow:0 0 0 12px rgba(142,24,37,0)}}
+
+@media (max-width:520px){
+  .rumi-launch-label{display:none}
+  .rumi-launch{padding:8px}
+  .rumi.open{inset:0;right:0;bottom:0;gap:0}
+  .rumi.open .rumi-panel{width:100vw;height:100dvh;border-radius:0}
+  .rumi.open .rumi-launch{display:none}
+  .rumi-head{padding-top:max(14px,env(safe-area-inset-top,0px))}
+  .rumi-sub-org{display:none}
+  .rumi-note{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
+  .has-rumi #toTop{bottom:calc(max(26px,env(safe-area-inset-bottom,0px)) + 66px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .rumi-panel,.rumi-dots i,.rumi-eyes,.rumi-spark,.rumi-teaser,.rumi-mic.on,.rumi-writing::after,.rumi-msg,.rumi-actions,.rumi-follow,.rumi-choices,.rumi-hero{animation:none}
+  .rumi-persona .rumi-choice{transition:none}
+  .rumi-launch,.rumi-action,.rumi-chip{transition:none}
+}
+@media print{.rumi{display:none}}

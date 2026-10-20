@@ -51,12 +51,25 @@ El manifest usa rutas relativas y modo navegador. No existe service worker ni
 funcionalidad offline. Para publicar en una subcarpeta, ajustar también el
 `<base href="/">` de 404 a esa subcarpeta y revisar las URLs canónicas/sitemap.
 
+## RUMi (asistente de chat)
+- assets/rumi.js y assets/rumi.css — widget en todas las páginas (botón abajo a la derecha;
+  `?rumi` en la URL lo abre). Bilingüe con el selector EN/ES.
+- assets/rumi/kb.json — base de conocimiento generada: `python scripts/build_rumi_kb.py`.
+  Volver a generarla después de editar contenido. Datos del Chapter Plan FY27 en
+  `scripts/rumi_plan.json`; preguntas frecuentes (qué es AMA, RUM, kickoff, pagos, ELEVATE,
+  auspicios…) en `scripts/rumi_faq.json`, editable sin tocar código.
+- Sin backend contesta con la base de conocimiento y APIs gratis sin key (auditoría web, empleos,
+  QR, paletas). Para IA en preguntas libres, desplegar `worker/` (ver worker/README.md) y poner
+  su URL en `rumiEndpoint` de `assets/config.js`.
+- Leads de auspicio y ELEVATE usan `formEndpoint`; vacío = borrador de correo a ama@uprm.edu.
+
 ## Analytics (Google Analytics 4)
 Poner el Measurement ID real en `analyticsId` dentro de `assets/config.js`.
 Vacío o de ejemplo: no carga GA ni envía eventos. No hay ID real en el repo.
 
 Eventos: `membership_interest_click`, `sponsor_package_click` y
-`event_calendar_click`. `event_rsvp_click` queda reservado para un enlace de
+`event_calendar_click`. RUMi añade `rumi_open`, `rumi_message`, `rumi_cta_click`,
+`rumi_tool`, `rumi_lead` y `rumi_unanswered`. `event_rsvp_click` queda reservado para un enlace de
 registro real marcado con `data-analytics="event_rsvp_click"`; agregar al
 calendario no es registrarse.
 
