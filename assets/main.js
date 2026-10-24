@@ -80,6 +80,18 @@
   document.querySelectorAll('.lang button').forEach(function (b) {
     b.addEventListener('click', function () { setLang(b.dataset.lang, true); });
   });
+  // Footer "last updated" stamp from config.siteUpdated (YYYY-MM-DD); added before the first language swap.
+  var siteUpdated = window.AMA_CONFIG && window.AMA_CONFIG.siteUpdated;
+  var copyRow = document.querySelector('footer .copy');
+  if (siteUpdated && copyRow) {
+    var updatedDate = new Date(siteUpdated + 'T12:00:00');
+    var stamp = document.createElement('time');
+    stamp.dateTime = siteUpdated;
+    stamp.dataset.en = 'Last updated ' + updatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    stamp.dataset.es = 'Actualizado el ' + updatedDate.toLocaleDateString('es-PR', { day: 'numeric', month: 'long', year: 'numeric' });
+    stamp.innerHTML = stamp.dataset.en;
+    copyRow.appendChild(stamp);
+  }
   // cache english originals before first swap
   document.querySelectorAll('[data-en]').forEach(function (el) {
     if (!el.dataset.en) el.dataset.en = (el.tagName === 'INPUT') ? el.placeholder : el.innerHTML;
@@ -405,7 +417,7 @@
     root.querySelectorAll('.event[data-date]').forEach(function (ev) {
       if (ev.dataset.date < today) {
         ev.classList.add('past');
-        var link = ev.querySelector('a.btn');
+        var link = ev.querySelector('a.btn:not(.recap-link)');
         if (link) {
           var tag = document.createElement('span');
           tag.className = 'completed-tag';
