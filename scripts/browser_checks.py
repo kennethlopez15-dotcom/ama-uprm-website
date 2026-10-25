@@ -141,8 +141,8 @@ try:
         passed('110 page/width/language combinations: no overflow, unnamed links or console/runtime errors')
         page.goto(base); page.evaluate('window.scrollTo(0,500)')
         assert page.locator('.hero-content').evaluate('e=>!e.style.transform')
-        assert page.locator('[data-count] .counter-value').first.inner_text() == '92'
-        expect(page.locator('[data-count] .sr-only').first).to_have_text('92')
+        assert page.locator('[data-count] .counter-value').first.inner_text() == '93'
+        expect(page.locator('[data-count] .sr-only').first).to_have_text('93')
         passed('Reduced motion disables hero parallax and renders counters instantly')
         context.close()
         # Graceful fallback if JavaScript or observer APIs are unavailable.
@@ -171,7 +171,7 @@ try:
         ctx=browser.new_context(locale='en-US');ctx.route('**/*',intercept)
         ctx.add_init_script('delete window.IntersectionObserver')
         pg=ctx.new_page();pg.goto(base)
-        expect(pg.locator('[data-count] .counter-value').first).to_have_text('92')
+        expect(pg.locator('[data-count] .counter-value').first).to_have_text('93')
         assert pg.locator('[data-bg]').first.evaluate('e=>Boolean(e.style.backgroundImage)')
         pg.set_viewport_size({'width':390,'height':844});pg.locator('#burger').click()
         expect(pg.locator('#nav a').first).to_be_focused()
