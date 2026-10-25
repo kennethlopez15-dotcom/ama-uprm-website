@@ -96,7 +96,7 @@
 /* teaser bubble next to the launcher */
 .rumi-teaser{position:relative;display:flex;align-items:flex-start;max-width:260px;background:var(--r-surface);border-radius:16px 16px 4px 16px;box-shadow:0 12px 32px rgba(31,48,79,.22);animation:rumi-in .4s var(--ease)}
 .rumi-teaser-text{flex:1;padding:12px 4px 12px 14px;border:0;background:none;text-align:left;font:600 .84rem/1.35 var(--font);color:var(--r-heading);cursor:pointer}
-.rumi-teaser-x{width:32px;height:32px;min-width:32px;min-height:32px;margin:4px;border:0;border-radius:50%;background:none;color:var(--r-muted);font-size:1.2rem;line-height:1;cursor:pointer}
+.rumi-teaser-x{width:44px;height:44px;min-width:44px;min-height:44px;margin:-2px;border:0;border-radius:50%;background:none;color:var(--r-muted);font-size:1.2rem;line-height:1;cursor:pointer}
 .rumi-teaser-x:hover{background:var(--r-bg)}
 .rumi.open .rumi-teaser{display:none}
 
