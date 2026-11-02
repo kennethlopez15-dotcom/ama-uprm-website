@@ -601,23 +601,28 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .embed.map{margin-top:26px}
 .embed.map iframe{height:260px}
 .embed-note{font-size:.78rem;color:var(--gray);margin-top:10px}
-/* Home hero: slow mosaic of real chapter photos */
-.hero-mosaic{position:absolute;top:-40%;bottom:-40%;left:-1%;right:-1%;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;z-index:0;pointer-events:none;opacity:.9}
+/* Home hero: slow mosaic of real chapter photos.
+   Each column holds its tile set twice and scrolls by half its height, so one set must be taller
+   than the hero; the column counts per breakpoint keep tiles large enough for that. */
+.hero-mosaic{position:absolute;top:0;bottom:0;left:-1%;right:-1%;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;align-items:start;overflow:hidden;z-index:0;pointer-events:none;opacity:.9}
 .mosaic-col{display:flex;flex-direction:column;gap:12px;animation:mosaic-up 70s linear infinite;will-change:transform}
 .mosaic-col.rev{animation-name:mosaic-down;animation-duration:85s}
 .mosaic-col:nth-child(3n){animation-duration:95s}
-.mosaic-col img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:14px;filter:saturate(.85)}
+.mosaic-col img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:14px;filter:saturate(.85);background:rgba(200,217,236,.12)}
 @keyframes mosaic-up{from{transform:translateY(0)}to{transform:translateY(calc(-50% - 6px))}}
 @keyframes mosaic-down{from{transform:translateY(calc(-50% - 6px))}to{transform:translateY(0)}}
 .hero-off .mosaic-col{animation-play-state:paused}
+@media (max-width:1024px){.hero-mosaic{grid-template-columns:repeat(4,minmax(0,1fr))}.mosaic-col:nth-child(n+5){display:none}}
 @media (max-width:760px){
-  .hero-mosaic{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .hero-mosaic{left:-9%;right:-9%;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
   .mosaic-col{gap:10px}
-  .mosaic-col:nth-child(n+5){display:none}
+  .mosaic-col:nth-child(n+4){display:none}
+  .mosaic-col img{border-radius:12px}
   @keyframes mosaic-up{from{transform:translateY(0)}to{transform:translateY(calc(-50% - 5px))}}
   @keyframes mosaic-down{from{transform:translateY(calc(-50% - 5px))}to{transform:translateY(0)}}
-  .hero::after{background:linear-gradient(180deg,rgba(15,28,49,.82),rgba(15,28,49,.9))}
+  .hero::after{background:linear-gradient(180deg,rgba(15,28,49,.78),rgba(15,28,49,.88))}
 }
+@media (max-width:359px){.hero-mosaic{grid-template-columns:repeat(2,minmax(0,1fr))}.mosaic-col:nth-child(n+3){display:none}}
 @media (prefers-reduced-motion:reduce){.mosaic-col{animation:none}}
 .hero-bg,.hero-grid,.shape{z-index:0}
 .hero .hero-grid{z-index:1}
