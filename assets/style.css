@@ -608,7 +608,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mosaic-col{display:flex;flex-direction:column;gap:12px;animation:mosaic-up 70s linear infinite;will-change:transform}
 .mosaic-col.rev{animation-name:mosaic-down;animation-duration:85s}
 .mosaic-col:nth-child(3n){animation-duration:95s}
-.mosaic-col img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:14px;filter:saturate(.85);background:rgba(200,217,236,.12)}
+.mosaic-col img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:14px;filter:saturate(.85);background-color:rgba(200,217,236,.12);background-position:center;background-size:cover;background-repeat:no-repeat}
 @keyframes mosaic-up{from{transform:translateY(0)}to{transform:translateY(calc(-50% - 6px))}}
 @keyframes mosaic-down{from{transform:translateY(calc(-50% - 6px))}to{transform:translateY(0)}}
 .hero-off .mosaic-col{animation-play-state:paused}
@@ -624,6 +624,40 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 }
 @media (max-width:359px){.hero-mosaic{grid-template-columns:repeat(2,minmax(0,1fr))}.mosaic-col:nth-child(n+3){display:none}}
 @media (prefers-reduced-motion:reduce){.mosaic-col{animation:none}}
+/* mosaic previews */
+.mt-adem{background-image:url(data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAwAgCdASoMAA8AAwBSJYgCdAEQzZjExnqTAAD+4at+KJV8k2uK9Aq78IfWjeyL92KW+oHz2zrhtX6PkF/pwYiQ2owaomwquVv6YZjyXikZ4hhgTGJjd8ojQiRgAA==)}
+.mt-audience{background-image:url(data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAwAgCdASoMAA8AAwBSJQBOgMX6uZy5zeTeUAD97zPq4iIQKLc462H73PZmjZ9BCcul3ZRWuRFpQAdnqn46a97SyYXmqCELBVi11IoN2uqc9BQKDTwAvz6t7KaPuFrN5p1ZkV2NxxBAAAAA)}
+.mt-elevate-team{background-image:url(data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADQAQCdASoMAA8AAwBSJQBOgB/UBjeGwAD+TsXt+9hyOAAbwpgNoMlM/j1OfF61aP+tiBtkLxmWZIre4l1tlUXywwpL5OuqgX7HHt5MiASP3H35667TFiikQ1wAAA==)}
+.mt-fye-atrevete{background-image:url(data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQAgCdASoMAA8AAwBSJZgCdAEKqCBoIYkAAM4/xl+XeeQEbVWAe92twDDUuY7yc8IdaaVIv7Le67kZhantAnRzsuqPiQjBa2rjXF9O2K8AcOuHYAj3p9yRqsgLsmqCzmkD/8MBhYDo3lrYFlkOE0LFd686+AAA)}
+.mt-fye-group{background-image:url(data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoMAA8AAwBSJQBOgCFq4QpLDAAA/uuKCD4kqyApZTZPZfoBPi0E3ynlD1PjNXfCx68aTJPdDLaVN+95aHGyNH8Mbh/CuDYxkoqFabdZtRDos0SUO7tAAA==)}
+.mt-fye-selfie{background-image:url(data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAABwAgCdASoMAA8AAwBSJbACdEf/i1S9wkaLOKmEAP6ED9RHKnHLM9VxWttKW6MyHvs+V3PwvS9prm9/dQ999ZzpbvwlJgvu5fGm0d60E64xwcPBEBycu/gNBMZXx3d8GF77rJ01bn2+gRRyAvq2VwqcpLzC9qZfhfMGX8mKV8ec2XQA)}
+.mt-fye-signs{background-image:url(data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAACQAgCdASoMAA8AAwBSJYwC7H8Agry/0C22Ev2oAAD+8uhzHZ6tyF06t8q22+MjV+9ZA0FZnf9fmW8Gal/efJxoeY4vSYPpV8LY3lfVZp75xh8TtH1YmD/FKDgAAA==)}
+.mt-fye-start{background-image:url(data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAwAgCdASoMAA8AAwBSJQBOgMW530ds07SacAD+9NHfp7VTEt9nqCyJylrfeZwsQJ8gBc9cA688Wz1fFJDsqimAK9H6ylOIKXIhtGmFHXSFM9jmgAA=)}
+.mt-fye-team{background-image:url(data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQAgCdASoMAA8AAwBSJYgCdADdoaLBW3zAAP72S7Ng/DM31wPFgRdtHdKuXvjyY5+kvb4PP2aG28Mdnk+xBNeKU5bmTfr7KUhUAgnqqmAfjabuCmHhi1Yp41ks0Eox/tgu8WbwTvnKYAAA)}
+.mt-icc-flag{background-image:url(data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADwAQCdASoMAA8AAwBSJbACdADzfhTuQwAA/vlMGOr9cla8+0Z++1e2ZO5nAKbQ93GSAIof/bCM9bDKJvFu22Yv5xiEk+VPuh3XugO/fmmQeiUyt8KxaS1Uc5VWAQfENZbMAA==)}
+.mt-ig-5k{background-image:url(data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAwAgCdASoMAA8AAwBSJZgCdAEPSz4zd2mdAAD+xgHv7BBAb4YescjZaJaM6hAMvHb3BN0rq4pxgS6nrr+1evP2u01iCXW6ciin3/1fAYPrGkOAAQa5tyZomnmvi20dO6P4vvUjZENiYIAA)}
+.mt-ig-amplifying{background-image:url(data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAQAgCdASoMAA8AAwBSJaACdAEOeqYhEtMAAP7q6728OpCKQ2U1jNq7he61ugVSL16ZBGzUq6cndimDZ6tPTcEmyjxesYlpRR6NpaFb/bsnkjGnxsX5QAAA)}
+.mt-ig-behind-brand{background-image:url(data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAADQAQCdASoMAA8AAwBSJQAAW6GyL57nQAD+88iMtwM59mk1W/Lk85mAxTxXpe3UEvpnKt9zHLoxHeJiT9/nOmBjQ/UpKGW97yzXp0bTr+oSb/eCb7pssBOVYJt4aMgAAAA=)}
+.mt-ig-big-little{background-image:url(data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAQCdASoMAA8AAwBSJbACdAEVJLgufJQA/pRAqUkzcLgdyYf9nS7anfIEWXZ3IREqE8EQU/0lFK47k6u++0t+a78/jU2wHlcBQve7qZebvdfbvZdo1tWmYAA=)}
+.mt-ig-brand-creator{background-image:url(data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAACwAQCdASoMAA8AAwBSJQBYdiB7iygAAP7ybOEYf4BtcYO9ECKzVCGr1JwP4BLAu6lB8u46bUTMXvbryiYS0i6vVCM/Mxa00pk5t/OyLKSncnuQAtu05uD4jZuTAu1nInPGKwAA)}
+.mt-ig-car-wash{background-image:url(data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADwAQCdASoMAA8AAwBSJQBOgCE4kdQapyAA/vCmt8F7TAbnTYuw7KtmXj1tVlHAv9N0XY7Zz+V8lvA7uCnZE82MV04OKnLuRmNVPLzg7hD4WqjJK7FmZBKnxGKP41NBi+AAAA==)}
+.mt-ig-causa-social{background-image:url(data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADwAQCdASoMAA8AAwBSJQBOgCIjQ0MjkgAA/uHy2urNnqQrZ18vYU6Dci+tudO4CbmU90rCd7sF3bS3UuDeKF2uuq53wQMDjkolZP+KHC+9o7z0tUo5iZ8cv9gAAA==)}
+.mt-ig-costume-crawl{background-image:url(data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoMAA8AAwBSJZAAAueLVu68cAD+8g55yVr9vS0amH7bmx5pnq0Cek0hSx0vhmqs37OZ50RXeWivPJiJrBLNDv2v62oVkq14wAA=)}
+.mt-ig-cup-pong{background-image:url(data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADwAQCdASoMAA8AAwBSJZAC7AEOwPvPQIAA/vZGxDBj9Bw84zeQyKoDtcjVwDO+0toB2eV7+hEEqvAIBb6byTIC5+JgsOsywBI5KJPnU+8xRYkPTqcZ1/wvVqif6waL0hK+2KsAAAA=)}
+.mt-ig-first-meeting{background-image:url(data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAABQAgCdASoMAA8AAwBSJbACdH8Agry/l9LEyOAA/sBOmNsAvZM0FXBMNWu4TN3skOGjVtzvDWfiLf6gME3eGdoh0j8PU/wNP2EBzj2FVVm3UqxjxvgP2u0UqiveHwknZcyE7v5Bi6AAAA==)}
+.mt-ig-food-donation{background-image:url(data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAAAQAgCdASoMAA8AAwBSJZACdADdldmQxqAAAP71NNVyOr1W4kb/zsekFOaxP575H76y64VwdfuKqUW/ReKbR9TzlEUdP6YJp3RSckAA)}
+.mt-ig-get-twisted{background-image:url(data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQAgCdASoMAA8AAwBSJbACdAYtzYditMAAAOA1trOzLL37gtX6Sb/JQhIjee9Rj1Nv6Y/GsD+b5VKdlk3OB2anPPXFQqshpX+4nnL5DvOvMHXwMVKRvIWoNvBpNbeMjyhsWZCBeGAAAA==)}
+.mt-ig-icc-panel{background-image:url(data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAAAwAgCdASoMAA8AAwBSJYgAD5LRedGziQ0TXAD+8juEhprx93I+/GM1/qXpQd6x8GTBqx6+iv/IMGIfb0B6twOaoECYTpvhSNQCtiUGoq+e0RXHiQReVj/qo6V8AAAA)}
+.mt-ig-icc-recap{background-image:url(data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQAgCdASoMAA8AAwBSJZgCdAYxFa2mdt0wAPjkzD6dZkiR04qyAw/AuIlYYF3zsk6MmjTQp70QeZSItwGS4NWPipbHw9Uztzen34Qj+eWQdljxc11ixz+qag9D+SsBOwAAAA==)}
+.mt-ig-idea-action{background-image:url(data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAwAgCdASoMAA8AAwBSJQAB8kIZSoiTvSRrQAD+8/SCxt7uaW81vToEk0IXJ51wxkUEt6vez7EV/hWLHUnBlEHUg3GXJ7l3EfACD8CxTxA9is5BUrVgZddpgweDyX8t+/73LEDIoAA=)}
+.mt-ig-job-fair{background-image:url(data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAAAQAgCdASoMAA8AAwBSJQBdgCICepv1+2YAAP70C8nowrN3oOtFBAx8+xWq3uDjeEZfeElG4h4pingW+3+3YRJ+qnpVtrDgAAA=)}
+.mt-ig-lilly{background-image:url(data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQAgCdASoMAA8AAwBSJQBOj+ACuc7+0fUgAP7gAdBi9VXxdUhfzlypZ+r5XYgUiGLutyRu7wriuSsQ9zvN6NpAR+v3O3yCJIAAAA==)}
+.mt-ig-members-recap{background-image:url(data:image/webp;base64,UklGRngAAABXRUJQVlA4IGwAAAAQAgCdASoMAA8AAwBSJbACdAYv+8DjX5OAAP7VxHOqz4tELttLVS9nO7/uHY0O2AX3cR/uPzAnq6oIC1QIklgbXTR8yYiwhCz1F9pfLw3q2kpYFgWF8W7ZUcblboj0gey18t2Swf2iV5YjgAA=)}
+.mt-ig-paws{background-image:url(data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAABwAgCdASoMAA8AAwBSJZACdAYr7wn7298noKeAAP7oZ2s538PfOga+O4hFt5w+ke0y/THi3R8VgopNE77tJdR4c0OD1aqE7G41gQPp/IWY+nPgNcjwToa18Jte1LuxoReqUYD8vKoyjcAeUUBjdQtIAAA=)}
+.mt-ig-pitch-proposito{background-image:url(data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAAAwAgCdASoMAA8AAwBSJaACdAYulvPGVxnz6gD+xuyRJN/7vE4WJvWUqo2i86mb7lDec8bqK6w0T/iL1V7HtkqEj7S9GymXHVIpssh3uAsc1TAOU3daVMGQ+rvSxkMZeSGi9UJVurDfQgReJcAAAA==)}
+.mt-members-meeting{background-image:url(data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAwAgCdASoMAA8AAwBSJZQC06YwdyI7QN0YAAD+7euv8uvxRy+TiGjTeiJwBOzAR7G3P0OUIRDdtjBiGF4ykMR3sNT9BhqSaSJ9lLxBl6TnE+Yhh7kCTpjaxU2IunNW4yVh11/irkAAAA==)}
+.mt-workshop{background-image:url(data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAADwAQCdASoMAA8AAwBSJZACdADzdK7TQ5AA+501we+euAbEEZpAH72uftbRknopbFu13CPNXjo2NqBd6FDwyqlBZF7+vJzs9gR3s8zR+7WbyNMjpT1UhO8PlGp9fD78Hmry/MmLWWAe0jLGmUQAAA==)}
+/* end mosaic previews */
 .hero-bg,.hero-grid,.shape{z-index:0}
 .hero .hero-grid{z-index:1}
 #progress{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--gold);z-index:1500;transform:scaleX(0);transform-origin:0 50%;will-change:transform}
