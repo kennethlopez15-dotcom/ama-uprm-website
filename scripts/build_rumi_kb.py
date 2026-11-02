@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'rumi' / 'kb.json'
 PAGES = ['index.html', 'about.html', 'elevate.html', 'programs.html', 'events.html',
          'membership.html', 'sponsors.html', 'blog.html', 'blog-post.html',
+         'blog-marketing-week-2026.html', 'blog-fuerza-y-esperanza-2026.html',
          'case-ppm.html', 'case-cancer-relief.html']
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
 SKIP = {'script', 'style', 'noscript', 'svg', 'header', 'nav', 'footer', 'form', 'title', 'head'}
