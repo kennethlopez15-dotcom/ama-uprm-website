@@ -525,6 +525,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .article-body .lede{font-size:1.25rem;color:var(--green-dark);font-weight:500}
 .article-body blockquote{border-left:4px solid var(--green);padding:14px 24px;margin:30px 0;font-family:var(--serif);font-size:1.3rem;color:var(--green-dark);background:var(--mist);border-radius:0 14px 14px 0}
 .article-cta{display:flex;gap:12px;flex-wrap:wrap;margin:36px 0}
+.article-cover{margin:0 0 32px;border-radius:18px;overflow:hidden}
+.article-cover img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
 .article-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 34px}
 .article-gallery a,.article-gallery figure{display:block;margin:0;border-radius:14px;overflow:hidden}
 .article-gallery img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;transition:transform .5s var(--ease)}
