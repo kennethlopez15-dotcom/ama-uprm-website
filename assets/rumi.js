@@ -209,7 +209,8 @@
     }, 0);
   }
   function detect(text) {
-    var q = ' ' + norm(text) + ' ', toks = tokens(q);
+    // Punctuation hugs words ("¿cómo me uno?"): turn it into spaces so " uno " and friends match.
+    var q = ' ' + norm(text).replace(/[¿?¡!,;:()"“”«»]/g, ' ').replace(/\s+/g, ' ').trim() + ' ', toks = tokens(q);
     // Tools win whenever their keywords appear; any other message with a web address is an audit.
     var tool = TOOLS.find(function (name) { return score(q, toks, INTENTS.find(function (it) { return it[0] === name; })[1]) > 0; });
     if (tool) { detectScore = 1; return tool; }
@@ -1262,7 +1263,11 @@
     loadKb();
     // A fresh welcome starts at the top; an ongoing conversation opens at the latest message.
     if (history.length) scroll(); else log.scrollTop = 0;
-    if (phone()) { document.documentElement.classList.add('rumi-lock'); fitViewport(); }
+    if (phone()) {
+      document.documentElement.classList.add('rumi-lock'); fitViewport();
+      // The phone's back button/gesture should close the chat, not leave the site.
+      if (!backEntry) { if (backPending) needEntry = true; else pushBackEntry(); }
+    }
     // On touch screens the keyboard would cover the welcome card; visitors tap the field when ready.
     else setTimeout(function () { input.focus(); }, 50);
   }
@@ -1271,8 +1276,10 @@
   function fitViewport() {
     var vv = window.visualViewport;
     // Pinch-zoomed pages: the visual viewport is scaled, so its size isn't the panel's size — fall back to CSS.
-    if (!vv || !root || panel.hidden || !phone() || Math.abs((vv.scale || 1) - 1) > 0.05) { if (root) { root.style.removeProperty('--rumi-vh'); root.style.removeProperty('--rumi-top'); } return; }
+    if (!vv || !root || panel.hidden || !phone() || Math.abs((vv.scale || 1) - 1) > 0.05) { if (root) { root.style.removeProperty('--rumi-vh'); root.style.removeProperty('--rumi-top'); root.style.removeProperty('--rumi-sheet-gap'); } return; }
     root.style.setProperty('--rumi-vh', Math.round(vv.height) + 'px');
+    // Keep the page visible above the sheet (about 15% of a tall phone); short areas give it all to the chat.
+    root.style.setProperty('--rumi-sheet-gap', vv.height < 560 ? '10px' : Math.round(Math.min(140, Math.max(72, vv.height * 0.15))) + 'px');
     root.style.setProperty('--rumi-top', Math.round(vv.offsetTop) + 'px');
     if (document.activeElement === input) scroll();
   }
@@ -1283,13 +1290,25 @@
     document.documentElement.classList.toggle('rumi-lock', phone());
     fitViewport(); scroll();
   });
-  function close() {
+  // Back-button support. Closing with the X/backdrop/swipe removes our history entry (history.back),
+  // which is async: a chat reopened before it lands waits for it, so a later back never leaves the site.
+  var backEntry = false, backPending = false, needEntry = false;
+  function pushBackEntry() { try { window.history.pushState({ rumi: true }, ''); backEntry = true; } catch (e) {} }
+  function close(fromBack) {
+    if (panel.hidden) return;
     panel.hidden = true;
+    panel.style.transform = '';
     document.documentElement.classList.remove('rumi-lock');
     root.classList.remove('open');
     launcher.setAttribute('aria-expanded', 'false');
+    needEntry = false;
+    if (backEntry) { backEntry = false; if (fromBack !== true) { backPending = true; try { window.history.back(); } catch (e) { backPending = false; } } }
     launcher.focus();
   }
+  window.addEventListener('popstate', function () {
+    if (backPending) { backPending = false; if (needEntry && panel && !panel.hidden) { needEntry = false; pushBackEntry(); } return; }
+    if (backEntry && panel && !panel.hidden) { backEntry = false; close(true); } else backEntry = false;
+  });
   function hideTeaser() { if (teaser) { teaser.hidden = true; store(TEASE_KEY, '1'); } }
 
   function build() {
@@ -1318,7 +1337,23 @@
     restore();
     if (history.length) chips.hidden = true;
     launcher.addEventListener('click', function () { if (panel.hidden) open(); else close(); });
-    root.querySelector('.rumi-close').addEventListener('click', close);
+    root.querySelector('.rumi-close').addEventListener('click', function () { close(); });
+    root.addEventListener('click', function (e) { if (e.target === root && root.classList.contains('open') && phone()) close(); });
+    var head = root.querySelector('.rumi-head'), dragY = null, dragDy = 0;
+    head.addEventListener('touchstart', function (e) {
+      if (!phone() || e.target.closest('button')) return;
+      dragY = e.touches[0].clientY; dragDy = 0; panel.style.transition = 'none';
+    }, { passive: true });
+    head.addEventListener('touchmove', function (e) {
+      if (dragY === null) return;
+      dragDy = Math.max(0, e.touches[0].clientY - dragY);
+      panel.style.transform = 'translateY(' + dragDy + 'px)';
+    }, { passive: true });
+    head.addEventListener('touchend', function () {
+      if (dragY === null) return;
+      dragY = null; panel.style.transition = '';
+      if (dragDy > 90) close(); else panel.style.transform = '';
+    });
     function resetChat() {
       history = []; queued = []; pending = null; persona = null; store(PERSONA_KEY, ''); save(); log.replaceChildren();
       renderChips(); welcome(); if (!phone()) input.focus();

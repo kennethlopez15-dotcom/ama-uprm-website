@@ -263,6 +263,19 @@ try:
         pg.locator('.rumi-close').click(); assert not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
         ctx.close()
         passed('RUMi on landscape phones: header and input on screen, successive messages all answered')
+        # Phones: RUMi is a bottom sheet; tapping the dimmed page, the back button and the X all close it without leaving.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':390,'height':780},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); url0=pg.url
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(400)
+        top=pg.locator('.rumi-panel').bounding_box()['y']; assert top>=60, top  # the page stays visible above the sheet
+        pg.mouse.click(40, top/2); pg.wait_for_timeout(300); assert pg.evaluate("document.querySelector('.rumi-panel').hidden")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300); pg.go_back(); pg.wait_for_timeout(400)
+        assert pg.url==url0 and pg.evaluate("document.querySelector('.rumi-panel').hidden")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300); pg.locator('.rumi-close').click(); pg.wait_for_timeout(300)
+        assert pg.url==url0 and not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
+        ctx.close()
+        passed('RUMi bottom sheet on phones: page visible, backdrop/back/X close it, visitor stays on the page')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

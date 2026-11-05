@@ -183,11 +183,14 @@
 @media (max-width:520px),(max-height:520px){
   .rumi-launch-label{display:none}
   .rumi-launch{padding:8px}
-  .rumi.open{inset:var(--rumi-top,0px) 0 auto 0;gap:0}
-  .rumi.open .rumi-panel{width:100vw;height:var(--rumi-vh,100dvh);min-height:0;border-radius:0}
+  /* Phones: a bottom sheet over the dimmed page — the page stays visible above it, and tapping it,
+     swiping the sheet down, the back button or the X all close the chat. */
+  .rumi.open{inset:var(--rumi-top,0px) 0 auto 0;height:var(--rumi-vh,100dvh);gap:0;justify-content:flex-end;background:rgba(15,23,42,.5);-webkit-tap-highlight-color:transparent;animation:rumi-fade .2s ease both}
+  .rumi.open .rumi-panel{width:100vw;height:calc(var(--rumi-vh,100dvh) - var(--rumi-sheet-gap,72px));max-height:none;min-height:0;border-radius:20px 20px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.25);animation:rumi-sheet .28s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s ease}
+  .rumi.open .rumi-head{position:relative;padding-top:20px;border-radius:20px 20px 0 0;touch-action:none}
+  .rumi.open .rumi-head::before{content:'';position:absolute;top:7px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:4px;background:rgba(255,255,255,.5)}
   html.rumi-lock,html.rumi-lock body{overflow:hidden;overscroll-behavior:none}
   .rumi.open .rumi-launch{display:none}
-  .rumi-head{padding-top:max(14px,env(safe-area-inset-top,0px))}
   .rumi-sub-org{display:none}
   .rumi-note{padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
   .has-rumi #toTop{bottom:calc(max(26px,env(safe-area-inset-bottom,0px)) + 66px)}
@@ -243,3 +246,9 @@
   .rumi-head{padding-top:6px;padding-bottom:6px}
   .rumi-log{padding:10px 14px}
 }
+
+@keyframes rumi-sheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes rumi-fade{from{background:rgba(15,23,42,0)}to{background:rgba(15,23,42,.5)}}
+/* Short visible area (landscape, or the keyboard is open): the sheet uses almost all of it. */
+@media (max-height:560px){.rumi{--rumi-sheet-gap:10px}}
+@media (prefers-reduced-motion:reduce){.rumi.open,.rumi.open .rumi-panel{animation:none}}
