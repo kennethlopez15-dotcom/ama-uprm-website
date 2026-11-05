@@ -1037,8 +1037,8 @@
     text = String(text || '').trim().slice(0, 500);
     if (!text) return;
     // Visitors who write in the other language get RUMi — and the whole site — in that language.
-    var said = typed ? writtenIn(text) : null;
-    if (said && said !== lang()) { switchLang(said, 'auto'); }
+    var said = typed && !langChosen() ? writtenIn(text) : null;
+    if (said && said !== lang()) switchLang(said, 'auto');
     respond(text);
   }
 
@@ -1046,23 +1046,35 @@
   var ES_WORDS = ' que de el la los las como cuando donde quiero puedo hay tienen tiene es son para por con una un mi tu cual cuanto cuesta soy estoy hola gracias necesito ayuda quien sobre eventos evento membresia cuota negocio empresa auspiciar dame busca revisa ';
   var EN_WORDS = ' the what how when where who is are can could do does i you my your for with a an about there have has need want hi hello thanks please events event membership dues business company sponsor give find review which ';
   function writtenIn(text) {
+    // Only full sentences with a clear winner count: Puerto Rican Spanish mixes in English event
+    // names ("Marketing Week events?") and short replies ("ok gracias") say nothing about the language.
     var raw = String(text).toLowerCase();
-    if (/[¿¡ñ]/.test(raw) || /[áéíóú]/.test(raw)) return 'es';
     var words = norm(raw).split(/[^a-z]+/).filter(Boolean);
-    if (words.length < 2) return null;
+    if (/[¿¡ñ]/.test(raw) || /[áéíóú]/.test(raw)) return words.length >= 3 ? 'es' : null;
+    if (words.length < 4) return null;
     var es = 0, en = 0;
     words.forEach(function (w) { if (ES_WORDS.indexOf(' ' + w + ' ') !== -1) es++; if (EN_WORDS.indexOf(' ' + w + ' ') !== -1) en++; });
-    if (es >= en + 2 || (es >= 1 && en === 0 && words.length <= 4)) return 'es';
-    if (en >= es + 2 || (en >= 1 && es === 0 && words.length <= 4)) return 'en';
+    if (es >= 2 && es >= en + 2) return 'es';
+    if (en >= 2 && en >= es + 2) return 'en';
     return null;
   }
-  var langReason = '';
+  var langReason = '', manualLang = false;
+  // A language the visitor chose (RUMi's toggle, the site's EN/ES buttons, or a saved site preference) always wins.
+  function langChosen() {
+    if (manualLang) return true;
+    try { return !!localStorage.getItem('ama-lang'); } catch (e) { return false; }
+  }
+  document.addEventListener('click', function (e) { if (e.isTrusted && e.target.closest && e.target.closest('.lang button')) manualLang = true; }, true);
   function switchLang(l, reason) {
     langReason = reason || 'toggle';
     track('rumi_language', { language: l, reason: langReason });
     // Reuse the site's own EN/ES switch so the page, the menu and RUMi all change together.
     var btn = document.querySelector('.lang button[data-lang="' + l + '"]');
+    // The site saves clicks on its EN/ES buttons as the visitor's choice; an automatic switch is not one.
+    var saved = null;
+    try { saved = localStorage.getItem('ama-lang'); } catch (e) {}
     if (btn) btn.click(); else document.documentElement.lang = l;
+    if (reason === 'auto') { try { if (saved === null) localStorage.removeItem('ama-lang'); else localStorage.setItem('ama-lang', saved); } catch (e) {} }
   }
   function onLangChange() {
     renderStatic();
@@ -1109,9 +1121,8 @@
     panel.querySelector('.rumi-reset').setAttribute('aria-label', t('New conversation', 'Nueva conversación'));
     panel.querySelector('.rumi-reset').title = t('New conversation', 'Nueva conversación');
     var lb = panel.querySelector('.rumi-lang');
-    lb.textContent = lang() === 'es' ? 'EN' : 'ES';
+    lb.innerHTML = '<span class="' + (lang() === 'es' ? 'on' : '') + '" lang="es">ES</span><span class="' + (lang() === 'en' ? 'on' : '') + '" lang="en">EN</span>';
     lb.setAttribute('aria-label', t('Cambiar a español', 'Switch to English'));
-    lb.setAttribute('lang', lang() === 'es' ? 'en' : 'es');
     lb.title = lb.getAttribute('aria-label');
     input.placeholder = t('Type your question…', 'Escribe tu pregunta…');
     input.setAttribute('aria-label', t('Message for RUMi', 'Mensaje para RUMi'));
@@ -1120,7 +1131,7 @@
     mic.setAttribute('aria-label', recognition ? t('Stop listening', 'Dejar de escuchar') : t('Ask by voice', 'Pregunta por voz'));
     mic.title = t('Ask by voice (uses your browser speech recognition)', 'Pregunta por voz (usa el reconocimiento de voz de tu navegador)');
     if (!recognition) input.placeholder = t('Type your question…', 'Escribe tu pregunta…');
-    panel.querySelector('.rumi-note').textContent = t('RUMi uses free AI with this site\'s information and can make mistakes. Don\'t share sensitive data.', 'RUMi usa IA gratuita con la información de este sitio y puede equivocarse. No compartas datos sensibles.');
+    panel.querySelector('.rumi-note').textContent = t('RUMi uses AI and can make mistakes. Don\'t share sensitive data.', 'RUMi usa IA y puede equivocarse. No compartas datos sensibles.');
     if (teaser) { teaser.querySelector('.rumi-teaser-text').textContent = teaserText(); teaser.querySelector('.rumi-teaser-x').setAttribute('aria-label', t('Dismiss', 'Descartar')); }
     renderChips();
   }
@@ -1148,10 +1159,23 @@
     track('rumi_open', { page: page() });
     loadKb();
     scroll();
-    setTimeout(function () { input.focus(); }, 50);
+    if (phone()) { document.documentElement.classList.add('rumi-lock'); fitViewport(); }
+    // On touch screens the keyboard would cover the welcome card; visitors tap the field when ready.
+    else setTimeout(function () { input.focus(); }, 50);
   }
+  function phone() { return window.matchMedia && window.matchMedia('(max-width: 520px)').matches; }
+  // iOS keeps 100dvh when the keyboard opens; size the full-screen panel to the visible area instead.
+  function fitViewport() {
+    var vv = window.visualViewport;
+    if (!vv || !root || panel.hidden || !phone()) { if (root) { root.style.removeProperty('--rumi-vh'); root.style.removeProperty('--rumi-top'); } return; }
+    root.style.setProperty('--rumi-vh', Math.round(vv.height) + 'px');
+    root.style.setProperty('--rumi-top', Math.round(vv.offsetTop) + 'px');
+    if (document.activeElement === input) scroll();
+  }
+  if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitViewport); window.visualViewport.addEventListener('scroll', fitViewport); }
   function close() {
     panel.hidden = true;
+    document.documentElement.classList.remove('rumi-lock');
     root.classList.remove('open');
     launcher.setAttribute('aria-expanded', 'false');
     launcher.focus();
@@ -1191,7 +1215,7 @@
     });
     root.querySelector('.rumi-form').addEventListener('submit', function (e) { e.preventDefault(); var v = input.value; input.value = ''; send(v, true); });
     if (Speech) { root.querySelector('.rumi-mic').hidden = false; root.querySelector('.rumi-mic').addEventListener('click', listen); }
-    root.querySelector('.rumi-lang').addEventListener('click', function () { switchLang(lang() === 'es' ? 'en' : 'es', 'toggle'); });
+    root.querySelector('.rumi-lang').addEventListener('click', function () { manualLang = true; switchLang(lang() === 'es' ? 'en' : 'es', 'toggle'); });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
     teaser.querySelector('.rumi-teaser-text').addEventListener('click', function () { track('rumi_teaser_click', { page: page() }); open(); });
     teaser.querySelector('.rumi-teaser-x').addEventListener('click', hideTeaser);

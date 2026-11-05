@@ -160,8 +160,8 @@
 .rumi-persona .rumi-choice:hover{border-color:var(--r-accent);background:var(--r-surface);color:var(--r-heading);transform:translateY(-2px);box-shadow:0 8px 18px rgba(31,48,79,.12)}
 
 /* language toggle in the header and the switch note in the log */
-.rumi-head .rumi-lang{width:auto;min-width:44px;height:32px;padding:0 10px;border:1.5px solid rgba(255,255,255,.4);border-radius:999px;font:700 .72rem/1 var(--font);letter-spacing:.08em}
-.rumi-head .rumi-lang:hover{background:#fff;color:var(--green-dark)}
+.rumi-head .rumi-lang{display:inline-flex;gap:2px;align-items:center;width:auto;min-width:44px;height:32px;padding:0 3px;border:1.5px solid rgba(255,255,255,.4);border-radius:999px;font:700 .72rem/1 var(--font);letter-spacing:.08em}
+.rumi-head .rumi-lang:hover{background:rgba(255,255,255,.12)}
 .rumi-divider{display:flex;align-items:center;gap:10px;margin:2px 0;font:600 .7rem/1.3 var(--font);color:var(--r-muted);text-align:center}
 .rumi-divider::before,.rumi-divider::after{content:'';flex:1;height:1px;background:var(--r-soft-hover)}
 
@@ -183,8 +183,9 @@
 @media (max-width:520px){
   .rumi-launch-label{display:none}
   .rumi-launch{padding:8px}
-  .rumi.open{inset:0;right:0;bottom:0;gap:0}
-  .rumi.open .rumi-panel{width:100vw;height:100dvh;border-radius:0}
+  .rumi.open{inset:var(--rumi-top,0px) 0 auto 0;gap:0}
+  .rumi.open .rumi-panel{width:100vw;height:var(--rumi-vh,100dvh);min-height:0;border-radius:0}
+  html.rumi-lock,html.rumi-lock body{overflow:hidden;overscroll-behavior:none}
   .rumi.open .rumi-launch{display:none}
   .rumi-head{padding-top:max(14px,env(safe-area-inset-top,0px))}
   .rumi-sub-org{display:none}
@@ -197,3 +198,8 @@
   .rumi-launch,.rumi-action,.rumi-chip{transition:none}
 }
 @media print{.rumi{display:none}}
+
+/* Language toggle: both options visible, the current one filled. */
+.rumi-head .rumi-lang span{padding:5px 7px;border-radius:999px;opacity:.65}
+.rumi-head .rumi-lang span.on{background:#fff;color:var(--green-dark);opacity:1}
+.rumi-head .rumi-lang:hover span:not(.on){opacity:1}

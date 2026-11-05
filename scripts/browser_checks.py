@@ -217,6 +217,23 @@ try:
             assert ('NANO-OK' in pg.locator('.rumi-log').inner_text())==(state=='available'),state
             ctx.close()
         passed('RUMi on-device fallback: used when available, never triggers a model download')
+        # RUMi language: short or mixed messages never flip the site; full sentences do; a manual choice wins.
+        ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click()
+        def say(q):
+            pg.locator('.rumi-form input').fill(q); pg.locator('.rumi-form input').press('Enter'); pg.wait_for_timeout(1500)
+            return pg.evaluate('document.documentElement.lang')
+        assert say('Marketing Week events?')=='es'
+        assert say('ok gracias')=='es'
+        assert say('How can I join the chapter if I am a freshman?')=='en'
+        assert pg.evaluate("localStorage.getItem('ama-lang')") is None  # an automatic switch is not saved as a choice
+        assert say('Y como puedo pagar la cuota de membresia?')=='es'
+        pg.locator('.rumi-lang').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate('document.documentElement.lang')=='en'
+        assert say('Cuando es el proximo evento del capitulo?')=='en'  # the visitor's own choice wins
+        ctx.close()
+        passed('RUMi language detection: no flips on short/mixed messages, manual choice wins')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')
