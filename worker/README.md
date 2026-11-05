@@ -15,7 +15,8 @@ Sitio (GitHub Pages) ── RUMi widget (assets/rumi.js)
         │  paletas, nombres (Datamuse), QR (api.qrserver.com), validación de email (Disify)
         └── POST /chat ──► Cloudflare Worker (este folder)
                               ├─ 1. Groq        (openai/gpt-oss-120b, razonamiento bajo)
-                              ├─ 2. Workers AI  (Gemma 4 26B, sin key)
+                              ├─ 1b. Groq       (openai/gpt-oss-20b: los límites de Groq son por modelo)
+                              ├─ 2. Workers AI  (Mistral Small 3.1 24B, sin key)
                               ├─ 3. OVHcloud    (Mistral Small, acceso anónimo documentado)
                               └─ si todo falla → el widget contesta localmente
 ```
@@ -35,7 +36,8 @@ Sitio (GitHub Pages) ── RUMi widget (assets/rumi.js)
    ```
    Al final imprime la URL, p. ej. `https://rumi.<cuenta>.workers.dev`.
 3. **Conectar el sitio**: poner esa URL en `rumiEndpoint` de `assets/config.js`, commit y push.
-4. **Probar**: `https://rumi.<cuenta>.workers.dev/health` debe listar `groq`, `workers-ai`, `ovh`.
+4. **Probar**: `https://rumi.<cuenta>.workers.dev/health` debe listar `groq`, `groq-20b`, `workers-ai`, `ovh`.
+   Publicado el 2026-11-05 en **https://rumi.amauprm.workers.dev** (cuenta Cloudflare del capítulo; `GROQ_API_KEY` es un Secret en Settings → Variables and Secrets).
 
 ### Opcional: registro de preguntas sin respuesta
 ```bash

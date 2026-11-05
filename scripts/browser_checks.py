@@ -206,6 +206,7 @@ try:
         for state,expect_created in [('available',1),('downloadable',0)]:
             ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
             ctx.route(re.compile(r'.*ovh\.net.*'),lambda r:r.abort())
+            ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:''};"))  # browser-only chain
             ctx.add_init_script(f"window.__nanoState='{state}';"+nano_mock)
             pg=ctx.new_page(); pg.goto(base+'index.html')
             pg.locator('.rumi-launch').click()

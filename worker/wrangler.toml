@@ -8,7 +8,8 @@ SITE_URL = "https://amauprm.org"
 ALLOWED_ORIGINS = "https://amauprm.org,https://www.amauprm.org"
 # Optional model overrides if a provider retires a model:
 # GROQ_MODEL = "openai/gpt-oss-120b"
-# WORKERS_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+# GROQ_MODEL_2 = "openai/gpt-oss-20b"
+# WORKERS_AI_MODEL = "@cf/mistralai/mistral-small-3.1-24b-instruct"
 
 # Last-resort LLM, included in the free plan (10,000 neurons/day). No API key needed.
 [ai]

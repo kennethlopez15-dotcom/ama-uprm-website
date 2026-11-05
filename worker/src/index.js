@@ -167,7 +167,7 @@ function systemPrompt(kb, lang, today, page, query) {
 ${L}
 
 RULES
-1. Answer ONLY with facts from the CHAPTER INFORMATION below. Never invent dates, prices, names, numbers or promises. Dues amounts are NOT published: say they are announced each semester at kickoff and by email.
+1. Answer ONLY with facts from the CHAPTER INFORMATION below. Never invent dates, prices, names, numbers or promises. Membership dues amounts are NOT published: say they are announced each semester at kickoff and by email. Sponsorship prices ARE published (AMPLIFY 2027, goal $40,000 to send 25 students to ICC 2027): Impact Partner $1,000, AMPLIFY Partner $2,500, Premier Partner $5,000, or a custom/in-kind package — always give these exact prices when asked about sponsoring.
 2. If the answer is not in the information, say so briefly, suggest writing to ama@uprm.edu, and add the token [UNANSWERED] at the end of your text. Do not answer general-knowledge or off-topic questions (homework, politics, other universities); steer back to the chapter kindly and mark [UNANSWERED].
 3. Keep it short: at most 110 words, short paragraphs or a short list. Use **bold** for key facts. Links only as [text](page.html) for site pages or [text](mailto:...) — never invent URLs.
 4. Never ask for passwords, payment details or ID numbers. If someone wants to sponsor or hire ELEVATE, recommend the "sponsor" or "hire" action so they can leave their contact info in the chat form.
@@ -186,7 +186,7 @@ ${events}
 Executive Board 2026–27:
 ${board}
 
-Chapter in brief: founded 2018 at UPRM; Top Collegiate Chapter five years in a row; Top 20 AMA collegiate chapters worldwide; six teams; membership open to undergraduates of any major; ELEVATE is the student-run consulting agency; BIG & Little mentorship; podcast "A Marketing Affair"; yearly delegation to AMA's International Collegiate Conference (ICC) — ICC 2027 is April 8–10, 2027 in New Orleans; ICC 2026 was in Chicago.
+Chapter in brief: founded 2018 at UPRM; Top Collegiate Chapter five years in a row; Top 20 AMA collegiate chapters worldwide; 93 members; six teams; membership open to undergraduates of any major; ELEVATE is the student-run consulting agency; BIG & Little mentorship; podcast "A Marketing Affair"; yearly delegation to AMA's International Collegiate Conference (ICC) — ICC 2027 is April 8–10, 2027 in New Orleans; ICC 2026 was in Chicago.
 
 2026–27 Chapter Plan (official plan; dates in the tentative calendar can change, so always say "planned" and point to the live calendar):
 ${plan}
@@ -208,6 +208,8 @@ ${pages || '(none matched — rely on the brief above)'}`;
 function providers(env) {
   const list = [];
   if (env.GROQ_API_KEY) list.push({ name: 'groq', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL || 'openai/gpt-oss-120b', m, 1000, { reasoning_effort: 'low' }) });
+  // Groq limits are per model, so a second model doubles the fast capacity with the same key.
+  if (env.GROQ_API_KEY) list.push({ name: 'groq-20b', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL_2 || 'openai/gpt-oss-20b', m, 1000, { reasoning_effort: 'low' }) });
   if (env.AI) list.push({ name: 'workers-ai', run: workersAi });
   list.push({ name: 'ovh', run: (m) => openaiCompatible('https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions', '', 'Mistral-Small-3.2-24B-Instruct-2506', m) });
   return list;
@@ -226,8 +228,8 @@ async function openaiCompatible(endpoint, key, model, messages, maxTokens = 450,
 }
 
 async function workersAi(messages, env) {
-  // Gemma 4 26B: on Cloudflare's free allocation (some heavier models now require a paid plan).
-  const out = await env.AI.run(env.WORKERS_AI_MODEL || '@cf/google/gemma-4-26b-a4b-it', { messages, max_tokens: 400, temperature: 0.3 });
+  // Mistral Small 3.1: fast, strong Spanish, on Cloudflare's free allocation (Gemma 4 took ~19 s, 2026-11-05).
+  const out = await env.AI.run(env.WORKERS_AI_MODEL || '@cf/mistralai/mistral-small-3.1-24b-instruct', { messages, max_tokens: 400, temperature: 0.3 });
   return { text: out && (out.response || (out.choices && out.choices[0].message.content)) };
 }
 
