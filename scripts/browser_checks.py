@@ -250,6 +250,19 @@ try:
         assert 'English' in pg.locator('.rumi-divider').last.inner_text()
         ctx.close()
         passed('RUMi translates the conversation (answers, event cards, buttons) on language change')
+        # Phones: landscape keeps the close button on screen, and quick successive messages are all answered.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':740,'height':360},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click(); pg.wait_for_timeout(400)
+        box=pg.locator('.rumi-close').bounding_box(); assert box and box['y']>=0 and box['y']+box['height']<=360, box
+        fbox=pg.locator('.rumi-form input').bounding_box(); assert fbox and fbox['y']+fbox['height']<=360, fbox
+        for q in ['Cual es el proximo evento?','Que es ELEVATE?','Cuanto cuesta auspiciar?']:
+            pg.locator('.rumi-form input').fill(q); pg.locator('.rumi-form input').press('Enter'); pg.wait_for_timeout(60)
+        pg.wait_for_function("document.querySelectorAll('.rumi-bot').length>=3",timeout=20000)
+        assert pg.locator('.rumi-user').count()==3
+        pg.locator('.rumi-close').click(); assert not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
+        ctx.close()
+        passed('RUMi on landscape phones: header and input on screen, successive messages all answered')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

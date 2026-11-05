@@ -971,7 +971,7 @@
   }
   function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
 
-  var skipTyping = null, queued = null; // a message sent mid-animation finishes it and waits its turn
+  var skipTyping = null, queued = []; // messages sent mid-answer finish the animation and wait their turn, in order
   var reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   // Reveals an answer as if RUMi were typing it (~1 s whatever its length). Tap the bubble to skip.
   // The live region isn't flooded: text changes aren't announced, and the full answer goes to the status line.
@@ -1024,7 +1024,7 @@
   }
   // Shows the visitor's message, then RUMi's answer from `run` (a choice) or the brain.
   function respond(text, run) {
-    if (busy) { queued = [text, run]; if (skipTyping) skipTyping(); return; }
+    if (busy) { if (queued.length < 5) queued.push([text, run]); if (skipTyping) skipTyping(); return; }
     busy = true;
     log.appendChild(bubble('user', text));
     history.push({ role: 'user', content: text });
@@ -1038,7 +1038,7 @@
         log.appendChild(bubble('bot', rich(t('Something went wrong on my side. Try again, or write to [ama@uprm.edu](mailto:ama@uprm.edu).', 'Algo falló de mi lado. Intenta otra vez o escribe a [ama@uprm.edu](mailto:ama@uprm.edu).'))));
       }).then(function () {
         busy = false;
-        if (queued) { var next = queued; queued = null; respond(next[0], next[1]); }
+        if (queued.length) { var next = queued.shift(); respond(next[0], next[1]); }
       });
   }
   function send(text, typed) {
@@ -1266,16 +1266,23 @@
     // On touch screens the keyboard would cover the welcome card; visitors tap the field when ready.
     else setTimeout(function () { input.focus(); }, 50);
   }
-  function phone() { return window.matchMedia && window.matchMedia('(max-width: 520px)').matches; }
+  function phone() { return !!(window.matchMedia && window.matchMedia('(max-width: 520px), (max-height: 520px)').matches); }
   // iOS keeps 100dvh when the keyboard opens; size the full-screen panel to the visible area instead.
   function fitViewport() {
     var vv = window.visualViewport;
-    if (!vv || !root || panel.hidden || !phone()) { if (root) { root.style.removeProperty('--rumi-vh'); root.style.removeProperty('--rumi-top'); } return; }
+    // Pinch-zoomed pages: the visual viewport is scaled, so its size isn't the panel's size — fall back to CSS.
+    if (!vv || !root || panel.hidden || !phone() || Math.abs((vv.scale || 1) - 1) > 0.05) { if (root) { root.style.removeProperty('--rumi-vh'); root.style.removeProperty('--rumi-top'); } return; }
     root.style.setProperty('--rumi-vh', Math.round(vv.height) + 'px');
     root.style.setProperty('--rumi-top', Math.round(vv.offsetTop) + 'px');
     if (document.activeElement === input) scroll();
   }
   if (window.visualViewport) { window.visualViewport.addEventListener('resize', fitViewport); window.visualViewport.addEventListener('scroll', fitViewport); }
+  // Rotating the phone (or resizing a window) with the chat open: re-apply the full-screen lock and size.
+  window.addEventListener('resize', function () {
+    if (!panel || panel.hidden) return;
+    document.documentElement.classList.toggle('rumi-lock', phone());
+    fitViewport(); scroll();
+  });
   function close() {
     panel.hidden = true;
     document.documentElement.classList.remove('rumi-lock');
@@ -1313,7 +1320,7 @@
     launcher.addEventListener('click', function () { if (panel.hidden) open(); else close(); });
     root.querySelector('.rumi-close').addEventListener('click', close);
     function resetChat() {
-      history = []; pending = null; persona = null; store(PERSONA_KEY, ''); save(); log.replaceChildren();
+      history = []; queued = []; pending = null; persona = null; store(PERSONA_KEY, ''); save(); log.replaceChildren();
       renderChips(); welcome(); if (!phone()) input.focus();
     }
     root.querySelector('.rumi-reset').addEventListener('click', function () {

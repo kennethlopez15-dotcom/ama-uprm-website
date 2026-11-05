@@ -180,7 +180,7 @@
 .rumi-mic.on{background:var(--green);border-color:var(--green);color:#fff;animation:rumi-pulse 1.2s ease-out infinite}
 @keyframes rumi-pulse{0%{box-shadow:0 0 0 0 rgba(142,24,37,.55)}100%{box-shadow:0 0 0 12px rgba(142,24,37,0)}}
 
-@media (max-width:520px){
+@media (max-width:520px),(max-height:520px){
   .rumi-launch-label{display:none}
   .rumi-launch{padding:8px}
   .rumi.open{inset:var(--rumi-top,0px) 0 auto 0;gap:0}
@@ -219,7 +219,7 @@
 .rumi-submit.empty{opacity:.45}
 .rumi-quick{animation:rumi-msg .32s var(--ease) both}
 @media (prefers-reduced-motion:reduce){.rumi-quick{animation:none}}
-@media (max-width:520px){
+@media (max-width:520px),(max-height:520px){
   /* Answers use the full width: the header already says it's RUMi. */
   .rumi-bot > .rumi-av{display:none}
   .rumi-choices,.rumi-follow,.rumi-actions{padding-left:0}
@@ -236,3 +236,10 @@
 .rumi-hero-sub{font-size:.8rem;max-width:none}
 .rumi-hero-q{grid-column:1/-1;justify-self:center;margin-top:12px}
 .rumi-persona .rumi-choice{min-height:64px}
+
+/* Landscape phones: every pixel of height counts. */
+@media (max-height:420px){
+  .rumi-note{display:none}
+  .rumi-head{padding-top:6px;padding-bottom:6px}
+  .rumi-log{padding:10px 14px}
+}
