@@ -389,6 +389,12 @@
     if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });
     }
+    /* Inquiry KPIs: mailto CTAs with a subject (sponsor partnership, ELEVATE client) */
+    if (href.indexOf('mailto:') === 0) {
+      var subj = decodeURIComponent((href.match(/[?&]subject=([^&]*)/i) || ['', ''])[1]);
+      if (/AMPLIFY|partnership|sponsor/i.test(subj)) trackEvent('sponsor_inquiry_click', { subject: subj });
+      else if (/ELEVATE/i.test(subj)) trackEvent('elevate_inquiry_click', { subject: subj });
+    }
   });
 
   /* ---------- Simple event filter ---------- */

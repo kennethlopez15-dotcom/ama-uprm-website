@@ -8,5 +8,5 @@ window.AMA_CONFIG = Object.freeze({
   // Empty = RUMi still works, answering from assets/rumi/kb.json and free public APIs.
   rumiEndpoint: '',
   // Date shown as "Last updated" in every footer (YYYY-MM-DD). Bump it whenever site content changes.
-  siteUpdated: '2026-11-02'
+  siteUpdated: '2026-11-05'
 });
