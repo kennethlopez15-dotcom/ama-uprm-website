@@ -648,13 +648,48 @@
   // LLM7 (terms of 15 Oct 2026 require a token, forbid production use and embedding for third parties),
   // Pollinations (anonymous browser use is legacy; new docs require keys), Kilo Gateway (no CORS: Worker only).
   var FREE_MODELS = [
-    { id: 'ovh-mistral-small', url: OVH, model: 'Mistral-Small-3.2-24B-Instruct-2506', wait: 8000 },   // ~1-3 s, best Spanish
-    { id: 'ovh-mistral-nemo', url: OVH, model: 'Mistral-Nemo-Instruct-2407', wait: 8000 },             // ~2-4 s
-    { id: 'ovh-qwen', url: OVH, model: 'Qwen3.8-27B', wait: 14000, tokens: 1500 },                      // ~9 s, reasons first
-    { id: 'ovh-gpt-oss-120b', url: OVH, model: 'gpt-oss-120b', wait: 14000, tokens: 1500 },             // 8-20 s, reasons first
+    // Re-tested 2026-11-05 against the live OVH model list (Mistral-Nemo was retired: 404).
+    { id: 'ovh-mistral-small', url: OVH, model: 'Mistral-Small-3.2-24B-Instruct-2506', wait: 8000 },   // ~2-4 s, best Spanish
+    { id: 'ovh-gpt-oss-20b', url: OVH, model: 'gpt-oss-20b', wait: 8000, tokens: 1500 },                // ~2-4 s, refuses injections
+    { id: 'ovh-qwen-397b', url: OVH, model: 'Qwen3.5-397B-A17B', wait: 12000, tokens: 1500 },           // ~6-10 s, best quality
+    { id: 'ovh-gpt-oss-120b', url: OVH, model: 'gpt-oss-120b', wait: 14000, tokens: 1500 },             // ~4-20 s, reasons first
+    { id: 'ovh-qwen-27b', url: OVH, model: 'Qwen3.6-27B', wait: 14000, tokens: 1500 },                  // ~8-19 s
+    { id: 'ovh-qwen', url: OVH, model: 'Qwen3.8-27B', wait: 14000, tokens: 1500 },                      // ~5-9 s, reasons first
     { id: 'ovh-llama-70b', url: OVH, model: 'Meta-Llama-3_3-70B-Instruct', wait: 8000 }                // ~3 s; last: invents details more often
   ];
-  // Each model allows 2 requests/min per visitor IP, so the chain gives ~10 AI answers a minute per visitor.
+  // Each model allows 2 requests/min per visitor IP, so the chain gives ~14 AI answers a minute per visitor.
+
+  // Last AI tier: Chrome's built-in Gemini Nano (Prompt API, Chrome 148+ desktop). Runs on the visitor's own
+  // device: free, private, no rate limit. Used ONLY when the model is already 'available' — RUMi never triggers
+  // the multi-GB download. Phones and other browsers simply skip this tier.
+  function nanoAnswer(messages, started) {
+    var LM = window.LanguageModel;
+    if (!LM || typeof LM.availability !== 'function') return Promise.reject(new Error('no model'));
+    var opts = { expectedInputs: [{ type: 'text', languages: ['en', 'es'] }], expectedOutputs: [{ type: 'text', languages: [lang()] }] };
+    var controller = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 15000);
+    var session = null;
+    return Promise.resolve(LM.availability(opts)).then(function (state) {
+      if (state !== 'available') throw new Error('nano ' + state);
+      var initial = messages.slice(0, -1).map(function (m) { return { role: m.role, content: m.content }; });
+      return LM.create(Object.assign({ initialPrompts: initial, signal: controller ? controller.signal : undefined }, opts));
+    }).then(function (s) {
+      session = s;
+      return s.prompt(messages[messages.length - 1].content, { signal: controller ? controller.signal : undefined });
+    }).then(function (reply) {
+      clearTimeout(timer);
+      if (session && session.destroy) session.destroy();
+      var out = parseAi(String(reply || ''));
+      if (!out.text) throw new Error('empty');
+      track('rumi_message', { mode: 'ai', intent: 'free', model: 'chrome-nano', ms: Date.now() - started });
+      if (out.unanswered) track('rumi_unanswered', { question: messages[messages.length - 1].content.slice(0, 100) });
+      return { text: out.text, actions: out.actions.map(function (k) { return A[k](); }), intent: out.unanswered ? 'unanswered' : 'ai' };
+    }).catch(function (e) {
+      clearTimeout(timer);
+      if (session && session.destroy) session.destroy();
+      throw e;
+    });
+  }
   var cooling = {};
   function freeAiAnswer(text, hint, hasFallback) {
     var started = Date.now();
@@ -665,7 +700,8 @@
       while (i < FREE_MODELS.length && cooling[FREE_MODELS[i].id] > Date.now()) i++;
       // Out of models, or a local answer is ready and the visitor has waited long enough.
       // Total budget: 10 s when a local answer is ready, 20 s otherwise — then the local brain answers.
-      if (i >= FREE_MODELS.length || Date.now() - started > (hasFallback ? 10000 : 20000)) return Promise.reject(new Error('no model'));
+      if (Date.now() - started > (hasFallback ? 10000 : 20000)) return Promise.reject(new Error('no model'));
+      if (i >= FREE_MODELS.length) return nanoAnswer(messages, started);
       var p = FREE_MODELS[i];
       var controller = window.AbortController ? new AbortController() : null;
       var timer = setTimeout(function () { if (controller) controller.abort(); }, p.wait);

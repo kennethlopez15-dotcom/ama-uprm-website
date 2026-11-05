@@ -201,6 +201,21 @@ try:
             assert pg.evaluate("e=>dataLayer.filter(x=>x[1]===e).length",ev)==1,(file,sel)
         passed('Mocked sponsor and ELEVATE inquiry tracking')
         ctx.close()
+        # RUMi's last AI tier: Chrome's on-device model, used only if already downloaded (never triggers a download).
+        nano_mock="window.__nano={created:0};window.LanguageModel={availability:async()=>window.__nanoState,create:async()=>{__nano.created++;return{prompt:async()=>'NANO-OK',destroy(){}}}};"
+        for state,expect_created in [('available',1),('downloadable',0)]:
+            ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+            ctx.route(re.compile(r'.*ovh\.net.*'),lambda r:r.abort())
+            ctx.add_init_script(f"window.__nanoState='{state}';"+nano_mock)
+            pg=ctx.new_page(); pg.goto(base+'index.html')
+            pg.locator('.rumi-launch').click()
+            pg.locator('.rumi-form input').fill('Si no estudio marketing, puedo unirme igual a AMA UPRM y competir en ICC?')
+            pg.locator('.rumi-form input').press('Enter')
+            pg.wait_for_timeout(8000)  # 7 blocked OVH calls, then Nano or the local answer, plus the typewriter reveal
+            assert pg.evaluate('window.__nano.created')==expect_created,(state,pg.evaluate('window.__nano.created'))
+            assert ('NANO-OK' in pg.locator('.rumi-log').inner_text())==(state=='available'),state
+            ctx.close()
+        passed('RUMi on-device fallback: used when available, never triggers a model download')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

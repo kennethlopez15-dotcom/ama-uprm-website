@@ -3,8 +3,7 @@
 RUMi funciona **sin este Worker**: con `rumiEndpoint` vacío en `assets/config.js` contesta
 con la base de conocimiento (`assets/rumi/kb.json`) y, para preguntas abiertas, una cadena de
 modelos gratis **sin key** llamada desde el navegador de cada visitante (`FREE_MODELS` en
-`assets/rumi.js`): solo **OVHcloud AI Endpoints** (Mistral-Small → Mistral-Nemo → Llama 3.3 →
-Qwen → gpt-oss), cuyo acceso anónimo está documentado oficialmente (2 req/min por IP y modelo;
+`assets/rumi.js`): solo **OVHcloud AI Endpoints** (Mistral-Small → gpt-oss-20b → Qwen3.5-397B → gpt-oss-120b → Qwen 27B → Qwen3.8 → Llama 3.3), cuyo acceso anónimo está documentado oficialmente (2 req/min por IP y modelo;
 servidores en Francia; "no se guardan ni comparten datos"). Revisado el 2026-10-18 y descartado:
 LLM7 (sus términos exigen token y prohíben producción e integrarlo para terceros) y Pollinations
 (acceso anónimo "legacy"). El Worker añade **Groq** (cuenta gratis) y **Cloudflare Workers AI**, y es más rápido y estable
