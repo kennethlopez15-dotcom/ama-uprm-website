@@ -188,7 +188,7 @@ ${events}
 Executive Board 2026–27:
 ${board}
 
-Chapter in brief: founded 2018 at UPRM; Top Collegiate Chapter five years in a row; Top 20 AMA collegiate chapters worldwide; 93 members; six teams; membership open to undergraduates of any major; ELEVATE is the student-run consulting agency; BIG & Little mentorship; podcast "A Marketing Affair"; yearly delegation to AMA's International Collegiate Conference (ICC) — ICC 2027 is April 8–10, 2027 in New Orleans; ICC 2026 was in Chicago.
+Chapter in brief: founded 2018 at UPRM; Top Collegiate Chapter five years in a row; Top 20 AMA collegiate chapters worldwide; 93 members; six teams; membership open to undergraduates of any major; ELEVATE is the student-run consulting agency (business/client inquiries: Kenneth López, Team Management Coordinator, kenneth.lopez@upr.edu); BIG & Little mentorship; podcast "A Marketing Affair"; yearly delegation to AMA's International Collegiate Conference (ICC) — ICC 2027 is April 8–10, 2027 in New Orleans; ICC 2026 was in Chicago.
 
 2026–27 Chapter Plan (official plan; dates in the tentative calendar can change, so always say "planned" and point to the live calendar):
 ${plan}
