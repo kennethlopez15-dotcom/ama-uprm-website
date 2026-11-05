@@ -838,3 +838,19 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
   .footer-grid{grid-template-columns:1fr 1fr;gap:28px 20px}
   .footer-grid>div:first-child,.footer-grid>div:last-child{grid-column:1/-1}
 }
+
+/* About: AMPLIFY goals + website KPIs */
+.goals .card{display:flex;flex-direction:column}
+.goals .card .link{margin-top:auto;padding-top:14px}
+.card .kpis{list-style:none;margin:14px 0 0;padding:0;font-size:.88rem;color:var(--green-dark)}
+.card .kpis li{position:relative;padding-left:18px;margin:6px 0;line-height:1.4}
+.card .kpis li::before{content:'';position:absolute;left:0;top:.5em;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.measure-box{margin-top:44px;background:var(--green-dark);color:#fff;border-radius:var(--radius);padding:34px 30px}
+.measure-box h3{color:#fff;font-size:1.25rem;margin-bottom:20px}
+.measures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.measure{display:flex;gap:14px;align-items:flex-start}
+.measure .m-ico{font-size:1.5rem;line-height:1}
+.measure strong{display:block;color:var(--gold);margin-bottom:4px}
+.measure p{color:rgba(255,255,255,.85);font-size:.9rem;margin:0}
+.measure-note{margin-top:20px;font-size:.82rem;color:rgba(255,255,255,.7)}
+@media (max-width:760px){.measures{grid-template-columns:1fr}.measure-box{padding:26px 20px}}
