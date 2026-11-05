@@ -917,6 +917,7 @@
       b.addEventListener('click', function () {
         if (busy) return;
         row.remove();
+        var quick = log.querySelector('.rumi-quick'); if (quick && extraClass === 'rumi-persona') quick.remove();
         respond(c.label, c.run);
       });
       row.appendChild(b);
@@ -937,12 +938,14 @@
     log.appendChild(row);
   }
   function addFeedback(msg, intent) {
+    log.querySelectorAll('.rumi-feedback:not(.done)').forEach(function (el) { el.remove(); });
     var row = document.createElement('div');
     row.className = 'rumi-feedback';
     row.innerHTML = '<span>' + t('Helpful?', '¿Te ayudó?') + '</span><button type="button" data-v="up" aria-label="' + t('Yes, helpful', 'Sí, me ayudó') + '">👍</button><button type="button" data-v="down" aria-label="' + t('Not helpful', 'No me ayudó') + '">👎</button>';
     row.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       track('rumi_feedback', { value: b.dataset.v, intent: intent || 'unknown', page: page() });
+      row.classList.add('done');
       row.innerHTML = '<span>' + (b.dataset.v === 'up' ? t('Thanks! 💜', '¡Gracias! 💜') : t('Thanks — I\'ll pass it to the team.', 'Gracias — se lo paso al equipo.')) + '</span>';
       if (b.dataset.v === 'down') { log.appendChild(bubble('bot', rich(t('Sorry about that. Try asking another way, or write to [ama@uprm.edu](mailto:ama@uprm.edu) and a person will answer. 🙏', 'Perdón por eso. Pregúntalo de otra forma o escribe a [ama@uprm.edu](mailto:ama@uprm.edu) y te contesta una persona. 🙏')))); scroll(); }
     });
@@ -1083,7 +1086,7 @@
     if (hero && !history.length) { log.replaceChildren(); welcome(); return; }
     log.querySelectorAll('.rumi-follow').forEach(function (el) { el.remove(); });
     var pendingChoices = log.querySelector('.rumi-choices.rumi-persona');
-    if (pendingChoices && !persona) { pendingChoices.remove(); addChoices(personaChoices(), 'rumi-persona'); }
+    if (pendingChoices && !persona) { pendingChoices.remove(); var oldQuick = log.querySelector('.rumi-quick'); if (oldQuick) oldQuick.remove(); addChoices(personaChoices(), 'rumi-persona'); addQuick(); }
     var note = document.createElement('p');
     note.className = 'rumi-divider';
     note.textContent = langReason === 'auto'
@@ -1147,7 +1150,29 @@
       '<p class="rumi-hero-q">' + esc(t('First, who are you?', 'Primero, ¿quién eres?')) + '</p>';
     log.appendChild(hero);
     addChoices(personaChoices(), 'rumi-persona');
+    addQuick();
     chips.hidden = true;
+  }
+  var QUICK = [['How do I join?', '¿Cómo me uno?'], ['What is the next event?', '¿Cuál es el próximo evento?'], ['What is ELEVATE?', '¿Qué es ELEVATE?']];
+  function addQuick() {
+    var row = document.createElement('div');
+    row.className = 'rumi-quick';
+    row.setAttribute('aria-label', t('Popular questions', 'Preguntas populares'));
+    row.innerHTML = '<p>' + esc(t('Or just ask:', 'O pregunta directo:')) + '</p>';
+    QUICK.forEach(function (q) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = t(q[0], q[1]);
+      b.addEventListener('click', function () {
+        if (busy) return;
+        track('rumi_cta_click', { target: 'quick', page: page() });
+        log.querySelectorAll('.rumi-quick, .rumi-choices.rumi-persona').forEach(function (el) { el.remove(); });
+        var hq = log.querySelector('.rumi-hero-q'); if (hq) hq.remove();
+        chips.hidden = false;
+        send(t(q[0], q[1]));
+      });
+      row.appendChild(b);
+    });
+    log.appendChild(row);
   }
   function open() {
     if (!panel.hidden) return;
@@ -1158,7 +1183,8 @@
     if (!log.children.length) welcome();
     track('rumi_open', { page: page() });
     loadKb();
-    scroll();
+    // A fresh welcome starts at the top; an ongoing conversation opens at the latest message.
+    if (history.length) scroll(); else log.scrollTop = 0;
     if (phone()) { document.documentElement.classList.add('rumi-lock'); fitViewport(); }
     // On touch screens the keyboard would cover the welcome card; visitors tap the field when ready.
     else setTimeout(function () { input.focus(); }, 50);
@@ -1209,11 +1235,26 @@
     if (history.length) chips.hidden = true;
     launcher.addEventListener('click', function () { if (panel.hidden) open(); else close(); });
     root.querySelector('.rumi-close').addEventListener('click', close);
-    root.querySelector('.rumi-reset').addEventListener('click', function () {
+    function resetChat() {
       history = []; pending = null; persona = null; store(PERSONA_KEY, ''); save(); log.replaceChildren();
-      renderChips(); welcome(); input.focus();
+      renderChips(); welcome(); if (!phone()) input.focus();
+    }
+    root.querySelector('.rumi-reset').addEventListener('click', function () {
+      if (!history.length) { resetChat(); return; }
+      if (log.querySelector('.rumi-confirm')) return;
+      var bar = document.createElement('div');
+      bar.className = 'rumi-confirm'; bar.setAttribute('role', 'alertdialog');
+      bar.innerHTML = '<p>' + esc(t('Start a new conversation? This one will be cleared.', '¿Empezar una conversación nueva? Esta se borrará.')) + '</p>' +
+        '<button type="button" class="rumi-confirm-yes">' + esc(t('Yes, start over', 'Sí, empezar de nuevo')) + '</button>' +
+        '<button type="button" class="rumi-confirm-no">' + esc(t('Cancel', 'Cancelar')) + '</button>';
+      bar.querySelector('.rumi-confirm-yes').addEventListener('click', resetChat);
+      bar.querySelector('.rumi-confirm-no').addEventListener('click', function () { bar.remove(); });
+      log.appendChild(bar); scroll(); bar.querySelector('.rumi-confirm-no').focus();
     });
-    root.querySelector('.rumi-form').addEventListener('submit', function (e) { e.preventDefault(); var v = input.value; input.value = ''; send(v, true); });
+    var submitBtn = root.querySelector('.rumi-submit');
+    function syncSubmit() { submitBtn.classList.toggle('empty', !input.value.trim()); }
+    input.addEventListener('input', syncSubmit); syncSubmit();
+    root.querySelector('.rumi-form').addEventListener('submit', function (e) { e.preventDefault(); var v = input.value; input.value = ''; syncSubmit(); send(v, true); });
     if (Speech) { root.querySelector('.rumi-mic').hidden = false; root.querySelector('.rumi-mic').addEventListener('click', listen); }
     root.querySelector('.rumi-lang').addEventListener('click', function () { manualLang = true; switchLang(lang() === 'es' ? 'en' : 'es', 'toggle'); });
     panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });

@@ -203,3 +203,36 @@
 .rumi-head .rumi-lang span{padding:5px 7px;border-radius:999px;opacity:.65}
 .rumi-head .rumi-lang span.on{background:#fff;color:var(--green-dark);opacity:1}
 .rumi-head .rumi-lang:hover span:not(.on){opacity:1}
+
+/* Welcome: one-tap popular questions */
+.rumi-quick{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:2px}
+.rumi-quick p{flex-basis:100%;margin:0 0 2px;text-align:center;font:600 .72rem/1.3 var(--font);color:var(--r-muted)}
+.rumi-quick button{min-height:36px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--r-accent);background:var(--r-surface);color:var(--r-accent);font:700 .78rem/1.2 var(--font);cursor:pointer;transition:background-color .2s,color .2s}
+.rumi-quick button:hover{background:var(--r-accent);color:#fff}
+/* Reset confirmation */
+.rumi-confirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:var(--r-surface);border:1.5px solid var(--r-line-strong)}
+.rumi-confirm p{flex-basis:100%;margin:0;font-size:.82rem;color:var(--r-text)}
+.rumi-confirm button{min-height:36px;padding:7px 14px;border-radius:999px;font:700 .76rem/1.2 var(--font);cursor:pointer}
+.rumi-confirm-yes{border:0;background:var(--r-accent);color:#fff}
+.rumi-confirm-no{border:1.5px solid var(--r-line-strong);background:none;color:var(--r-heading)}
+/* Send button: muted until there is something to send */
+.rumi-submit.empty{opacity:.45}
+.rumi-quick{animation:rumi-msg .32s var(--ease) both}
+@media (prefers-reduced-motion:reduce){.rumi-quick{animation:none}}
+@media (max-width:520px){
+  /* Answers use the full width: the header already says it's RUMi. */
+  .rumi-bot > .rumi-av{display:none}
+  .rumi-choices,.rumi-follow,.rumi-actions{padding-left:0}
+}
+
+/* The ES | EN toggle needs the room: keep "online" and drop the org name in the header. */
+.rumi-sub-org{display:none}
+/* Compact welcome on every screen: small avatar beside the greeting, so the tiles and the quick
+   questions fit without scrolling (the desktop panel is at most 620px tall). */
+.rumi-hero{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:12px;row-gap:2px;padding:6px 2px 0;text-align:left}
+.rumi-av-hero{grid-row:span 2;width:48px;height:48px;margin:0;box-shadow:0 0 0 4px rgba(31,48,79,.08)}
+.rumi-av-hero svg{width:34px;height:34px}
+.rumi-hero-title{font-size:1.1rem}
+.rumi-hero-sub{font-size:.8rem;max-width:none}
+.rumi-hero-q{grid-column:1/-1;justify-self:center;margin-top:12px}
+.rumi-persona .rumi-choice{min-height:64px}
