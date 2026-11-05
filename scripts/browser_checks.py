@@ -234,6 +234,22 @@ try:
         assert say('Cuando es el proximo evento del capitulo?')=='en'  # the visitor's own choice wins
         ctx.close()
         passed('RUMi language detection: no flips on short/mixed messages, manual choice wins')
+        # Switching language translates the conversation: RUMi's own answers and buttons are rebuilt.
+        ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click()
+        pg.locator('.rumi-quick button').nth(1).click(); pg.wait_for_timeout(2500)  # next event: text + event cards + buttons
+        before=pg.locator('.rumi-bot .rumi-text').last.inner_text()
+        assert 'Añadir al calendario' in before or 'Te ayudó' in before, before[:200]
+        pg.locator('.rumi-lang').click(); pg.wait_for_timeout(1200)
+        after=pg.locator('.rumi-bot .rumi-text').last.inner_text()
+        assert 'Añadir al calendario' not in after and 'Te ayudó' not in after, after[:200]
+        assert '&amp;' not in after
+        labels=pg.locator('.rumi-action').all_inner_texts()
+        assert labels and not any('Calendario' in l or 'Únete' in l for l in labels), labels
+        assert 'English' in pg.locator('.rumi-divider').last.inner_text()
+        ctx.close()
+        passed('RUMi translates the conversation (answers, event cards, buttons) on language change')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

@@ -18,14 +18,14 @@ export default {
     try {
       if (url.pathname === '/health') return json({ ok: true, providers: providers(env).map((p) => p.name) }, 200, cors);
       if (url.pathname === '/unanswered' && request.method === 'GET') return unanswered(url, env, cors);
-      if (url.pathname === '/chat' && request.method === 'POST') {
+      if ((url.pathname === '/chat' || url.pathname === '/translate') && request.method === 'POST') {
         if (!cors) return json({ error: 'origin not allowed' }, 403);
         if (env.RATE_LIMITER) {
           const ip = request.headers.get('CF-Connecting-IP') || 'anon';
           const { success } = await env.RATE_LIMITER.limit({ key: ip });
           if (!success) return json({ error: 'rate limited' }, 429, cors);
         }
-        return chat(request, env, ctx, cors);
+        return url.pathname === '/chat' ? chat(request, env, ctx, cors) : translate(request, env, cors);
       }
       return json({ error: 'not found' }, 404, cors);
     } catch (err) {
@@ -81,6 +81,36 @@ async function chat(request, env, ctx, cors) {
     ctx.waitUntil(env.RUMI_LOG.put(`q:${Date.now()}`, JSON.stringify({ q, lang, page, at: new Date().toISOString() }), { expirationTtl: 60 * 60 * 24 * 90 }));
   }
   return json({ reply: parsed.reply, actions: parsed.actions, unanswered: parsed.unanswered, model: result.model }, 200, cors);
+}
+
+/* ---------- Translate RUMi's earlier answers when the visitor switches language ---------- */
+// Only RUMi's own answers are sent (never the visitor's messages). Links, URLs and emails are swapped
+// for tokens before the model sees them and restored after, so they can't be altered.
+async function translate(request, env, cors) {
+  const body = await request.json().catch(() => null);
+  const to = body && body.to === 'es' ? 'es' : 'en';
+  const texts = Array.isArray(body && body.texts) ? body.texts.slice(0, 6).map((s) => String(s || '').slice(0, 1500)) : [];
+  if (!texts.length) return json({ error: 'bad request' }, 400, cors);
+  const keep = [];
+  const masked = texts.map((s) => s.replace(/\]\([^)]*\)|https?:\/\/[^\s)]+|[\w.+-]+@[\w-]+\.[\w.-]+/g, (m) => { keep.push(m); return `[[${keep.length - 1}]]`; }));
+  const system = `You translate messages written by RUMi, the chat assistant of AMA UPRM (a student marketing association in Puerto Rico), into ${to === 'es' ? 'Puerto Rican Spanish, warm and direct, using "tú"' : 'natural American English'}.
+Input: a JSON array of strings. Output: ONLY a JSON array of strings with the same length and order — no comments, no code fences.
+Keep exactly as they are: Markdown (**bold**, lists, line breaks), emojis, names, numbers, prices, dates, every [[n]] token, and the brand names AMA, AMA UPRM, UPRM, RUM, ELEVATE, AMPLIFY, ICC, fAMAly, RUMi, BIG & Little.
+Do not add, remove or explain anything.`;
+  const convo = [{ role: 'system', content: system }, { role: 'user', content: JSON.stringify(masked) }];
+  for (const provider of providers(env, 2500)) {
+    try {
+      const result = await provider.run(convo, env);
+      const raw = String(result && result.text || '');
+      const arr = JSON.parse(raw.slice(raw.indexOf('['), raw.lastIndexOf(']') + 1));
+      if (!Array.isArray(arr) || arr.length !== texts.length || !arr.every((s) => typeof s === 'string' && s.trim())) throw new Error('bad shape');
+      const out = arr.map((s) => s.replace(/\[\[(\d+)\]\]/g, (m, i) => (keep[+i] !== undefined ? keep[+i] : '')));
+      return json({ texts: out, model: provider.name }, 200, cors);
+    } catch (err) {
+      console.warn('translate failed', provider.name, String(err && err.message || err).slice(0, 200));
+    }
+  }
+  return json({ error: 'all providers failed' }, 503, cors);
 }
 
 // Personal data never goes to an LLM provider (free tiers may use prompts for training).
@@ -207,13 +237,13 @@ ${pages || '(none matched — rely on the brief above)'}`;
 // Left out on purpose: NVIDIA Build (trial terms need a paid subscription for production), Kilo's
 // :free models (routed to NVIDIA trial endpoints), Gemini free (trains on prompts; restrictions for
 // minors and EEA/UK/Swiss users), OpenRouter free (50 requests/day), LLM7 (no third-party embedding).
-function providers(env) {
+function providers(env, tokens = 1000) {
   const list = [];
-  if (env.GROQ_API_KEY) list.push({ name: 'groq', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL || 'openai/gpt-oss-120b', m, 1000, { reasoning_effort: 'low' }) });
+  if (env.GROQ_API_KEY) list.push({ name: 'groq', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL || 'openai/gpt-oss-120b', m, tokens, { reasoning_effort: 'low' }) });
   // Groq limits are per model, so a second model doubles the fast capacity with the same key.
-  if (env.GROQ_API_KEY) list.push({ name: 'groq-20b', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL_2 || 'openai/gpt-oss-20b', m, 1000, { reasoning_effort: 'low' }) });
-  if (env.AI) list.push({ name: 'workers-ai', run: workersAi });
-  list.push({ name: 'ovh', run: (m) => openaiCompatible('https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions', '', 'Mistral-Small-3.2-24B-Instruct-2506', m) });
+  if (env.GROQ_API_KEY) list.push({ name: 'groq-20b', run: (m, e) => openaiCompatible('https://api.groq.com/openai/v1/chat/completions', e.GROQ_API_KEY, e.GROQ_MODEL_2 || 'openai/gpt-oss-20b', m, tokens, { reasoning_effort: 'low' }) });
+  if (env.AI) list.push({ name: 'workers-ai', run: (m, e) => workersAi(m, e, Math.min(tokens, 1200)) });
+  list.push({ name: 'ovh', run: (m) => openaiCompatible('https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions', '', 'Mistral-Small-3.2-24B-Instruct-2506', m, Math.min(tokens, 1200)) });
   return list;
 }
 
@@ -229,9 +259,9 @@ async function openaiCompatible(endpoint, key, model, messages, maxTokens = 450,
   return { text: data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content };
 }
 
-async function workersAi(messages, env) {
+async function workersAi(messages, env, maxTokens = 400) {
   // Mistral Small 3.1: fast, strong Spanish, on Cloudflare's free allocation (Gemma 4 took ~19 s, 2026-11-05).
-  const out = await env.AI.run(env.WORKERS_AI_MODEL || '@cf/mistralai/mistral-small-3.1-24b-instruct', { messages, max_tokens: 400, temperature: 0.3 });
+  const out = await env.AI.run(env.WORKERS_AI_MODEL || '@cf/mistralai/mistral-small-3.1-24b-instruct', { messages, max_tokens: maxTokens, temperature: 0.3 });
   return { text: out && (out.response || (out.choices && out.choices[0].message.content)) };
 }
 

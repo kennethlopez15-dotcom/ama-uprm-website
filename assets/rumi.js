@@ -56,7 +56,8 @@
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         events = Array.from(doc.querySelectorAll('#event-list .event[data-date]')).map(function (ev) {
-          function get(sel) { var el = ev.querySelector(sel); if (!el) return { en: '', es: '' }; return { en: el.dataset.en || el.textContent.trim(), es: el.dataset.es || el.textContent.trim() }; }
+          function text(h) { var d = doc.createElement('div'); d.innerHTML = h; return d.textContent.trim(); }
+          function get(sel) { var el = ev.querySelector(sel); if (!el) return { en: '', es: '' }; return { en: el.dataset.en ? text(el.dataset.en) : el.textContent.trim(), es: el.dataset.es ? text(el.dataset.es) : el.textContent.trim() }; }
           var cal = ev.querySelector('a[href*="calendar.google.com"]');
           return { id: ev.id, date: ev.dataset.date, title: get('h2'), desc: get('p'), meta: get('.meta'), cal: cal ? cal.href : '' };
         });
@@ -106,6 +107,7 @@
     next: function () { return { label: t('📅 Next event', '📅 Próximo evento'), say: t('What is the next event?', '¿Cuál es el próximo evento?') }; },
     tools: function () { return { label: t('🧰 Marketing tools', '🧰 Herramientas de marketing'), say: t('What tools do you have?', '¿Qué herramientas tienes?') }; }
   };
+  Object.keys(A).forEach(function (k) { var make = A[k]; A[k] = function () { var a = make.apply(this, arguments); if (a && typeof a === 'object') a.key = k; return a; }; });
   function acts() { return Array.prototype.map.call(arguments, function (k) { return A[k](); }); }
   // Suggested next questions per topic; each is a [en, es] question RUMi can answer.
   var FOLLOW = {
@@ -684,7 +686,7 @@
       if (!out.text) throw new Error('empty');
       track('rumi_message', { mode: 'ai', intent: 'free', model: 'chrome-nano', ms: Date.now() - started });
       if (out.unanswered) track('rumi_unanswered', { question: messages[messages.length - 1].content.slice(0, 100) });
-      return { text: out.text, actions: out.actions.map(function (k) { return A[k](); }), intent: out.unanswered ? 'unanswered' : 'ai' };
+      return { text: out.text, actions: out.actions.map(function (k) { return A[k](); }), intent: out.unanswered ? 'unanswered' : 'ai', ai: true };
     }).catch(function (e) {
       clearTimeout(timer);
       if (session && session.destroy) session.destroy();
@@ -720,7 +722,7 @@
           if (!out.text) throw new Error('empty');
           track('rumi_message', { mode: 'ai', intent: 'free', model: p.id, ms: Date.now() - started });
           if (out.unanswered) track('rumi_unanswered', { question: text.slice(0, 100) });
-          return { text: out.text, actions: out.actions.map(function (k) { return A[k](); }), intent: out.unanswered ? 'unanswered' : 'ai' };
+          return { text: out.text, actions: out.actions.map(function (k) { return A[k](); }), intent: out.unanswered ? 'unanswered' : 'ai', ai: true };
         })
         .catch(function () { clearTimeout(timer); if (!cooling[p.id] || cooling[p.id] < Date.now()) cooling[p.id] = Date.now() + 20000; return attempt(i + 1); });
     }
@@ -740,7 +742,7 @@
         track('rumi_message', { mode: 'ai', intent: intent || 'free', model: data.model || '' });
         if (data.unanswered) track('rumi_unanswered', { question: text.slice(0, 100) });
         var actions = (data.actions || []).map(function (a) { return A[a] ? A[a]() : null; }).filter(Boolean);
-        return { text: data.reply, actions: actions, intent: intent || 'ai' };
+        return { text: data.reply, actions: actions, intent: intent || 'ai', ai: true };
       })
       .catch(function () { clearTimeout(timer); return answerLocal(text); });
   }
@@ -900,6 +902,7 @@
       } else { el = document.createElement('button'); el.type = 'button'; }
       el.className = 'rumi-action';
       el.textContent = a.label;
+      if (a.key) el.dataset.key = a.key;
       el.addEventListener('click', function () { clickAction(a); });
       row.appendChild(el);
     });
@@ -1000,7 +1003,9 @@
     var b = bubble('bot', '<div class="rumi-body">' + rich(res.text) + '</div>' + (res.extra ? '<div class="rumi-extra" hidden>' + res.extra + '</div>' : ''));
     log.appendChild(b);
     status.textContent = res.text.replace(/\*\*|\[|\]\([^)]*\)/g, '').slice(0, 300);
-    history.push({ role: 'assistant', content: res.text, extra: res.extra || '' });
+    var asked = ''; for (var hi = history.length - 1; hi >= 0; hi--) { if (history[hi].role === 'user') { asked = history[hi].content; break; } }
+    history.push({ role: 'assistant', content: res.text, extra: res.extra || '', intent: res.intent || '', q: asked, ai: !!res.ai, lang: lang() });
+    b.dataset.h = history.length - 1;
     save();
     return typewrite(b.querySelector('.rumi-body')).then(function () { finishRender(b, res); });
   }
@@ -1094,12 +1099,84 @@
       : t('Now in English', 'Ahora en español');
     log.appendChild(note); scroll();
     langReason = '';
+    translateConversation(note);
+  }
+
+  /* ---------- Translate the conversation when the language changes ---------- */
+  // RUMi's own answers are rebuilt in the new language (instant, exact, free); AI answers are
+  // translated by the Worker. The visitor's messages stay as they wrote them.
+  var NO_REBUILD = ['audit', 'palette', 'qr', 'jobs', 'naming', 'bio', 'ai', 'free', 'unanswered'];
+  var translating = 0;
+  function setAnswer(b, m, text, extra) {
+    m.content = text; m.extra = extra || ''; m.lang = lang();
+    var body = b.querySelector('.rumi-body'); if (!body) return;
+    body.innerHTML = rich(text);
+    var ex = b.querySelector('.rumi-extra');
+    if (m.extra) { if (!ex) { ex = document.createElement('div'); ex.className = 'rumi-extra'; body.after(ex); } ex.innerHTML = m.extra; ex.hidden = false; }
+    else if (ex) ex.remove();
+  }
+  function rebuild(m) {
+    if (!m.intent || m.ai || NO_REBUILD.indexOf(m.intent) !== -1) return Promise.resolve(null);
+    var p = m.intent.indexOf('persona_') === 0 && PERSONAS[m.intent.slice(8)];
+    if (p) return Promise.resolve({ text: t(p.text[0], p.text[1]) });
+    var keepPending = pending;
+    return Promise.resolve().then(function () { return route(m.intent, m.q || '', null); })
+      .then(function (res) { pending = keepPending; return res && res.text ? res : null; }, function () { pending = keepPending; return null; });
+  }
+  function translateConversation(note) {
+    var to = lang(), run = ++translating, items = [];
+    log.querySelectorAll('.rumi-action[data-key]').forEach(function (el) { var a = A[el.dataset.key] && A[el.dataset.key](); if (a && a.label) el.textContent = a.label; });
+    log.querySelectorAll('.rumi-feedback:not(.done)').forEach(function (row) {
+      row.querySelector('span').textContent = t('Helpful?', '¿Te ayudó?');
+      row.querySelector('[data-v="up"]').setAttribute('aria-label', t('Yes, helpful', 'Sí, me ayudó'));
+      row.querySelector('[data-v="down"]').setAttribute('aria-label', t('Not helpful', 'No me ayudó'));
+    });
+    log.querySelectorAll('.rumi-bot[data-h]').forEach(function (b) {
+      var m = history[+b.dataset.h];
+      if (m && m.role === 'assistant' && m.lang !== to) items.push({ b: b, m: m });
+    });
+    if (!items.length) return;
+    note.textContent = t('Translating the conversation…', 'Traduciendo la conversación…');
+    Promise.all(items.map(function (it) { return rebuild(it.m).then(function (res) { it.res = res; return it; }); })).then(function () {
+      if (run !== translating) return;
+      items.forEach(function (it) { if (it.res) setAnswer(it.b, it.m, it.res.text, it.res.extra); });
+      var rest = items.filter(function (it) { return !it.res; });
+      var batches = [];
+      rest.forEach(function (it) {
+        var last = batches[batches.length - 1];
+        if (!last || last.length >= 4 || last.reduce(function (n, x) { return n + x.m.content.length; }, 0) + it.m.content.length > 2400) batches.push([it]); else last.push(it);
+      });
+      var failed = 0;
+      return Promise.all(batches.map(function (batch) {
+        if (!ENDPOINT) { failed += batch.length; return null; }
+        return fetch(ENDPOINT.replace(/\/$/, '') + '/translate', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: to, texts: batch.map(function (it) { return it.m.content; }) }) })
+          .then(function (r) { if (!r.ok) throw new Error('translate ' + r.status); return r.json(); })
+          .then(function (data) {
+            if (run !== translating) return;
+            if (!data || !Array.isArray(data.texts) || data.texts.length !== batch.length) throw new Error('shape');
+            batch.forEach(function (it, i) { setAnswer(it.b, it.m, data.texts[i], it.m.extra); });
+          })
+          .catch(function () { failed += batch.length; });
+      })).then(function () {
+        if (run !== translating) return;
+        save();
+        track('rumi_translate', { language: to, rebuilt: items.length - rest.length, translated: rest.length - failed, failed: failed });
+        note.textContent = failed
+          ? t('Translated what I could — some earlier answers stay in Spanish.', 'Traduje lo que pude — algunas respuestas anteriores siguen en inglés.')
+          : t('Conversation translated to English', 'Conversación traducida al español');
+      });
+    });
   }
 
   function save() { store(STORE_KEY, JSON.stringify(history.slice(-20))); }
   function restore() {
     try { var h = JSON.parse(store(STORE_KEY) || '[]'); if (Array.isArray(h)) history = h.filter(function (m) { return m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'); }); } catch (e) { history = []; }
-    history.forEach(function (m) { log.appendChild(m.role === 'user' ? bubble('user', m.content) : bubble('bot', rich(m.content) + (typeof m.extra === 'string' ? m.extra : ''))); });
+    history.forEach(function (m, i) {
+      if (m.role === 'user') { log.appendChild(bubble('user', m.content)); return; }
+      var b = bubble('bot', '<div class="rumi-body">' + rich(m.content) + '</div>' + (typeof m.extra === 'string' && m.extra ? '<div class="rumi-extra">' + m.extra + '</div>' : ''));
+      b.dataset.h = i; log.appendChild(b);
+    });
   }
 
   function renderChips() {
