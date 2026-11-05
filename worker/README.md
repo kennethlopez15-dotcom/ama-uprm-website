@@ -74,3 +74,17 @@ Monthly Insights Report: lo que la gente pregunta y el sitio no contesta es cont
 `rumi_unanswered`, `rumi_feedback` (👍/👎 por intent), `rumi_persona` (student/business/sponsor/alum),
 `rumi_teaser_shown` y `rumi_teaser_click`. Los clics a
 membresía también envían `membership_interest_click` con `source: rumi`.
+
+## Preguntas sin respuesta (activo desde 2026-11-05)
+
+Cuando la IA no encuentra la respuesta en la información del capítulo, el Worker guarda la pregunta
+(sin datos personales) en el KV `RUMI_LOG` por 90 días. Para revisarlas:
+
+```
+cd site/worker
+npx wrangler kv key list --binding RUMI_LOG --remote            # lista (q:<fecha>)
+npx wrangler kv key get  --binding RUMI_LOG --remote "q:<id>"   # una pregunta: {q, lang, page, at}
+```
+
+Úsalo cada mes: si una pregunta se repite, añade la respuesta al sitio o a `scripts/rumi_faq.json`
+y vuelve a correr `scripts/build_rumi_kb.py`.

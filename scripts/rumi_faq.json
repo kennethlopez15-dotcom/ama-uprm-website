@@ -567,6 +567,52 @@
         "team",
         "email"
       ]
+    },
+    {
+      "id": "internships",
+      "keywords": [
+        "pasantia",
+        "pasantias",
+        "internship",
+        "internships",
+        "vacante",
+        "vacantes",
+        "practica",
+        "job opening",
+        "empleo",
+        "trabajo",
+        "coop",
+        "job posting"
+      ],
+      "en": "There are **no open internship postings** right now. Employers and alumni can send an opening to [ama@uprm.edu](mailto:ama@uprm.edu) and it's posted on the [Programs page](programs.html#internships) within two weeks — sponsors get priority. Meanwhile, I can list **remote marketing jobs** for you.",
+      "es": "Ahora mismo **no hay pasantías publicadas**. Empleadores y exalumnos pueden enviar una oportunidad a [ama@uprm.edu](mailto:ama@uprm.edu) y se publica en la [página de Programas](programs.html#internships) en dos semanas — los auspiciadores tienen prioridad. Mientras tanto, te puedo mostrar **empleos remotos de marketing**.",
+      "actions": [
+        "jobs",
+        "programs"
+      ]
+    },
+    {
+      "id": "elevate_clients",
+      "keywords": [
+        "clientes reales",
+        "real clients",
+        "casos de elevate",
+        "elevate cases",
+        "proyectos de elevate",
+        "elevate projects",
+        "portafolio de elevate",
+        "elevate portfolio",
+        "que ha hecho elevate",
+        "what has elevate done",
+        "trabajos de elevate",
+        "elevate work"
+      ],
+      "en": "ELEVATE has worked with two real clients: the **UPRM Teacher Preparation Program** ([see the case](case-ppm.html)) and **Caribbean Cancer Care Services**, including the «Atrévete a Contestar» activation at the 5K/10K Fuerza y Esperanza ([see the case](case-cancer-relief.html)).",
+      "es": "ELEVATE ha trabajado con dos clientes reales: el **Programa de Preparación de Maestros del RUM** ([ver el caso](case-ppm.html)) y **Caribbean Cancer Care Services**, incluida la activación «Atrévete a Contestar» en el 5K/10K Fuerza y Esperanza ([ver el caso](case-cancer-relief.html)).",
+      "actions": [
+        "elevate",
+        "hire"
+      ]
     }
   ]
 }

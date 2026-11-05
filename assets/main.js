@@ -536,3 +536,20 @@
   if('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
   measure();
 })();
+
+/* RUMi (chat assistant) loads once the page has finished loading and the browser is idle, so its
+   124 KB script and its stylesheet never compete with the first paint on phones. */
+(function () {
+  function load() {
+    if (document.querySelector('script[data-rumi]')) return;
+    var s = document.createElement('script');
+    s.src = 'assets/rumi.js'; s.async = true; s.setAttribute('data-rumi', '');
+    document.body.appendChild(s);
+  }
+  // First interaction (tap, scroll, mouse, key) or 4 s after load, whichever comes first: by then the
+  // page's own images are in, so RUMi's download doesn't delay the largest paint.
+  var EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'scroll', 'keydown'];
+  function go() { EVENTS.forEach(function (e) { window.removeEventListener(e, go, true); }); (window.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 1500 }); }
+  function arm() { EVENTS.forEach(function (e) { window.addEventListener(e, go, { capture: true, passive: true, once: true }); }); setTimeout(go, 4000); }
+  if (document.readyState === 'complete') arm(); else window.addEventListener('load', arm, { once: true });
+})();

@@ -276,6 +276,20 @@ try:
         assert pg.url==url0 and not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
         ctx.close()
         passed('RUMi bottom sheet on phones: page visible, backdrop/back/X close it, visitor stays on the page')
+        # RUMi loads after the page (first interaction or 4 s) and, on phones, is a real modal: the page behind is inert.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':390,'height':780},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html')
+        assert pg.locator('script[src*="rumi.js"]').count()==0 or pg.evaluate("document.readyState")=='complete'
+        pg.wait_for_selector('.rumi-launch',timeout=8000)  # appears without any interaction
+        assert pg.evaluate("!!document.querySelector('link[href$=\"rumi.css\"]')")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate("document.querySelector('.rumi-panel').getAttribute('aria-modal')")=='true'
+        assert pg.evaluate("document.querySelector('main').inert===true")
+        pg.locator('.rumi-close').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate("document.querySelector('main').inert===false && !document.querySelector('[data-rumi-inert]')")
+        ctx.close()
+        passed('RUMi loads after the page; on phones it is modal (page inert while open, restored on close)')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

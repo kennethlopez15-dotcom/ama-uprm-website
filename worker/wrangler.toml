@@ -23,6 +23,6 @@ simple = { limit = 20, period = 60 }
 
 # Optional: log questions RUMi could not answer (content ideas for the blog and FAQ).
 # Create it with `npx wrangler kv namespace create RUMI_LOG` and paste the id here.
-# [[kv_namespaces]]
-# binding = "RUMI_LOG"
-# id = "PASTE_ID_HERE"
+[[kv_namespaces]]
+binding = "RUMI_LOG"
+id = "06975188bf354a65965af48252a001cb"

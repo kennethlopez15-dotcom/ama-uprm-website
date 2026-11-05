@@ -624,8 +624,11 @@
   }
   function parseAi(raw) {
     var text = String(raw || '').trim(), actions = [], unanswered = false;
-    var m = text.match(/\n?\s*ACTIONS?:\s*([^\n]*)\s*$/i);
-    if (m) { actions = m[1].split(/[,\s]+/).map(function (a) { return a.trim().toLowerCase(); }).filter(function (a) { return AI_ACTIONS.indexOf(a) !== -1 && A[a]; }).slice(0, 2); text = text.slice(0, m.index).trim(); }
+    // Models write the action line in several ways ("ACTIONS:", "**Acciones:**", "ACTION:"); strip it only
+    // when everything after the colon is action keys, so a sentence ending in "action: sign up" survives.
+    var m = text.match(/\n?[ \t]*[*_]*[ \t]*(?:ACTIONS?|ACCIONES|ACCI[OÓ]N(?:ES)?)[ \t]*[*_]*[ \t]*:[ \t]*[*_]*([^\n]*)\s*$/i);
+    var keys = m ? m[1].replace(/[*_`.]/g, '').split(/[,\s]+/).map(function (a) { return a.trim().toLowerCase(); }).filter(Boolean) : [];
+    if (m && keys.length && keys.every(function (k) { return AI_ACTIONS.indexOf(k) !== -1; })) { actions = keys.filter(function (a) { return A[a]; }).slice(0, 2); text = text.slice(0, m.index).trim(); }
     text = text.replace(/\s*\(?`([a-z_]+)`\)?/g, function (m, k) { return AI_ACTIONS.indexOf(k) !== -1 ? '' : m; });
     if (/\[?UNANSWERED\]?/.test(text)) { unanswered = true; text = text.replace(/\[?UNANSWERED\]?/g, '').trim(); }
     // Tidy model formatting slips: a bare action key left at the end, stray asterisks, an unclosed **bold**.
@@ -1264,7 +1267,8 @@
     // A fresh welcome starts at the top; an ongoing conversation opens at the latest message.
     if (history.length) scroll(); else log.scrollTop = 0;
     if (phone()) {
-      document.documentElement.classList.add('rumi-lock'); fitViewport();
+      document.documentElement.classList.add('rumi-lock'); fitViewport(); setModal(true);
+      panel.setAttribute('tabindex', '-1'); try { panel.focus({ preventScroll: true }); } catch (e) {}
       // The phone's back button/gesture should close the chat, not leave the site.
       if (!backEntry) { if (backPending) needEntry = true; else pushBackEntry(); }
     }
@@ -1288,14 +1292,24 @@
   window.addEventListener('resize', function () {
     if (!panel || panel.hidden) return;
     document.documentElement.classList.toggle('rumi-lock', phone());
+    setModal(phone());
     fitViewport(); scroll();
   });
   // Back-button support. Closing with the X/backdrop/swipe removes our history entry (history.back),
   // which is async: a chat reopened before it lands waits for it, so a later back never leaves the site.
   var backEntry = false, backPending = false, needEntry = false;
   function pushBackEntry() { try { window.history.pushState({ rumi: true }, ''); backEntry = true; } catch (e) {} }
+  function setModal(on) {
+    panel.setAttribute('aria-modal', on ? 'true' : 'false');
+    Array.prototype.forEach.call(document.body.children, function (el) {
+      if (el === root) return;
+      if (on) { if (!el.inert) { el.inert = true; el.setAttribute('data-rumi-inert', ''); } }
+      else if (el.hasAttribute('data-rumi-inert')) { el.inert = false; el.removeAttribute('data-rumi-inert'); }
+    });
+  }
   function close(fromBack) {
     if (panel.hidden) return;
+    setModal(false);
     panel.hidden = true;
     panel.style.transform = '';
     document.documentElement.classList.remove('rumi-lock');
@@ -1400,6 +1414,15 @@
     }, 9000);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
-  else build();
+  var CSS_URL = ((document.currentScript && document.currentScript.src) || 'assets/rumi.js').replace(/rumi\.js(\?.*)?$/, 'rumi.css');
+  function start() {
+    if (document.querySelector('link[href$="rumi.css"]')) { build(); return; }
+    var css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = CSS_URL;
+    var done = false; function go() { if (!done) { done = true; build(); } }
+    css.onload = go; css.onerror = go; setTimeout(go, 4000);
+    document.head.appendChild(css);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
