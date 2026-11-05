@@ -1410,7 +1410,16 @@
     // A gentle nudge once per visit, only if the visitor hasn't opened RUMi yet.
     else if (!store(TEASE_KEY) && !history.length) setTimeout(function () {
       if (!panel.hidden || store(TEASE_KEY)) return;
-      teaser.hidden = false; track('rumi_teaser_shown', { page: page() });
+      // On phones the hero's buttons sit right where the bubble appears: wait until the visitor has
+      // scrolled past the first screen so it never covers a call to action.
+      function show() {
+        if (!panel.hidden || store(TEASE_KEY) || !teaser.hidden) return;
+        teaser.hidden = false; track('rumi_teaser_shown', { page: page() });
+      }
+      if (!phone() || window.scrollY > window.innerHeight) { show(); return; }
+      window.addEventListener('scroll', function onScroll() {
+        if (window.scrollY > window.innerHeight) { window.removeEventListener('scroll', onScroll); show(); }
+      }, { passive: true });
     }, 9000);
   }
 

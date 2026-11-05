@@ -18,13 +18,15 @@ export default {
     try {
       if (url.pathname === '/health') return json({ ok: true, providers: providers(env).map((p) => p.name) }, 200, cors);
       if (url.pathname === '/unanswered' && request.method === 'GET') return unanswered(url, env, cors);
-      if ((url.pathname === '/chat' || url.pathname === '/translate') && request.method === 'POST') {
+      if (url.pathname === '/forms' && request.method === 'GET') return listForms(url, env);
+      if ((url.pathname === '/chat' || url.pathname === '/translate' || url.pathname === '/form') && request.method === 'POST') {
         if (!cors) return json({ error: 'origin not allowed' }, 403);
         if (env.RATE_LIMITER) {
           const ip = request.headers.get('CF-Connecting-IP') || 'anon';
           const { success } = await env.RATE_LIMITER.limit({ key: ip });
           if (!success) return json({ error: 'rate limited' }, 429, cors);
         }
+        if (url.pathname === '/form') return saveForm(request, env, cors);
         return url.pathname === '/chat' ? chat(request, env, ctx, cors) : translate(request, env, cors);
       }
       return json({ error: 'not found' }, 404, cors);
@@ -81,6 +83,65 @@ async function chat(request, env, ctx, cors) {
     ctx.waitUntil(env.RUMI_LOG.put(`q:${Date.now()}`, JSON.stringify({ q, lang, page, at: new Date().toISOString() }), { expirationTtl: 60 * 60 * 24 * 90 }));
   }
   return json({ reply: parsed.reply, actions: parsed.actions, unanswered: parsed.unanswered, model: result.model }, 200, cors);
+}
+
+/* ---------- Website forms ----------
+   The site's forms POST here (config.formEndpoint). Each submission is stored in the FORMS KV for ~13 months;
+   the board reads them at /forms?key=<ADMIN_KEY> (table) or &format=csv (Excel). Nothing is sent to an AI. */
+const FORM_KINDS = {
+  membership_application: 'Membership application',
+  contact_form: 'Contact message',
+  event_rsvp: 'Event RSVP',
+  rumi_sponsor: 'Sponsor lead (RUMi)',
+  rumi_elevate: 'ELEVATE client lead (RUMi)'
+};
+async function saveForm(request, env, cors) {
+  if (!env.FORMS) return json({ error: 'forms not configured' }, 503, cors);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== 'object') return json({ error: 'bad request' }, 400, cors);
+  const kind = String(body._form || '');
+  if (!FORM_KINDS[kind]) return json({ error: 'unknown form' }, 400, cors);
+  if (body.website) return json({ ok: true }, 200, cors); // honeypot: pretend it worked
+  const fields = {};
+  for (const [k, v] of Object.entries(body)) {
+    if (k.startsWith('_') || k === 'website' || typeof v === 'object') continue;
+    const key = k.replace(/[^\w-]/g, '').slice(0, 40);
+    if (key && Object.keys(fields).length < 12) fields[key] = String(v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 2000);
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(fields.email || '')) return json({ error: 'email required' }, 400, cors);
+  if (!(fields.name || '').trim()) return json({ error: 'name required' }, 400, cors);
+  const at = new Date().toISOString();
+  const id = `${kind}:${at}:${crypto.randomUUID().slice(0, 8)}`;
+  const record = { kind, at, page: String(body._page || '').slice(0, 80), lang: body._lang === 'es' ? 'es' : 'en', fields };
+  await env.FORMS.put(id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400, metadata: { kind, at } });
+  return json({ ok: true }, 200, cors);
+}
+async function listForms(url, env) {
+  if (!env.ADMIN_KEY) return new Response('Set the ADMIN_KEY secret in Cloudflare (Workers > rumi > Settings > Variables and Secrets) to open this page.', { status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  if (url.searchParams.get('key') !== env.ADMIN_KEY) return new Response('Wrong or missing key.', { status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  if (!env.FORMS) return new Response('FORMS KV not bound.', { status: 501 });
+  const only = url.searchParams.get('kind') || '';
+  const keys = [];
+  let cursor;
+  do {
+    const page = await env.FORMS.list({ prefix: only ? only + ':' : '', cursor, limit: 1000 });
+    keys.push(...page.keys); cursor = page.list_complete ? null : page.cursor;
+  } while (cursor && keys.length < 5000);
+  const rows = (await Promise.all(keys.map((k) => env.FORMS.get(k.name, 'json')))).filter(Boolean).sort((a, b) => b.at.localeCompare(a.at));
+  const cols = [...new Set(rows.flatMap((r) => Object.keys(r.fields)))];
+  const noStore = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' };
+  if (url.searchParams.get('format') === 'csv') {
+    const cell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const csv = [['type', 'date', 'page', 'lang', ...cols].map(cell).join(','), ...rows.map((r) => [FORM_KINDS[r.kind] || r.kind, r.at, r.page, r.lang, ...cols.map((c) => r.fields[c])].map(cell).join(','))].join('\r\n');
+    return new Response('\ufeff' + csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="ama-uprm-forms-${new Date().toISOString().slice(0, 10)}.csv"`, ...noStore } });
+  }
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const counts = Object.keys(FORM_KINDS).map((k) => `<a href="?key=${encodeURIComponent(url.searchParams.get('key'))}&kind=${k}">${esc(FORM_KINDS[k])}</a> (${rows.filter((r) => r.kind === k).length})`).join(' · ');
+  const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>AMA UPRM · Form submissions</title>
+<style>body{font:14px system-ui,sans-serif;margin:24px;color:#1f304f}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}th{background:#1f304f;color:#fff}tr:nth-child(even){background:#f6f7f9}a{color:#8e1825}</style>
+<h1>AMA UPRM · Form submissions</h1><p>${counts}</p><p><a href="?key=${encodeURIComponent(url.searchParams.get('key'))}${only ? '&kind=' + only : ''}&format=csv">Download CSV (Excel)</a>${only ? ` · <a href="?key=${encodeURIComponent(url.searchParams.get('key'))}">Show all</a>` : ''}</p>
+<table><tr><th>Type</th><th>Date (UTC)</th><th>Page</th>${cols.map((c) => `<th>${esc(c)}</th>`).join('')}</tr>${rows.map((r) => `<tr><td>${esc(FORM_KINDS[r.kind] || r.kind)}</td><td>${esc(r.at.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.page)}</td>${cols.map((c) => `<td>${esc(r.fields[c])}</td>`).join('')}</tr>`).join('')}</table>`;
+  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', ...noStore } });
 }
 
 /* ---------- Translate RUMi's earlier answers when the visitor switches language ---------- */

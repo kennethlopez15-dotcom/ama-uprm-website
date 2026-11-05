@@ -155,6 +155,7 @@ try:
         ctx.close()
         # Intercept the mailto navigation in a lexical test adapter; no mail app opens.
         ctx=browser.new_context(locale='en-US');ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',formEndpoint:''};"))  # email-draft mode
         contact_script='(function(location){'+(ROOT/'assets/main.js').read_text(encoding='utf-8')+'})({pathname:"/about.html",set href(value){window.testMailDraft=value}});'
         ctx.route('**/assets/main.js',lambda r:r.fulfill(content_type='application/javascript',body=contact_script))
         pg=ctx.new_page();pg.goto(base+'about.html')
@@ -290,6 +291,25 @@ try:
         assert pg.evaluate("document.querySelector('main').inert===false && !document.querySelector('[data-rumi-inert]')")
         ctx.close()
         passed('RUMi loads after the page; on phones it is modal (page inert while open, restored on close)')
+        # Forms with the backend: membership and contact POST as JSON; upcoming events get an RSVP form.
+        ctx=browser.new_context(locale='en-US'); ctx.route('**/*',intercept)
+        posted=[]
+        def fake_form(r):
+            posted.append(json.loads(r.request.post_data)); r.fulfill(status=200,content_type='application/json',headers={'Access-Control-Allow-Origin':'*'},body='{"ok":true}')
+        ctx.route('**/rumi.amauprm.workers.dev/form',fake_form)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',formEndpoint:'https://rumi.amauprm.workers.dev/form'};"))
+        pg=ctx.new_page(); pg.goto(base+'membership.html')
+        f=pg.locator('form.join-form'); f.locator('[name=name]').fill('Test'); f.locator('[name=email]').fill('t@upr.edu'); f.locator('[name=major_year]').fill('ADEM 1')
+        f.locator('button[type=submit]').click(); expect(f.locator('.form-status.ok')).to_be_visible()
+        assert posted[-1]['_form']=='membership_application' and posted[-1]['email']=='t@upr.edu' and posted[-1]['_page']=='membership.html'
+        pg.clock.set_fixed_time('2026-10-01T12:00:00Z'); pg.goto(base+'events.html')
+        assert pg.locator('.event.past .rsvp-btn').count()==0 and pg.locator('.event:not(.past) .rsvp-btn').count()>=1
+        ev=pg.locator('.event:not(.past)').first; ev.locator('.rsvp-btn').click()
+        ev.locator('.rsvp-form [name=name]').fill('Test'); ev.locator('.rsvp-form [name=email]').fill('t@upr.edu'); ev.locator('.rsvp-form button[type=submit]').click()
+        expect(ev.locator('.rsvp-form .form-status.ok')).to_be_visible()
+        assert posted[-1]['_form']=='event_rsvp' and posted[-1]['event_id']==ev.get_attribute('id')
+        ctx.close()
+        passed('Forms post to the backend (membership, RSVP on upcoming events only)')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

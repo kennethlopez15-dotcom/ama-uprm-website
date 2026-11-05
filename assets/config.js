@@ -3,7 +3,7 @@ window.AMA_CONFIG = Object.freeze({
   // Set a real GA4 Measurement ID to enable analytics; empty means no requests.
   analyticsId: 'G-Q241V67CY6',
   // Form backend (e.g. a Formspree endpoint https://formspree.io/f/xxxx). Empty = forms fall back to a pre-filled email draft.
-  formEndpoint: '',
+  formEndpoint: 'https://rumi.amauprm.workers.dev/form',
   // RUMi chat assistant: URL of the Cloudflare Worker in worker/ (e.g. https://rumi.<account>.workers.dev).
   // Empty = RUMi still works, answering from assets/rumi/kb.json and free public APIs.
   rumiEndpoint: 'https://rumi.amauprm.workers.dev',

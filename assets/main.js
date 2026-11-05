@@ -328,21 +328,22 @@
       new FormData(form).forEach(function (v, k) { data[k] = v; });
       if (data.website) return; // honeypot: bots fill the hidden field
       delete data.website;
-      if (formEndpoint) {
-        var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
-        fetch(formEndpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ _form: name }, data)) })
-          .then(function (res) {
-            if (!res.ok) throw new Error('bad status');
-            say('ok'); form.reset(); trackEvent(name + '_submit', { method: 'endpoint' });
-          })
-          .catch(function () { say('err'); })
-          .then(function () { if (btn) btn.disabled = false; });
-      } else {
+      function mailDraft() {
         var lines = Object.keys(data).map(function (k) { return k + ': ' + data[k]; });
         location.href = 'mailto:' + form.dataset.mailto + '?subject=' + encodeURIComponent(form.dataset.subject || name) + '&body=' + encodeURIComponent(lines.join('\n'));
         trackEvent(name + '_submit', { method: 'mailto' });
         say('ok');
       }
+      if (formEndpoint) {
+        var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+        fetch(formEndpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ _form: name, _page: location.pathname.split('/').pop() || 'index.html', _lang: lang() }, data)) })
+          .then(function (res) {
+            if (!res.ok) throw new Error('bad status');
+            say('ok'); form.reset(); trackEvent(name + '_submit', { method: 'endpoint' });
+          })
+          .catch(mailDraft) // the backend is down: the visitor still reaches the chapter by email
+          .then(function () { if (btn) btn.disabled = false; });
+      } else mailDraft();
     });
   });
 
@@ -451,8 +452,58 @@
     });
     var empty = document.getElementById('no-events'); if (empty) empty.hidden = count > 0;
   }
+  /* ---------- Event RSVP (upcoming events only) ---------- */
+  function rsvpText(el, en, es) { el.dataset.en = en; el.dataset.es = es; el.textContent = lang() === 'es' ? es : en; return el; }
+  function addRsvp(ev) {
+    if (ev.classList.contains('past') || ev.querySelector('.rsvp-btn')) return;
+    var interest = ev.id === 'e-icc-2027';
+    var title = (ev.querySelector('h2,h3') || {}).textContent || '';
+    var btn = rsvpText(document.createElement('button'), interest ? "I'm interested" : 'RSVP', interest ? 'Me interesa' : 'Confirmar asistencia');
+    btn.type = 'button'; btn.className = 'btn btn-sm btn-green rsvp-btn'; btn.setAttribute('aria-expanded', 'false');
+    btn.dataset.analytics = 'event_rsvp_click';
+    var cal = ev.querySelector('a.btn');
+    var actions = document.createElement('div'); actions.className = 'event-actions';
+    if (cal) { cal.replaceWith(actions); actions.appendChild(btn); actions.appendChild(cal); } else { actions.appendChild(btn); ev.appendChild(actions); }
+    btn.addEventListener('click', function () {
+      var open = ev.querySelector('.rsvp-form');
+      if (open) { open.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+      trackEvent('event_rsvp_click', { event_name: title.trim() });
+      var f = document.createElement('form'); f.className = 'rsvp-form'; f.noValidate = false;
+      var uid = 'r' + Math.random().toString(36).slice(2, 7);
+      f.innerHTML = '<label for="' + uid + 'n"></label><input id="' + uid + 'n" name="name" required autocomplete="name">' +
+        '<label for="' + uid + 'e"></label><input id="' + uid + 'e" name="email" type="email" required autocomplete="email">' +
+        '<input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<button class="btn btn-sm btn-primary" type="submit"></button><p class="form-status" role="status" aria-live="polite"></p>';
+      rsvpText(f.querySelector('label[for$="n"]'), 'Name', 'Nombre');
+      rsvpText(f.querySelector('label[for$="e"]'), 'Email', 'Correo');
+      rsvpText(f.querySelector('button'), interest ? 'Count me in' : 'Confirm', interest ? 'Cuenta conmigo' : 'Confirmar');
+      var st = f.querySelector('.form-status');
+      f.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!f.reportValidity()) return;
+        var data = { _form: 'event_rsvp', _page: 'events.html', _lang: lang(), event: title.trim(), event_id: ev.id, event_date: ev.dataset.date,
+          name: f.elements.name.value, email: f.elements.email.value, website: f.elements.website.value };
+        if (data.website) return;
+        var sub = f.querySelector('button'); sub.disabled = true;
+        function done() {
+          trackEvent('event_rsvp_submit', { event_name: title.trim() });
+          rsvpText(st, 'You\'re on the list! See you there. 🙌', '¡Estás en la lista! Nos vemos allí. 🙌'); st.className = 'form-status ok';
+          f.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; });
+          rsvpText(btn, 'RSVP sent ✓', 'Confirmado ✓'); btn.disabled = true;
+        }
+        if (!formEndpoint) { location.href = 'mailto:ama@uprm.edu?subject=' + encodeURIComponent('RSVP: ' + title.trim()) + '&body=' + encodeURIComponent(data.name + ' <' + data.email + '>'); done(); return; }
+        fetch(formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+          .then(function (r) { if (!r.ok) throw new Error('rsvp'); done(); })
+          .catch(function () { sub.disabled = false; rsvpText(st, 'Could not send. Please email ama@uprm.edu.', 'No se pudo enviar. Escribe a ama@uprm.edu.'); st.className = 'form-status err'; });
+      });
+      (ev.querySelector('.event > div:nth-child(2)') || ev).appendChild(f);
+      btn.setAttribute('aria-expanded', 'true');
+      f.querySelector('input').focus();
+    });
+  }
   if (eventList) {
     var anyUpcoming = markEvents(eventList);
+    eventList.querySelectorAll('.event').forEach(addRsvp);
     var notice = document.getElementById('no-upcoming');
     if (notice && !anyUpcoming) notice.style.display = 'block';
     // Keep every historical record, with upcoming activities first.
