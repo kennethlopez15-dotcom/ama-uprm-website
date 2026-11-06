@@ -19,6 +19,7 @@ export default {
       if (url.pathname === '/health') return json({ ok: true, providers: providers(env).map((p) => p.name) }, 200, cors);
       if (url.pathname === '/unanswered' && request.method === 'GET') return unanswered(url, env, cors);
       if (url.pathname === '/forms' && request.method === 'GET') return listForms(url, env);
+      if (url.pathname === '/stats' && request.method === 'GET') return stats(env, cors);
       if ((url.pathname === '/chat' || url.pathname === '/translate' || url.pathname === '/form') && request.method === 'POST') {
         if (!cors) return json({ error: 'origin not allowed' }, 403);
         if (env.RATE_LIMITER) {
@@ -82,6 +83,7 @@ async function chat(request, env, ctx, cors) {
     const q = messages[messages.length - 1].content.slice(0, 300);
     ctx.waitUntil(env.RUMI_LOG.put(`q:${Date.now()}`, JSON.stringify({ q, lang, page, at: new Date().toISOString() }), { expirationTtl: 60 * 60 * 24 * 90 }));
   }
+  ctx.waitUntil(bump(env, 'count:chat'));
   return json({ reply: parsed.reply, actions: parsed.actions, unanswered: parsed.unanswered, model: result.model }, 200, cors);
 }
 
@@ -115,6 +117,24 @@ async function saveForm(request, env, cors) {
   const record = { kind, at, page: String(body._page || '').slice(0, 80), lang: body._lang === 'es' ? 'es' : 'en', fields };
   await env.FORMS.put(id, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400, metadata: { kind, at } });
   return json({ ok: true }, 200, cors);
+}
+// Public, aggregate-only numbers for the site's live Impact page: counts, never contents.
+async function bump(env, key) {
+  if (!env.RUMI_LOG) return;
+  const n = Number(await env.RUMI_LOG.get(key)) || 0;
+  await env.RUMI_LOG.put(key, String(n + 1));
+}
+async function stats(env, cors) {
+  const forms = {};
+  if (env.FORMS) {
+    for (const kind of Object.keys(FORM_KINDS)) {
+      let n = 0, cursor;
+      do { const page = await env.FORMS.list({ prefix: kind + ':', cursor, limit: 1000 }); n += page.keys.length; cursor = page.list_complete ? null : page.cursor; } while (cursor);
+      forms[kind] = n;
+    }
+  }
+  const chats = env.RUMI_LOG ? Number(await env.RUMI_LOG.get('count:chat')) || 0 : 0;
+  return json({ since: '2026-11-05', forms, aiAnswers: chats, at: new Date().toISOString() }, 200, { ...(cors || { 'Access-Control-Allow-Origin': '*' }), 'Cache-Control': 'public, max-age=300' });
 }
 async function listForms(url, env) {
   if (!env.ADMIN_KEY) return new Response('Set the ADMIN_KEY secret in Cloudflare (Workers > rumi > Settings > Variables and Secrets) to open this page.', { status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

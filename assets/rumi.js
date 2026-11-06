@@ -1424,11 +1424,17 @@
   }
 
   var CSS_URL = ((document.currentScript && document.currentScript.src) || 'assets/rumi.js').replace(/rumi\.js(\?.*)?$/, 'rumi.css');
+  // Small public API for page features (e.g. ELEVATE's website check): open RUMi or ask it something.
+  function ready() {
+    build();
+    window.RUMI = { open: open, ask: function (q) { open(); send(q, true); } };
+    try { document.dispatchEvent(new Event('rumi:ready')); } catch (e) {}
+  }
   function start() {
-    if (document.querySelector('link[href$="rumi.css"]')) { build(); return; }
+    if (document.querySelector('link[href$="rumi.css"]')) { ready(); return; }
     var css = document.createElement('link');
     css.rel = 'stylesheet'; css.href = CSS_URL;
-    var done = false; function go() { if (!done) { done = true; build(); } }
+    var done = false; function go() { if (!done) { done = true; ready(); } }
     css.onload = go; css.onerror = go; setTimeout(go, 4000);
     document.head.appendChild(css);
   }

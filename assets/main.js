@@ -591,6 +591,11 @@
 /* RUMi (chat assistant) loads once the page has finished loading and the browser is idle, so its
    124 KB script and its stylesheet never compete with the first paint on phones. */
 (function () {
+  window.AMA_loadRumi = function (cb) {
+    if (window.RUMI) { cb(window.RUMI); return; }
+    document.addEventListener('rumi:ready', function () { cb(window.RUMI); }, { once: true });
+    load();
+  };
   function load() {
     if (document.querySelector('script[data-rumi]')) return;
     var s = document.createElement('script');
@@ -603,4 +608,36 @@
   function go() { EVENTS.forEach(function (e) { window.removeEventListener(e, go, true); }); (window.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 1500 }); }
   function arm() { EVENTS.forEach(function (e) { window.addEventListener(e, go, { capture: true, passive: true, once: true }); }); setTimeout(go, 4000); }
   if (document.readyState === 'complete') arm(); else window.addEventListener('load', arm, { once: true });
+})();
+
+/* Impact page: live totals from the Worker (counts only, never personal data). The section stays
+   hidden until there is something to show, so a fresh counter never reads as "0". */
+(function () {
+  var box = document.getElementById('live-stats');
+  var base = (window.AMA_CONFIG && window.AMA_CONFIG.rumiEndpoint) || '';
+  if (!box || !base) { if (box) box.closest('section').hidden = true; return; }
+  var section = box.closest('section'); section.hidden = true;
+  fetch(base.replace(/\/$/, '') + '/stats').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    if (!d) return;
+    var values = Object.assign({}, d.forms || {}, { aiAnswers: d.aiAnswers || 0 }), total = 0;
+    box.querySelectorAll('[data-live]').forEach(function (el) { var n = Number(values[el.dataset.live]) || 0; total += n; el.textContent = n.toLocaleString(); });
+    if (total >= 5) section.hidden = false;
+  }).catch(function () {});
+})();
+
+/* ELEVATE page: "How is your website doing?" runs RUMi's website check with the visitor's link. */
+(function () {
+  var form = document.querySelector('.webcheck-form');
+  if (!form) return;
+  var input = form.querySelector('input');
+  function placeholder() { input.placeholder = document.documentElement.lang === 'es' ? input.dataset.phEs : input.dataset.phEn; }
+  placeholder(); new MutationObserver(placeholder).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var url = input.value.trim();
+    if (!/^[^\s]+\.[a-z]{2,}/i.test(url.replace(/^https?:\/\//, ''))) { input.setCustomValidity(document.documentElement.lang === 'es' ? 'Escribe una dirección web, por ejemplo tunegocio.com' : 'Enter a web address, for example yourbusiness.com'); input.reportValidity(); input.setCustomValidity(''); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    if (window.gtag) window.gtag('event', 'website_check_start', { page: 'elevate' });
+    window.AMA_loadRumi(function (rumi) { rumi.ask((document.documentElement.lang === 'es' ? 'Revisa mi página web: ' : 'Check my website: ') + url); });
+  });
 })();

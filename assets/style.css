@@ -871,3 +871,33 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
   .rsvp-form input:not(.hp){margin-bottom:6px}
 }
 .privacy-note{font-size:.78rem;opacity:.75;margin-top:8px}
+
+/* Impact page */
+.kpi-card{display:flex;flex-direction:column}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.kpi-top .card-icon{margin-bottom:0}
+.kpi-status{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#eef1f6;color:var(--green-dark)}
+.kpi-status.done{background:#e3f4ea;color:#17663a}
+.kpi-status.open{background:#fff3cf;color:#7a5600}
+.kpi-card .kpi-big{font-family:var(--serif);font-size:2.4rem;line-height:1;color:var(--green);margin:6px 0 4px}
+.kpi-bar{height:8px;border-radius:8px;background:#e7ece9;overflow:hidden;margin:12px 0 4px}
+.kpi-bar span{display:block;height:100%;background:var(--green);border-radius:8px}
+.kpi-card .kpi-goal{font-size:.82rem;margin-top:8px}
+.kpi-card .link{margin-top:auto;padding-top:14px}
+.stats-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1024px){.stats-5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:600px){.stats-5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.decision-list{max-width:860px;margin:0 auto;padding-left:22px;display:grid;gap:12px;color:var(--text,#2b3445)}
+.decision-list li{line-height:1.6}
+.ai-decision{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:960px;margin:0 auto 14px;padding:18px 22px;background:#fff;border:1px solid #e7ece9;border-radius:var(--radius)}
+.ai-decision p{margin:4px 0 0}
+.ai-label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+@media (max-width:700px){.ai-decision{grid-template-columns:1fr}}
+
+/* ELEVATE: free website check */
+.webcheck{max-width:760px;text-align:center}
+.webcheck .accent-line{margin-left:auto;margin-right:auto}
+.webcheck-form{display:flex;gap:10px;max-width:620px;margin:22px auto 8px}
+.webcheck-form input{flex:1;min-width:0;min-height:50px;padding:10px 18px;border:1.5px solid #cfd6e0;border-radius:999px;font:16px/1.2 var(--font-body,inherit)}
+.webcheck-form input:focus{outline:2px solid var(--green-dark);outline-offset:2px}
+@media (max-width:600px){.webcheck-form{flex-direction:column}.webcheck-form .btn{width:100%}}
