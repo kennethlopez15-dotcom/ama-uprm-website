@@ -148,8 +148,8 @@
         "first meeting",
         "first members meeting"
       ],
-      "en": "The **kickoff** is the first general meeting of the semester: we introduce the board, the year's activities, ICC opportunities and how to sign up. **This semester's dues are announced there** and by email.",
-      "es": "El **kickoff** es la primera reunión general del semestre: presentamos la directiva, las actividades del año, las oportunidades de ICC y cómo inscribirte. **Ahí se anuncia la cuota del semestre**, y también por correo.",
+      "en": "The **kickoff** is the first general meeting of the semester: we introduce the board, the year's activities, ICC opportunities and how to sign up. Membership is **$58 a year** (one payment, or 2 or 4 installments), and you can sign up right there.",
+      "es": "El **kickoff** es la primera reunión general del semestre: presentamos la directiva, las actividades del año, las oportunidades de ICC y cómo inscribirte. La membresía cuesta **$58 al año** (un pago, o 2 o 4 plazos), y te puedes inscribir allí mismo.",
       "actions": [
         "join",
         "live"
@@ -241,8 +241,8 @@
         "installments",
         " ath "
       ],
-      "en": "Dues can be paid in **one payment or four installments**. The amount and payment methods are announced at kickoff and by email. For specifics (like ATH Móvil), write to Membership: [sara.ribon@upr.edu](mailto:sara.ribon@upr.edu).",
-      "es": "La cuota se puede pagar en **un solo pago o en cuatro plazos**. El monto y las formas de pago se anuncian en el kickoff y por correo. Para detalles (como ATH Móvil), escribe a Membresía: [sara.ribon@upr.edu](mailto:sara.ribon@upr.edu).",
+      "en": "Membership is **$58 a year**: one payment of $58, **2 payments of $29** or **4 payments of $14.50**. For specifics (like ATH Móvil), write to Membership: [sara.ribon@upr.edu](mailto:sara.ribon@upr.edu).",
+      "es": "La membresía cuesta **$58 al año**: un pago de $58, **2 pagos de $29** o **4 pagos de $14.50**. Para detalles (como ATH Móvil), escribe a Membresía: [sara.ribon@upr.edu](mailto:sara.ribon@upr.edu).",
       "actions": [
         "join"
       ]
@@ -302,8 +302,8 @@
         "submitted the form",
         "next step"
       ],
-      "en": "After the form: **1)** choose one payment or four installments (dues are announced at kickoff and by email), **2)** tell us your interests so Membership places you in one of the six teams, and **3)** come to kickoff and meet your BIG. Paid members also get the official WhatsApp Community link.",
-      "es": "Después del formulario: **1)** escoge un pago o cuatro plazos (la cuota se anuncia en el kickoff y por correo), **2)** dinos tus intereses para que Membresía te ubique en uno de los seis equipos, y **3)** ve al kickoff y conoce a tu BIG. Los miembros con cuota pagada reciben el enlace de la Comunidad oficial de WhatsApp.",
+      "en": "After the form: **1)** pay the $58 yearly dues at once, in 2 payments of $29 or in 4 of $14.50, **2)** tell us your interests so Membership places you in one of the six teams, and **3)** come to kickoff and meet your BIG. Paid members also get the official WhatsApp Community link.",
+      "es": "Después del formulario: **1)** paga la cuota anual de $58 de una vez, en 2 pagos de $29 o en 4 de $14.50, **2)** dinos tus intereses para que Membresía te ubique en uno de los seis equipos, y **3)** ve al kickoff y conoce a tu BIG. Los miembros con cuota pagada reciben el enlace de la Comunidad oficial de WhatsApp.",
       "actions": [
         "next",
         "faq"
