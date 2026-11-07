@@ -641,3 +641,12 @@
     window.AMA_loadRumi(function (rumi) { rumi.ask((document.documentElement.lang === 'es' ? 'Revisa mi página web: ' : 'Check my website: ') + url); });
   });
 })();
+
+/* "Try it" buttons (How we use AI page): open RUMi with a sample question in the current language. */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('[data-rumi-ask-en]');
+  if (!b || !window.AMA_loadRumi) return;
+  var q = document.documentElement.lang === 'es' ? b.dataset.rumiAskEs : b.dataset.rumiAskEn;
+  if (window.gtag) window.gtag('event', 'rumi_try_click', { question: q });
+  window.AMA_loadRumi(function (rumi) { rumi.ask(q); });
+});
