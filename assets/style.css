@@ -274,15 +274,15 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .team-group{margin-bottom:60px}
 .team-group h3{font-family:var(--serif);font-size:1.7rem;color:var(--green-dark);margin-bottom:6px}
 .team-group>p{color:var(--gray);margin-bottom:26px;font-size:.95rem}
-.team-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
-.team-grid .member{width:180px}
+.team-grid{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:32px 24px}
+.team-grid .member{width:176px}
 .member{text-align:center}
-.member .ph{aspect-ratio:1;border-radius:50%;width:150px;margin:0 auto 16px;transition:transform .5s var(--ease),box-shadow .5s}
+.member .ph{aspect-ratio:1;border-radius:50%;width:160px;margin:6px auto 18px;box-shadow:0 0 0 4px var(--white),0 0 0 6px rgba(142,24,37,.22),0 14px 28px rgba(31,48,79,.16);transition:transform .5s var(--ease),box-shadow .5s}
 @media (hover: hover) and (pointer: fine){
-.member:hover .ph{transform:scale(1.06);box-shadow:0 20px 40px rgba(6,77,54,.25)}
+.member:hover .ph{transform:scale(1.05);box-shadow:0 0 0 4px var(--white),0 0 0 6px var(--green),0 20px 40px rgba(31,48,79,.25)}
 }
 .member h3,.member h4{font-size:1rem;color:var(--green-dark)}
-.member span{font-size:.78rem;color:var(--gray);display:block}
+.member span{font-size:.78rem;color:var(--gray);display:block;line-height:1.45;margin-top:2px}
 .member a{font-size:.72rem;color:var(--green);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:6px;display:inline-block}
 .member a+a{margin-left:10px}
 .member a+a::before{content:'·';margin-right:10px;color:var(--gray);font-weight:400}
@@ -747,6 +747,7 @@ main{animation:pageIn .5s var(--ease)}
   .stat span{letter-spacing:.04em;font-size:.7rem}
   .team-grid .member{width:calc(50% - 12px)}
   .member .ph{max-width:100%}
+  .team-grid{justify-content:center}
 }
 
 /* Official logo (wordmark image replaces the "AMA" tile) */
@@ -949,3 +950,13 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
 .updates li::before{content:'';position:absolute;left:-6px;top:19px;width:10px;height:10px;border-radius:50%;background:var(--green)}
 .updates time{font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--green-dark);padding-top:2px}
 @media (max-width:600px){.updates li{grid-template-columns:1fr;gap:2px}}
+
+/* Executive board: departments sit side by side when they fit; members without a photo show initials;
+   faculty advisors are set apart from the student board. Data lives in scripts/board.json. */
+.team-depts{display:flex;flex-wrap:wrap;column-gap:56px}
+.team-depts .team-group{flex:0 1 auto;min-width:0}
+.member .ph.initials{padding:0;background:linear-gradient(135deg,#1f304f,#8E1825);color:var(--gold);font-family:var(--serif);font-size:2.6rem;font-weight:600;letter-spacing:.02em;text-transform:none}
+.member .ph.initials::after{display:none}
+.member .ph.initials span{font-size:inherit;color:inherit;line-height:1;margin:0;display:block}
+.team-group.faculty{border-top:1px solid rgba(31,48,79,.12);padding-top:44px}
+@media(max-width:700px){.team-depts{display:block}.member .ph.initials{font-size:2rem}}
