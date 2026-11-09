@@ -82,6 +82,14 @@
   });
   // Footer "last updated" stamp from config.siteUpdated (YYYY-MM-DD); added before the first language swap.
   var siteUpdated = window.AMA_CONFIG && window.AMA_CONFIG.siteUpdated;
+  // GitHub Pages sends the publish time as Last-Modified, so the stamp never falls behind the latest
+  // publish even if siteUpdated isn't bumped. Browsers report "now" when the header is missing, so a
+  // value from the last two minutes is ignored.
+  var published = new Date(document.lastModified);
+  if (!isNaN(published) && Date.now() - published.getTime() > 120000) {
+    var pr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Puerto_Rico', year: 'numeric', month: '2-digit', day: '2-digit' }).format(published);
+    if (!siteUpdated || pr > siteUpdated) siteUpdated = pr;
+  }
   var copyRow = document.querySelector('footer .copy');
   if (siteUpdated && copyRow) {
     var updatedDate = new Date(siteUpdated + 'T12:00:00');
