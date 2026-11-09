@@ -59,7 +59,8 @@
         {
           "name": "Juliann Cordero",
           "en": "Fundraising Coordinator",
-          "es": "Coordinación de recaudaciones"
+          "es": "Coordinación de recaudaciones",
+          "photo": "assets/img/avatar-juliann-cordero.webp"
         }
       ]
     },
@@ -113,7 +114,7 @@
           "en": "Team Management Coordinator",
           "es": "Coordinación de equipos",
           "reports_to": "Agency Director",
-          "photo": "assets/img/avatar-kenneth-lopez.webp?v=2",
+          "photo": "assets/img/avatar-kenneth-lopez.webp?v=3",
           "email": "kenneth.lopez@upr.edu"
         }
       ]
