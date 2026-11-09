@@ -459,6 +459,8 @@
       if (!ev.hidden) count++;
     });
     var empty = document.getElementById('no-events'); if (empty) empty.hidden = count > 0;
+    var label = eventList.querySelector('.past-label');
+    if (label) label.hidden = !eventList.querySelector('.event.past:not([hidden])');
   }
   /* ---------- Event RSVP (upcoming events only) ---------- */
   function rsvpText(el, en, es) { el.dataset.en = en; el.dataset.es = es; el.textContent = lang() === 'es' ? es : en; return el; }
@@ -515,9 +517,21 @@
     var notice = document.getElementById('no-upcoming');
     if (notice && !anyUpcoming) notice.style.display = 'block';
     // Keep every historical record, with upcoming activities first.
-    Array.from(eventList.children).sort(function (a, b) {
-      return Number(a.classList.contains('past')) - Number(b.classList.contains('past')) || a.dataset.date.localeCompare(b.dataset.date);
+    // Upcoming in date order; past ones follow, most recent first, under a "Recent activities" label.
+    Array.from(eventList.querySelectorAll('.event[data-date]')).sort(function (a, b) {
+      var pa = a.classList.contains('past'), pb = b.classList.contains('past');
+      return Number(pa) - Number(pb) || (pa ? b.dataset.date.localeCompare(a.dataset.date) : a.dataset.date.localeCompare(b.dataset.date));
     }).forEach(function (ev) { eventList.appendChild(ev); });
+    var firstPast = eventList.querySelector('.event.past');
+    if (firstPast) {
+      var nPast = eventList.querySelectorAll('.event.past').length;
+      var pastLabel = document.createElement('h3');
+      pastLabel.className = 'past-label';
+      pastLabel.dataset.en = 'Recent activities · ' + nPast;
+      pastLabel.dataset.es = 'Actividades recientes · ' + nPast;
+      pastLabel.textContent = lang() === 'es' ? pastLabel.dataset.es : pastLabel.dataset.en;
+      eventList.insertBefore(pastLabel, firstPast);
+    }
     filters.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
     var status = document.getElementById('event-status');
     if (status) status.addEventListener('change', filterEvents);

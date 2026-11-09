@@ -996,3 +996,25 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
 .grid-4.even-rows>*{flex:0 0 calc((100% - 78px)/4)}
 @media(max-width:1024px){.grid-4.even-rows>*{flex-basis:calc((100% - 26px)/2)}}
 @media(max-width:560px){.grid-4.even-rows>*{flex-basis:100%}}
+
+/* Events: past activities sit in a compact two-column grid under their own label */
+#event-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#event-list .event+.event{margin-top:0}
+#event-list>.event:not(.past),#event-list>.past-label{grid-column:1/-1}
+.past-label{font-family:var(--serif);font-size:1.35rem;color:var(--green-dark);margin:30px 0 4px;padding-bottom:10px;border-bottom:1px solid rgba(31,48,79,.12)}
+.event.past{grid-template-columns:58px minmax(0,1fr) auto;gap:16px;padding:16px 18px;background:#fff}
+.event.past .date{padding:8px 4px;border-radius:10px;background:var(--green-dark)}
+.event.past .date strong{font-size:1.35rem;color:var(--gold)}
+.event.past h2{font-size:.98rem}
+.event.past p{font-size:.84rem}
+.event.past .completed-tag{display:none}
+@media(max-width:760px){#event-list{grid-template-columns:minmax(0,1fr)}.event.past{grid-template-columns:54px minmax(0,1fr)}.event.past .recap-link{grid-column:2;justify-self:start}}
+
+/* Remaining icon slots use the same line icons */
+.measure .m-ico{color:var(--gold);display:inline-flex}
+.doc .ico{color:var(--green)}
+.sp-ico{color:var(--gold)}
+.custom-ico{color:var(--green);background:rgba(142,24,37,.07);border:1px solid rgba(142,24,37,.12)}
+.facade-ico{color:var(--green);display:inline-flex}
+.m-ico svg,.ico svg,.sp-ico svg,.custom-ico svg,.facade-ico svg{display:block}
+.jobs-cards{align-items:stretch;gap:26px;max-width:920px;margin:32px auto 0}
