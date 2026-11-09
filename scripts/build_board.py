@@ -12,6 +12,7 @@ import html, json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'scripts', 'board.json')
 PAGE = os.path.join(ROOT, 'about.html')
+HOME = os.path.join(ROOT, 'index.html')
 LINKEDIN = 'https://www.linkedin.com/in/ama-uprm-36a961203/'
 
 EN = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split()
@@ -77,6 +78,13 @@ def build(data):
     return ''.join(out), students, faculty
 
 
+def faces(data):
+    """Homepage strip: every student board member who has a photo, in board order."""
+    people = [p for g in data['groups'] if not g.get('faculty') for p in g['people'] if p.get('name') and p.get('photo')]
+    imgs = ''.join(f'<img src="{esc(p["photo"])}" alt="{esc(p["name"])}" width="64" height="64" loading="lazy" decoding="async">' for p in people)
+    return f'<!-- board-faces --><div class="faces">{imgs}</div><!-- /board-faces -->'
+
+
 def main():
     data = json.load(open(DATA, encoding='utf8'))
     page = open(PAGE, encoding='utf8').read()
@@ -85,6 +93,10 @@ def main():
     if n != 1:
         sys.exit('about.html: team section not found')
     open(PAGE, 'w', encoding='utf8').write(new)
+    home = open(HOME, encoding='utf8').read()
+    home, k = re.subn(r'<!-- board-faces -->.*?<!-- /board-faces -->', lambda m: faces(data), home, count=1, flags=re.S)
+    if k:
+        open(HOME, 'w', encoding='utf8').write(home)
     pending = [f'{g["en"]}: {p["en"]}' for g in data['groups'] for p in g['people'] if not p.get('name')]
     print(f'about.html board: {students} students, {faculty} advisors; pending (not shown): {", ".join(pending) or "none"}')
 
