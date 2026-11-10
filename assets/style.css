@@ -333,6 +333,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .quote .who span{font-size:.75rem;color:var(--gray)}
 
 /* ---------- Sponsors ---------- */
+#packages{scroll-margin-top:-210px}
 .tier{margin-bottom:56px}
 .tier h3{font-family:var(--serif);font-size:1.6rem;color:var(--green-dark);display:flex;align-items:center;gap:14px;margin-bottom:22px}
 .tier h3 .pill{font-family:var(--font);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;background:var(--blue);color:var(--green-dark);padding:5px 12px;border-radius:99px}

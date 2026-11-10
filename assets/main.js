@@ -339,8 +339,9 @@
       function mailDraft() {
         var lines = Object.keys(data).map(function (k) { return k + ': ' + data[k]; });
         location.href = 'mailto:' + form.dataset.mailto + '?subject=' + encodeURIComponent(form.dataset.subject || name) + '&body=' + encodeURIComponent(lines.join('\n'));
-        trackEvent(name + '_submit', { method: 'mailto' });
-        say('ok');
+        trackEvent(name + '_draft_open', { method: 'mailto' });
+        var note = form.querySelector('.mailto-note'); if (note) note.hidden = false;
+        say('draft');
       }
       if (formEndpoint) {
         var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
