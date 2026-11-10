@@ -80,6 +80,26 @@
   document.querySelectorAll('.lang button').forEach(function (b) {
     b.addEventListener('click', function () { setLang(b.dataset.lang, true); });
   });
+  // Footer "last updated" stamp from config.siteUpdated (YYYY-MM-DD); added before the first language swap.
+  var siteUpdated = window.AMA_CONFIG && window.AMA_CONFIG.siteUpdated;
+  // GitHub Pages sends the publish time as Last-Modified, so the stamp never falls behind the latest
+  // publish even if siteUpdated isn't bumped. Browsers report "now" when the header is missing, so a
+  // value from the last two minutes is ignored.
+  var published = new Date(document.lastModified);
+  if (!isNaN(published) && Date.now() - published.getTime() > 120000) {
+    var pr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Puerto_Rico', year: 'numeric', month: '2-digit', day: '2-digit' }).format(published);
+    if (!siteUpdated || pr > siteUpdated) siteUpdated = pr;
+  }
+  var copyRow = document.querySelector('footer .copy');
+  if (siteUpdated && copyRow) {
+    var updatedDate = new Date(siteUpdated + 'T12:00:00');
+    var stamp = document.createElement('time');
+    stamp.dateTime = siteUpdated;
+    stamp.dataset.en = 'Last updated ' + updatedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    stamp.dataset.es = 'Actualizado el ' + updatedDate.toLocaleDateString('es-PR', { day: 'numeric', month: 'long', year: 'numeric' });
+    stamp.innerHTML = stamp.dataset.en;
+    copyRow.appendChild(stamp);
+  }
   // cache english originals before first swap
   document.querySelectorAll('[data-en]').forEach(function (el) {
     if (!el.dataset.en) el.dataset.en = (el.tagName === 'INPUT') ? el.placeholder : el.innerHTML;
@@ -296,7 +316,7 @@
     });
   });
 
-  /* ---------- Forms: contact, membership application, newsletter ----------
+  /* ---------- Forms: contact, membership application ----------
      With config.formEndpoint set they POST as JSON; otherwise they open a pre-filled email draft. */
   var formEndpoint = config.formEndpoint || '';
   function lang() { return document.documentElement.lang === 'es' ? 'es' : 'en'; }
@@ -316,21 +336,22 @@
       new FormData(form).forEach(function (v, k) { data[k] = v; });
       if (data.website) return; // honeypot: bots fill the hidden field
       delete data.website;
-      if (formEndpoint) {
-        var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
-        fetch(formEndpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ _form: name }, data)) })
-          .then(function (res) {
-            if (!res.ok) throw new Error('bad status');
-            say('ok'); form.reset(); trackEvent(name + '_submit', { method: 'endpoint' });
-          })
-          .catch(function () { say('err'); })
-          .then(function () { if (btn) btn.disabled = false; });
-      } else {
+      function mailDraft() {
         var lines = Object.keys(data).map(function (k) { return k + ': ' + data[k]; });
         location.href = 'mailto:' + form.dataset.mailto + '?subject=' + encodeURIComponent(form.dataset.subject || name) + '&body=' + encodeURIComponent(lines.join('\n'));
         trackEvent(name + '_submit', { method: 'mailto' });
         say('ok');
       }
+      if (formEndpoint) {
+        var btn = form.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+        fetch(formEndpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ _form: name, _page: location.pathname.split('/').pop() || 'index.html', _lang: lang() }, data)) })
+          .then(function (res) {
+            if (!res.ok) throw new Error('bad status');
+            say('ok'); form.reset(); trackEvent(name + '_submit', { method: 'endpoint' });
+          })
+          .catch(mailDraft) // the backend is down: the visitor still reaches the chapter by email
+          .then(function () { if (btn) btn.disabled = false; });
+      } else mailDraft();
     });
   });
 
@@ -377,6 +398,12 @@
     if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });
     }
+    /* Inquiry KPIs: mailto CTAs with a subject (sponsor partnership, ELEVATE client) */
+    if (href.indexOf('mailto:') === 0) {
+      var subj = decodeURIComponent((href.match(/[?&]subject=([^&]*)/i) || ['', ''])[1]);
+      if (/AMPLIFY|partnership|sponsor/i.test(subj)) trackEvent('sponsor_inquiry_click', { subject: subj });
+      else if (/ELEVATE/i.test(subj)) trackEvent('elevate_inquiry_click', { subject: subj });
+    }
   });
 
   /* ---------- Simple event filter ---------- */
@@ -405,7 +432,7 @@
     root.querySelectorAll('.event[data-date]').forEach(function (ev) {
       if (ev.dataset.date < today) {
         ev.classList.add('past');
-        var link = ev.querySelector('a.btn');
+        var link = ev.querySelector('a.btn:not(.recap-link)');
         if (link) {
           var tag = document.createElement('span');
           tag.className = 'completed-tag';
@@ -432,15 +459,79 @@
       if (!ev.hidden) count++;
     });
     var empty = document.getElementById('no-events'); if (empty) empty.hidden = count > 0;
+    var label = eventList.querySelector('.past-label');
+    if (label) label.hidden = !eventList.querySelector('.event.past:not([hidden])');
+  }
+  /* ---------- Event RSVP (upcoming events only) ---------- */
+  function rsvpText(el, en, es) { el.dataset.en = en; el.dataset.es = es; el.textContent = lang() === 'es' ? es : en; return el; }
+  function addRsvp(ev) {
+    if (ev.classList.contains('past') || ev.querySelector('.rsvp-btn')) return;
+    var interest = ev.id === 'e-icc-2027';
+    var title = (ev.querySelector('h2,h3') || {}).textContent || '';
+    var btn = rsvpText(document.createElement('button'), interest ? "I'm interested" : 'RSVP', interest ? 'Me interesa' : 'Confirmar asistencia');
+    btn.type = 'button'; btn.className = 'btn btn-sm btn-green rsvp-btn'; btn.setAttribute('aria-expanded', 'false');
+    btn.dataset.analytics = 'event_rsvp_click';
+    var cal = ev.querySelector('a.btn');
+    var actions = document.createElement('div'); actions.className = 'event-actions';
+    if (cal) { cal.replaceWith(actions); actions.appendChild(btn); actions.appendChild(cal); } else { actions.appendChild(btn); ev.appendChild(actions); }
+    btn.addEventListener('click', function () {
+      var open = ev.querySelector('.rsvp-form');
+      if (open) { open.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+      trackEvent('event_rsvp_click', { event_name: title.trim() });
+      var f = document.createElement('form'); f.className = 'rsvp-form'; f.noValidate = false;
+      var uid = 'r' + Math.random().toString(36).slice(2, 7);
+      f.innerHTML = '<label for="' + uid + 'n"></label><input id="' + uid + 'n" name="name" required autocomplete="name">' +
+        '<label for="' + uid + 'e"></label><input id="' + uid + 'e" name="email" type="email" required autocomplete="email">' +
+        '<input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<button class="btn btn-sm btn-primary" type="submit"></button><p class="form-status" role="status" aria-live="polite"></p>';
+      rsvpText(f.querySelector('label[for$="n"]'), 'Name', 'Nombre');
+      rsvpText(f.querySelector('label[for$="e"]'), 'Email', 'Correo');
+      rsvpText(f.querySelector('button'), interest ? 'Count me in' : 'Confirm', interest ? 'Cuenta conmigo' : 'Confirmar');
+      var st = f.querySelector('.form-status');
+      f.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!f.reportValidity()) return;
+        var data = { _form: 'event_rsvp', _page: 'events.html', _lang: lang(), event: title.trim(), event_id: ev.id, event_date: ev.dataset.date,
+          name: f.elements.name.value, email: f.elements.email.value, website: f.elements.website.value };
+        if (data.website) return;
+        var sub = f.querySelector('button'); sub.disabled = true;
+        function done() {
+          trackEvent('event_rsvp_submit', { event_name: title.trim() });
+          rsvpText(st, 'You\'re on the list! See you there. 🙌', '¡Estás en la lista! Nos vemos allí. 🙌'); st.className = 'form-status ok';
+          f.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; });
+          rsvpText(btn, 'RSVP sent ✓', 'Confirmado ✓'); btn.disabled = true;
+        }
+        if (!formEndpoint) { location.href = 'mailto:ama@uprm.edu?subject=' + encodeURIComponent('RSVP: ' + title.trim()) + '&body=' + encodeURIComponent(data.name + ' <' + data.email + '>'); done(); return; }
+        fetch(formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+          .then(function (r) { if (!r.ok) throw new Error('rsvp'); done(); })
+          .catch(function () { sub.disabled = false; rsvpText(st, 'Could not send. Please email ama@uprm.edu.', 'No se pudo enviar. Escribe a ama@uprm.edu.'); st.className = 'form-status err'; });
+      });
+      (ev.querySelector('.event > div:nth-child(2)') || ev).appendChild(f);
+      btn.setAttribute('aria-expanded', 'true');
+      f.querySelector('input').focus();
+    });
   }
   if (eventList) {
     var anyUpcoming = markEvents(eventList);
+    eventList.querySelectorAll('.event').forEach(addRsvp);
     var notice = document.getElementById('no-upcoming');
     if (notice && !anyUpcoming) notice.style.display = 'block';
     // Keep every historical record, with upcoming activities first.
-    Array.from(eventList.children).sort(function (a, b) {
-      return Number(a.classList.contains('past')) - Number(b.classList.contains('past')) || a.dataset.date.localeCompare(b.dataset.date);
+    // Upcoming in date order; past ones follow, most recent first, under a "Recent activities" label.
+    Array.from(eventList.querySelectorAll('.event[data-date]')).sort(function (a, b) {
+      var pa = a.classList.contains('past'), pb = b.classList.contains('past');
+      return Number(pa) - Number(pb) || (pa ? b.dataset.date.localeCompare(a.dataset.date) : a.dataset.date.localeCompare(b.dataset.date));
     }).forEach(function (ev) { eventList.appendChild(ev); });
+    var firstPast = eventList.querySelector('.event.past');
+    if (firstPast) {
+      var nPast = eventList.querySelectorAll('.event.past').length;
+      var pastLabel = document.createElement('h3');
+      pastLabel.className = 'past-label';
+      pastLabel.dataset.en = 'Recent activities · ' + nPast;
+      pastLabel.dataset.es = 'Actividades recientes · ' + nPast;
+      pastLabel.textContent = lang() === 'es' ? pastLabel.dataset.es : pastLabel.dataset.en;
+      eventList.insertBefore(pastLabel, firstPast);
+    }
     filters.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
     var status = document.getElementById('event-status');
     if (status) status.addEventListener('change', filterEvents);
@@ -518,3 +609,66 @@
   if('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
   measure();
 })();
+
+/* RUMi (chat assistant) loads once the page has finished loading and the browser is idle, so its
+   124 KB script and its stylesheet never compete with the first paint on phones. */
+(function () {
+  window.AMA_loadRumi = function (cb) {
+    if (window.RUMI) { cb(window.RUMI); return; }
+    document.addEventListener('rumi:ready', function () { cb(window.RUMI); }, { once: true });
+    load();
+  };
+  function load() {
+    if (document.querySelector('script[data-rumi]')) return;
+    var s = document.createElement('script');
+    s.src = 'assets/rumi.js'; s.async = true; s.setAttribute('data-rumi', '');
+    document.body.appendChild(s);
+  }
+  // First interaction (tap, scroll, mouse, key) or 4 s after load, whichever comes first: by then the
+  // page's own images are in, so RUMi's download doesn't delay the largest paint.
+  var EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'scroll', 'keydown'];
+  function go() { EVENTS.forEach(function (e) { window.removeEventListener(e, go, true); }); (window.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 1500 }); }
+  function arm() { EVENTS.forEach(function (e) { window.addEventListener(e, go, { capture: true, passive: true, once: true }); }); setTimeout(go, 4000); }
+  if (document.readyState === 'complete') arm(); else window.addEventListener('load', arm, { once: true });
+})();
+
+/* Impact page: live totals from the Worker (counts only, never personal data). The section stays
+   hidden until there is something to show, so a fresh counter never reads as "0". */
+(function () {
+  var box = document.getElementById('live-stats');
+  var base = (window.AMA_CONFIG && window.AMA_CONFIG.rumiEndpoint) || '';
+  if (!box || !base) { if (box) box.closest('section').hidden = true; return; }
+  var section = box.closest('section'); section.hidden = true;
+  fetch(base.replace(/\/$/, '') + '/stats').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    if (!d) return;
+    var values = Object.assign({}, d.forms || {}, { aiAnswers: d.aiAnswers || 0 }), total = 0;
+    box.querySelectorAll('[data-live]').forEach(function (el) { var n = Number(values[el.dataset.live]) || 0; total += n; el.textContent = n.toLocaleString(); });
+    if (total >= 5) section.hidden = false;
+  }).catch(function () {});
+})();
+
+/* ELEVATE page: "How is your website doing?" runs RUMi's website check with the visitor's link. */
+(function () {
+  var form = document.querySelector('.webcheck-form');
+  if (!form) return;
+  var input = form.querySelector('input');
+  function placeholder() { input.placeholder = document.documentElement.lang === 'es' ? input.dataset.phEs : input.dataset.phEn; }
+  placeholder(); new MutationObserver(placeholder).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var url = input.value.trim();
+    if (!/^[^\s]+\.[a-z]{2,}/i.test(url.replace(/^https?:\/\//, ''))) { input.setCustomValidity(document.documentElement.lang === 'es' ? 'Escribe una dirección web, por ejemplo tunegocio.com' : 'Enter a web address, for example yourbusiness.com'); input.reportValidity(); input.setCustomValidity(''); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    if (window.gtag) window.gtag('event', 'website_check_start', { page: 'elevate' });
+    window.AMA_loadRumi(function (rumi) { rumi.ask((document.documentElement.lang === 'es' ? 'Revisa mi página web: ' : 'Check my website: ') + url); });
+  });
+})();
+
+/* "Try it" buttons (How we use AI page): open RUMi with a sample question in the current language. */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('[data-rumi-ask-en]');
+  if (!b || !window.AMA_loadRumi) return;
+  var q = document.documentElement.lang === 'es' ? b.dataset.rumiAskEs : b.dataset.rumiAskEn;
+  if (window.gtag) window.gtag('event', 'rumi_try_click', { question: q });
+  window.AMA_loadRumi(function (rumi) { rumi.ask(q); });
+});

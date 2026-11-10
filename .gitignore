@@ -16,3 +16,8 @@ desktop.ini
 # Local validation artifacts
 .validation/
 __pycache__/
+
+# RUMi worker
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars

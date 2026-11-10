@@ -82,18 +82,18 @@ try:
         page.keyboard.press('Space'); expect(page.locator('#faq-answer-1')).to_be_hidden()
         passed('Manual persistence across pages and FAQ keyboard/ARIA/visibility')
         page.goto(base+'events.html')
-        expect(page.locator('.event.past')).to_have_count(7)
+        expect(page.locator('.event.past')).to_have_count(9)
         page.locator('#event-status').select_option('upcoming')
-        expect(page.locator('.event:visible')).to_have_count(4)
+        expect(page.locator('.event:visible')).to_have_count(9)
         page.locator('[data-filter=service]').click()
         expect(page.locator('#no-events')).to_be_visible()
         page.locator('[data-filter=all]').click(); page.locator('#event-status').select_option('past')
-        expect(page.locator('.event:visible')).to_have_count(7)
+        expect(page.locator('.event:visible')).to_have_count(9)
         translate(page,'es')
         expect(page.locator('.completed-tag').first).to_have_text('Evento finalizado')
         page.clock.set_fixed_time('2026-10-24T12:00:00Z'); page.reload()
-        expect(page.locator('.event.past')).to_have_count(11)
-        expect(page.locator('#no-upcoming')).to_be_visible()
+        expect(page.locator('.event.past')).to_have_count(13)
+        expect(page.locator('#no-upcoming')).to_be_hidden()  # ICC 2027 keeps the upcoming list non-empty
         passed('Dates, category/status filters, empty states and dynamic translations')
         tz = browser.new_context(locale='en-US', timezone_id='Asia/Tokyo'); tz.route('**/*', intercept)
         tp = tz.new_page(); tp.clock.set_fixed_time('2026-10-02T02:00:00Z'); tp.goto(base+'events.html')
@@ -141,8 +141,8 @@ try:
         passed('110 page/width/language combinations: no overflow, unnamed links or console/runtime errors')
         page.goto(base); page.evaluate('window.scrollTo(0,500)')
         assert page.locator('.hero-content').evaluate('e=>!e.style.transform')
-        assert page.locator('[data-count] .counter-value').first.inner_text() == '92'
-        expect(page.locator('[data-count] .sr-only').first).to_have_text('92')
+        assert page.locator('[data-count] .counter-value').first.inner_text() == '93'
+        expect(page.locator('[data-count] .sr-only').first).to_have_text('93')
         passed('Reduced motion disables hero parallax and renders counters instantly')
         context.close()
         # Graceful fallback if JavaScript or observer APIs are unavailable.
@@ -155,6 +155,7 @@ try:
         ctx.close()
         # Intercept the mailto navigation in a lexical test adapter; no mail app opens.
         ctx=browser.new_context(locale='en-US');ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',formEndpoint:''};"))  # email-draft mode
         contact_script='(function(location){'+(ROOT/'assets/main.js').read_text(encoding='utf-8')+'})({pathname:"/about.html",set href(value){window.testMailDraft=value}});'
         ctx.route('**/assets/main.js',lambda r:r.fulfill(content_type='application/javascript',body=contact_script))
         pg=ctx.new_page();pg.goto(base+'about.html')
@@ -171,7 +172,7 @@ try:
         ctx=browser.new_context(locale='en-US');ctx.route('**/*',intercept)
         ctx.add_init_script('delete window.IntersectionObserver')
         pg=ctx.new_page();pg.goto(base)
-        expect(pg.locator('[data-count] .counter-value').first).to_have_text('92')
+        expect(pg.locator('[data-count] .counter-value').first).to_have_text('93')
         assert pg.locator('[data-bg]').first.evaluate('e=>Boolean(e.style.backgroundImage)')
         pg.set_viewport_size({'width':390,'height':844});pg.locator('#burger').click()
         expect(pg.locator('#nav a').first).to_be_focused()
@@ -194,7 +195,121 @@ try:
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_calendar_click').length")==1
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_rsvp_click').length")==0
         passed('Mocked calendar click tracking with analytics enabled')
+        for file,sel,ev in [('sponsors.html','a[href*="AMPLIFY%20Partnership%202027"]:not([href*="Custom"])','sponsor_inquiry_click'),('sponsors.html','a[href*="Custom"]','sponsor_inquiry_click'),('elevate.html','a[href*="ELEVATE%20client"]','elevate_inquiry_click')]:
+            pg.goto(base+file)
+            pg.evaluate("document.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();},true)")
+            pg.evaluate("s=>document.querySelector(s).click()",sel)
+            assert pg.evaluate("e=>dataLayer.filter(x=>x[1]===e).length",ev)==1,(file,sel)
+        passed('Mocked sponsor and ELEVATE inquiry tracking')
         ctx.close()
+        # RUMi's last AI tier: Chrome's on-device model, used only if already downloaded (never triggers a download).
+        nano_mock="window.__nano={created:0};window.LanguageModel={availability:async()=>window.__nanoState,create:async()=>{__nano.created++;return{prompt:async()=>'NANO-OK',destroy(){}}}};"
+        for state,expect_created in [('available',1),('downloadable',0)]:
+            ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+            ctx.route(re.compile(r'.*ovh\.net.*'),lambda r:r.abort())
+            ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:''};"))  # browser-only chain
+            ctx.add_init_script(f"window.__nanoState='{state}';"+nano_mock)
+            pg=ctx.new_page(); pg.goto(base+'index.html')
+            pg.locator('.rumi-launch').click()
+            pg.locator('.rumi-form input').fill('Si no estudio marketing, puedo unirme igual a AMA UPRM y competir en ICC?')
+            pg.locator('.rumi-form input').press('Enter')
+            pg.wait_for_timeout(8000)  # 7 blocked OVH calls, then Nano or the local answer, plus the typewriter reveal
+            assert pg.evaluate('window.__nano.created')==expect_created,(state,pg.evaluate('window.__nano.created'))
+            assert ('NANO-OK' in pg.locator('.rumi-log').inner_text())==(state=='available'),state
+            ctx.close()
+        passed('RUMi on-device fallback: used when available, never triggers a model download')
+        # RUMi language: short or mixed messages never flip the site; full sentences do; a manual choice wins.
+        ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click()
+        def say(q):
+            pg.locator('.rumi-form input').fill(q); pg.locator('.rumi-form input').press('Enter'); pg.wait_for_timeout(1500)
+            return pg.evaluate('document.documentElement.lang')
+        assert say('Marketing Week events?')=='es'
+        assert say('ok gracias')=='es'
+        assert say('How can I join the chapter if I am a freshman?')=='en'
+        assert pg.evaluate("localStorage.getItem('ama-lang')") is None  # an automatic switch is not saved as a choice
+        assert say('Y como puedo pagar la cuota de membresia?')=='es'
+        pg.locator('.rumi-lang').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate('document.documentElement.lang')=='en'
+        assert say('Cuando es el proximo evento del capitulo?')=='en'  # the visitor's own choice wins
+        ctx.close()
+        passed('RUMi language detection: no flips on short/mixed messages, manual choice wins')
+        # Switching language translates the conversation: RUMi's own answers and buttons are rebuilt.
+        ctx=browser.new_context(locale='es-PR'); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click()
+        pg.locator('.rumi-quick button').nth(1).click(); pg.wait_for_timeout(2500)  # next event: text + event cards + buttons
+        before=pg.locator('.rumi-bot .rumi-text').last.inner_text()
+        assert 'Añadir al calendario' in before or 'Te ayudó' in before, before[:200]
+        pg.locator('.rumi-lang').click(); pg.wait_for_timeout(1200)
+        after=pg.locator('.rumi-bot .rumi-text').last.inner_text()
+        assert 'Añadir al calendario' not in after and 'Te ayudó' not in after, after[:200]
+        assert '&amp;' not in after
+        labels=pg.locator('.rumi-action').all_inner_texts()
+        assert labels and not any('Calendario' in l or 'Únete' in l for l in labels), labels
+        assert 'English' in pg.locator('.rumi-divider').last.inner_text()
+        ctx.close()
+        passed('RUMi translates the conversation (answers, event cards, buttons) on language change')
+        # Phones: landscape keeps the close button on screen, and quick successive messages are all answered.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':740,'height':360},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); pg.locator('.rumi-launch').click(); pg.wait_for_timeout(400)
+        box=pg.locator('.rumi-close').bounding_box(); assert box and box['y']>=0 and box['y']+box['height']<=360, box
+        fbox=pg.locator('.rumi-form input').bounding_box(); assert fbox and fbox['y']+fbox['height']<=360, fbox
+        for q in ['Cual es el proximo evento?','Que es ELEVATE?','Cuanto cuesta auspiciar?']:
+            pg.locator('.rumi-form input').fill(q); pg.locator('.rumi-form input').press('Enter'); pg.wait_for_timeout(60)
+        pg.wait_for_function("document.querySelectorAll('.rumi-bot').length>=3",timeout=20000)
+        assert pg.locator('.rumi-user').count()==3
+        pg.locator('.rumi-close').click(); assert not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
+        ctx.close()
+        passed('RUMi on landscape phones: header and input on screen, successive messages all answered')
+        # Phones: RUMi is a bottom sheet; tapping the dimmed page, the back button and the X all close it without leaving.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':390,'height':780},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html'); url0=pg.url
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(400)
+        top=pg.locator('.rumi-panel').bounding_box()['y']; assert top>=60, top  # the page stays visible above the sheet
+        pg.mouse.click(40, top/2); pg.wait_for_timeout(300); assert pg.evaluate("document.querySelector('.rumi-panel').hidden")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300); pg.go_back(); pg.wait_for_timeout(400)
+        assert pg.url==url0 and pg.evaluate("document.querySelector('.rumi-panel').hidden")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300); pg.locator('.rumi-close').click(); pg.wait_for_timeout(300)
+        assert pg.url==url0 and not pg.evaluate("document.documentElement.classList.contains('rumi-lock')")
+        ctx.close()
+        passed('RUMi bottom sheet on phones: page visible, backdrop/back/X close it, visitor stays on the page')
+        # RUMi loads after the page (first interaction or 4 s) and, on phones, is a real modal: the page behind is inert.
+        ctx=browser.new_context(locale='es-PR',viewport={'width':390,'height':780},has_touch=True,is_mobile=True); ctx.route('**/*',intercept)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',rumiEndpoint:'',rumiFreeAI:false};"))
+        pg=ctx.new_page(); pg.goto(base+'index.html')
+        assert pg.locator('script[src*="rumi.js"]').count()==0 or pg.evaluate("document.readyState")=='complete'
+        pg.wait_for_selector('.rumi-launch',timeout=8000)  # appears without any interaction
+        assert pg.evaluate("!!document.querySelector('link[href$=\"rumi.css\"]')")
+        pg.locator('.rumi-launch').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate("document.querySelector('.rumi-panel').getAttribute('aria-modal')")=='true'
+        assert pg.evaluate("document.querySelector('main').inert===true")
+        pg.locator('.rumi-close').click(); pg.wait_for_timeout(300)
+        assert pg.evaluate("document.querySelector('main').inert===false && !document.querySelector('[data-rumi-inert]')")
+        ctx.close()
+        passed('RUMi loads after the page; on phones it is modal (page inert while open, restored on close)')
+        # Forms with the backend: membership and contact POST as JSON; upcoming events get an RSVP form.
+        ctx=browser.new_context(locale='en-US'); ctx.route('**/*',intercept)
+        posted=[]
+        def fake_form(r):
+            posted.append(json.loads(r.request.post_data)); r.fulfill(status=200,content_type='application/json',headers={'Access-Control-Allow-Origin':'*'},body='{"ok":true}')
+        ctx.route('**/rumi.amauprm.workers.dev/form',fake_form)
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'',formEndpoint:'https://rumi.amauprm.workers.dev/form'};"))
+        pg=ctx.new_page(); pg.goto(base+'membership.html')
+        f=pg.locator('form.join-form'); f.locator('[name=name]').fill('Test'); f.locator('[name=email]').fill('t@upr.edu'); f.locator('[name=major_year]').fill('ADEM 1')
+        f.locator('button[type=submit]').click(); expect(f.locator('.form-status.ok')).to_be_visible()
+        assert posted[-1]['_form']=='membership_application' and posted[-1]['email']=='t@upr.edu' and posted[-1]['_page']=='membership.html'
+        pg.clock.set_fixed_time('2026-10-01T12:00:00Z'); pg.goto(base+'events.html')
+        assert pg.locator('.event.past .rsvp-btn').count()==0 and pg.locator('.event:not(.past) .rsvp-btn').count()>=1
+        ev=pg.locator('.event:not(.past)').first; ev.locator('.rsvp-btn').click()
+        ev.locator('.rsvp-form [name=name]').fill('Test'); ev.locator('.rsvp-form [name=email]').fill('t@upr.edu'); ev.locator('.rsvp-form button[type=submit]').click()
+        expect(ev.locator('.rsvp-form .form-status.ok')).to_be_visible()
+        assert posted[-1]['_form']=='event_rsvp' and posted[-1]['event_id']==ev.get_attribute('id')
+        ctx.close()
+        passed('Forms post to the backend (membership, RSVP on upcoming events only)')
         out=ROOT/'.validation'/'legacy'/args.browser; out.mkdir(parents=True,exist_ok=True)
         ctx=browser.new_context(locale='es-PR',reduced_motion='reduce'); ctx.route('**/*',intercept)
         pg=ctx.new_page(); pg.clock.set_fixed_time('2026-09-29T12:00:00Z')

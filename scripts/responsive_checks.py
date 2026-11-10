@@ -25,6 +25,8 @@ GEOMETRY = """() => {
   const nodes = document.querySelectorAll('header a,header button,main h1,main h2,main h3,main h4,main p,main li,main span,main strong,main a,main button,main label,footer p,footer a');
   for (const el of nodes) {
     if (!visible(el) || el.closest('.ph,.hero-bg,.shape')) continue;
+    // WCAG 1.4.10 exempts data tables: a .compare-wrap that scrolls horizontally is the accepted fallback.
+    { const cw=el.closest('.compare-wrap'); if (cw && cw.scrollWidth > cw.clientWidth + 1) continue; }
     if (el.closest('nav') && document.querySelector('#burger').getBoundingClientRect().height && !document.querySelector('nav.open')) continue;
     for (const text of el.childNodes) {
       if (text.nodeType !== Node.TEXT_NODE || !text.textContent.trim()) continue;
@@ -88,7 +90,7 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
         page.goto(base)
         for width in ((320, 1201, 1920) if quick else WIDTHS):
             page.set_viewport_size({'width':width,'height':900})
-            for file in sorted(root.glob('*.html')):
+            for file in sorted(p for p in root.glob('*.html') if not p.name.startswith('google')):
                 for lang in ('es', 'en'):
                     page.evaluate('(lang)=>localStorage.setItem("ama-lang",lang)',lang)
                     page.goto(base+file.name)
@@ -107,7 +109,7 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
         # Short/landscape viewports and text-only enlargement are separate cases.
         for width,height,enlarged in ((844,390,False),(1024,600,False),(320,640,True),(1201,800,True)):
             page.set_viewport_size({'width':width,'height':height})
-            for file in sorted(root.glob('*.html')):
+            for file in sorted(p for p in root.glob('*.html') if not p.name.startswith('google')):
                 for lang in ('es','en'):
                     page.evaluate('(lang)=>localStorage.setItem("ama-lang",lang)',lang)
                     page.goto(base+file.name)
@@ -186,10 +188,11 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
     for file in ('index.html','about.html','blog.html','blog-post.html','programs.html','sponsors.html'):
         loaded_photos.clear()
         page.goto(base+file)
-        photos=page.locator('.photo-frame img')
-        record(page,file+'-native-photos',[] if photos.count() else ['native content photo missing'])
+        photos=page.locator('main img[srcset]:not(.hero-mosaic img) >> visible=true')
+        # Photo bands moved to CSS backgrounds (data-bg); only <img srcset> photos are checked here.
         for photo in photos.all():
-            photo.scroll_into_view_if_needed()
+            if engine == 'firefox': photo.scroll_into_view_if_needed()
+            else: photo.evaluate('e=>e.scrollIntoView({block:"center"})')
             if engine == 'firefox':
                 # Firefox disables main-world evaluation with JS disabled. Verify
                 # native selection/load through image responses instead of a JS
