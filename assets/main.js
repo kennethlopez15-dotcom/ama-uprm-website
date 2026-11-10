@@ -7,6 +7,23 @@
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var analyticsId = config.analyticsId || '';
   var analyticsEnabled = /^G-[A-Z0-9]+$/.test(analyticsId) && !/X{5,}/.test(analyticsId);
+  // Keep Analytics to real visitors: never count automated browsers (our own checks) or local
+  // test servers, and let the team opt a device out once with ?notrack (undo with ?track).
+  (function () {
+    var NOTRACK = 'ama-notrack';
+    try {
+      var q = new URLSearchParams(location.search);
+      if (q.has('notrack')) localStorage.setItem(NOTRACK, '1');
+      if (q.has('track')) localStorage.removeItem(NOTRACK);
+      if (q.has('notrack') || q.has('track')) {
+        q.delete('notrack'); q.delete('track');
+        var rest = q.toString();
+        history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+      }
+      if (localStorage.getItem(NOTRACK) === '1') analyticsEnabled = false;
+    } catch (e) { /* storage blocked: tracking stays as configured */ }
+    if (!config.analyticsInTests && (navigator.webdriver || /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(location.hostname) || /\.(localhost|test)$/.test(location.hostname))) analyticsEnabled = false;
+  })();
   if (analyticsEnabled) {
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
@@ -239,7 +256,9 @@
   var here = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('nav > ul > li').forEach(function (li) {
     var a = li.querySelector(':scope > a');
-    if (a && a.getAttribute('href') === here) { li.classList.add('active'); a.setAttribute('aria-current', 'page'); }
+    var href = a && a.getAttribute('href');
+    if (href === './') href = 'index.html'; // home links point at the root URL
+    if (a && href === here) { li.classList.add('active'); a.setAttribute('aria-current', 'page'); }
   });
 
   /* ---------- Scroll reveal ---------- */
@@ -398,6 +417,12 @@
     }
     if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });
+    }
+    /* Applications live in Google Forms: count each time a visitor opens one (the KPI's site step;
+       completed applications are counted in the form's own responses). */
+    if (href.indexOf('docs.google.com/forms') !== -1) {
+      if (/elevate/i.test(location.pathname)) trackEvent('elevate_inquiry_click', { method: 'google_form' });
+      else trackEvent('membership_form_open', { link_text: a.textContent.trim() });
     }
     /* Inquiry KPIs: mailto CTAs with a subject (sponsor partnership, ELEVATE client) */
     if (href.indexOf('mailto:') === 0) {

@@ -187,7 +187,7 @@ try:
         pg=ctx.new_page(); pg.goto(base); expect(pg.locator('html')).to_have_attribute('lang','es'); translate(pg,'en'); ctx.close()
         passed('Locale fallback, invalid/saved preferences, language order and blocked storage')
         ctx=browser.new_context(locale='en-US'); ctx.route('**/*',intercept)
-        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'G-TEST12345'};"))
+        ctx.route('**/assets/config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.AMA_CONFIG={analyticsId:'G-TEST12345',analyticsInTests:true};"))
         pg=ctx.new_page()
         pg.goto(base+'events.html'); pg.clock.set_fixed_time('2026-09-29T12:00:00Z'); pg.reload()
         pg.evaluate("document.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();},true)")
@@ -195,12 +195,12 @@ try:
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_calendar_click').length")==1
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_rsvp_click').length")==0
         passed('Mocked calendar click tracking with analytics enabled')
-        for file,sel,ev in [('sponsors.html','a[href*="AMPLIFY%20Partnership%202027"]:not([href*="Custom"])','sponsor_inquiry_click'),('sponsors.html','a[href*="Custom"]','sponsor_inquiry_click'),('elevate.html','a[href*="ELEVATE%20client"]','elevate_inquiry_click')]:
+        for file,sel,ev in [('sponsors.html','a[href*="AMPLIFY%20Partnership%202027"]:not([href*="Custom"])','sponsor_inquiry_click'),('sponsors.html','a[href*="Custom"]','sponsor_inquiry_click'),('elevate.html','a[href*="docs.google.com/forms"]','elevate_inquiry_click'),('membership.html','#join a[href*="docs.google.com/forms"]','membership_form_open')]:
             pg.goto(base+file)
             pg.evaluate("document.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();},true)")
             pg.evaluate("s=>document.querySelector(s).click()",sel)
             assert pg.evaluate("e=>dataLayer.filter(x=>x[1]===e).length",ev)==1,(file,sel)
-        passed('Mocked sponsor and ELEVATE inquiry tracking')
+        passed('Mocked sponsor, ELEVATE and membership application tracking')
         ctx.close()
         # RUMi's last AI tier: Chrome's on-device model, used only if already downloaded (never triggers a download).
         nano_mock="window.__nano={created:0};window.LanguageModel={availability:async()=>window.__nanoState,create:async()=>{__nano.created++;return{prompt:async()=>'NANO-OK',destroy(){}}}};"

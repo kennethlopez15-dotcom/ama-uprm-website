@@ -1019,3 +1019,14 @@ header{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-in
 .facade-ico{color:var(--green);display:inline-flex}
 .m-ico svg,.ico svg,.sp-ico svg,.custom-ico svg,.facade-ico svg{display:block}
 .jobs-cards{align-items:stretch;gap:26px;max-width:920px;margin:32px auto 0}
+
+/* Performance: browsers skip layout and paint of sections below the first screen until they
+   approach the viewport (big win on phones). The size hint keeps the scrollbar stable. */
+main > section:not(:first-child){content-visibility:auto;contain-intrinsic-size:auto 900px}
+html:has(:target) main > section{content-visibility:visible}
+@media print{main > section{content-visibility:visible}}
+
+/* Impact: the three website KPIs */
+.kpi-card .kpi-num{display:block;font-family:var(--serif);font-size:2rem;line-height:1;color:var(--green);margin-bottom:10px}
+.kpi-card .kpi-goal{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green);font-weight:700;margin:2px 0 12px}
+.kpi-card .kpis li{margin-bottom:6px}

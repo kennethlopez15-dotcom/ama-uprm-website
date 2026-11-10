@@ -94,7 +94,7 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
                 for lang in ('es', 'en'):
                     page.evaluate('(lang)=>localStorage.setItem("ama-lang",lang)',lang)
                     page.goto(base+file.name)
-                    page.add_style_tag(content='html{scroll-behavior:auto!important}')
+                    page.add_style_tag(content='html{scroll-behavior:auto!important} main>section{content-visibility:visible!important}')  # measure the final layout of every section
                     expect(page.locator('html')).to_have_attribute('lang',lang)
                     # Settle real entrance animations, including off-screen sections,
                     # without changing layout or hiding animated content from checks.
@@ -113,7 +113,7 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
                 for lang in ('es','en'):
                     page.evaluate('(lang)=>localStorage.setItem("ama-lang",lang)',lang)
                     page.goto(base+file.name)
-                    page.add_style_tag(content='html{scroll-behavior:auto!important}')
+                    page.add_style_tag(content='html{scroll-behavior:auto!important} main>section{content-visibility:visible!important}')  # measure the final layout of every section
                     expect(page.locator('html')).to_have_attribute('lang',lang)
                     if enlarged:
                         # Double each element's original computed font size, including
@@ -172,7 +172,7 @@ def run_responsive_checks(browser, base, root, engine, quick=False):
     page=ctx.new_page()
     for file in ('about.html','events.html','programs.html'):
         page.goto(base+file)
-        page.add_style_tag(content='html{scroll-behavior:auto!important}')
+        page.add_style_tag(content='html{scroll-behavior:auto!important} main>section{content-visibility:visible!important}')  # measure the final layout of every section
         page.locator('.embed').scroll_into_view_if_needed()
         expect(page.locator('#toTop')).to_have_attribute('aria-hidden','true')
         expect(page.locator('#toTop')).to_have_css('pointer-events','none')
