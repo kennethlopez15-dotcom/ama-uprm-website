@@ -36,6 +36,9 @@ def category(title):
     return 'social'
 
 
+NO_RSVP = re.compile(r'sale|raffle|announcement|car wash|fundraiser at|post cards', re.I)
+
+
 def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')[:30]
 
@@ -60,7 +63,8 @@ def event_html(e):
                + f'&dates={d:%Y%m%d}/{end:%Y%m%d}&ctz=America%2FPuerto_Rico')
         cal = (f'<a href="{esc(url)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark" '
                f'data-en="Add to calendar" data-es="Agregar al calendario">Add to calendar</a>')
-    return (f'      <div class="event" id="{e["id"]}" data-cat="{e["cat"]}" data-date="{e["date"]}">'
+    rsvp = ' data-rsvp="no"' if NO_RSVP.search(e['en']) and not re.search(r'class', e['en'], re.I) else ''
+    return (f'      <div class="event" id="{e["id"]}" data-cat="{e["cat"]}" data-date="{e["date"]}"{rsvp}>'
             f'{box}<div>{body}</div>{cal}</div>\n')
 
 

@@ -491,7 +491,7 @@
   /* ---------- Event RSVP (upcoming events only) ---------- */
   function rsvpText(el, en, es) { el.dataset.en = en; el.dataset.es = es; el.textContent = lang() === 'es' ? es : en; return el; }
   function addRsvp(ev) {
-    if (ev.classList.contains('past') || ev.querySelector('.rsvp-btn')) return;
+    if (ev.classList.contains('past') || ev.dataset.rsvp === 'no' || ev.querySelector('.rsvp-btn')) return; // sales, raffles and announcements: calendar link only
     var interest = ev.id === 'e-icc-2027';
     var title = (ev.querySelector('h2,h3') || {}).textContent || '';
     var btn = rsvpText(document.createElement('button'), interest ? "I'm interested" : 'RSVP', interest ? 'Me interesa' : 'Confirmar asistencia');
