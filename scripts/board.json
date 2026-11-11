@@ -79,9 +79,10 @@
           "photo": "assets/img/avatar-anelis.webp"
         },
         {
-          "name": "Yavier",
+          "name": "Yavier Cruz",
           "en": "Community Outreach Assistant",
-          "es": "Asistencia de alcance comunitario"
+          "es": "Asistencia de alcance comunitario",
+          "photo": "assets/img/avatar-yavier-cruz.webp"
         },
         {
           "name": null,
@@ -132,7 +133,8 @@
         {
           "name": "Alexandra Ramos",
           "en": "VP of Communication",
-          "es": "VP de Comunicaciones"
+          "es": "VP de Comunicaciones",
+          "photo": "assets/img/avatar-alexandra-ramos.webp"
         },
         {
           "name": "Indhira Vargas",

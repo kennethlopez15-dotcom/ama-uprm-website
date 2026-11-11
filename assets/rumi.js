@@ -314,7 +314,7 @@
       case 'board': return boardAnswer(text);
       case 'contact': return reply(t('📧 [ama@uprm.edu](mailto:ama@uprm.edu)\n📞 787-832-4040 ext. 3800\n📍 College of Business Administration (ADEM), UPR Mayagüez\nWe answer within two business days during the semester.', '📧 [ama@uprm.edu](mailto:ama@uprm.edu)\n📞 787-832-4040 ext. 3800\n📍 Facultad de Administración de Empresas (ADEM), UPR Mayagüez\nContestamos en dos días laborables durante el semestre.'), acts('contact', 'instagram'));
       case 'social': return reply(t('Follow the fAMAly on Instagram for recaps, Fun Fact Friday reels and announcements, and connect on LinkedIn.', 'Sigue a la fAMAly en Instagram para resúmenes, los reels de Fun Fact Friday y anuncios, y conecta en LinkedIn.'), acts('instagram', 'linkedin'));
-      case 'about': return reply(t('AMA UPRM was founded in **2018**, has been a **Top Collegiate Chapter five years in a row** and ranks in the **Top 20 worldwide**. 🏆 Six teams and 93 members.', 'AMA UPRM se fundó en **2018**, ha sido **Top Collegiate Chapter cinco años seguidos** y está en el **Top 20 mundial**. 🏆 Seis equipos y 93 miembros.'), [{ label: t('About us', 'Sobre nosotros'), url: 'about.html' }, A.join()]);
+      case 'about': return reply(t('AMA UPRM was reactivated in **fall 2018** after more than three decades, started with 39 students, has been among **AMA’s top chapters six consecutive years (since 2021)** and ranks in the **Top 20 worldwide**. 🏆 Six teams and 95 members.', 'AMA UPRM se reactivó en el **otoño de 2018** tras más de tres décadas, empezó con 39 estudiantes, ha estado entre los **top chapters de AMA seis años consecutivos (desde 2021)** y está en el **Top 20 mundial**. 🏆 Seis equipos y 95 miembros.'), [{ label: t('About us', 'Sobre nosotros'), url: 'about.html' }, A.join()]);
       case 'audit': return auditAnswer(text);
       case 'palette': return paletteAnswer(text, waiting === 'palette');
       case 'naming': return namingAnswer(text, waiting === 'naming');
@@ -799,7 +799,7 @@
     business: { label: ['💼 I run a business', '💼 Tengo un negocio'], chips: ['hire', 'audit', 'naming', 'palette'],
       text: ['Welcome! 💼 **ELEVATE**, our student consulting agency, works with Puerto Rico businesses and nonprofits for free or at low cost. Meanwhile, try my free tools:', '¡Bienvenido/a! 💼 **ELEVATE**, nuestra agencia de consultoría estudiantil, trabaja con negocios y organizaciones de Puerto Rico gratis o a bajo costo. Mientras, prueba mis herramientas gratis:'] },
     sponsor: { label: ['🤝 My company wants to sponsor', '🤝 Mi empresa quiere auspiciar'], chips: ['sponsor', 'donate', 'next'],
-      text: ['Thank you! 🤝 AMPLIFY partners reach **93+ future marketers** and help send **25 students** to **ICC 2027 in New Orleans**. Levels start at **$1,000**. Leave your info and we will follow up.', '¡Gracias! 🤝 Los AMPLIFY partners llegan a **más de 93 futuros mercadólogos** y ayudan a llevar **25 estudiantes** a **ICC 2027 en New Orleans**. Los niveles empiezan en **$1,000**. Déjame tus datos y te contactamos.'] },
+      text: ['Thank you! 🤝 AMPLIFY partners reach **95 future marketers** and help send **25 students** to **ICC 2027 in New Orleans**. Levels start at **$1,000**. Leave your info and we will follow up.', '¡Gracias! 🤝 Los AMPLIFY partners llegan a **95 futuros mercadólogos** y ayudan a llevar **25 estudiantes** a **ICC 2027 en New Orleans**. Los niveles empiezan en **$1,000**. Déjame tus datos y te contactamos.'] },
     alum: { label: ['🎉 I\'m an alum', '🎉 Soy exalumno/a'], chips: ['next', 'linkedin', 'email'],
       text: ['Once fAMAly, always fAMAly! 🎉 Come back as a **speaker or mentor**, refer an ELEVATE client or share a job opening. New grads get **one free year** of graduate membership.', '¡Una vez fAMAly, siempre fAMAly! 🎉 Regresa como **conferenciante o mentor**, refiere un cliente a ELEVATE o comparte una oferta de empleo. Los recién graduados reciben **un año gratis** de membresía graduada.'] }
   };
@@ -866,7 +866,7 @@
   function chipKeys() { return persona ? PERSONAS[persona].chips : PAGE_TIPS[page()] || ['next', 'join', 'tools', 'sponsor']; }
   function greeting() {
     var p = page();
-    var hook = p === 'sponsors.html' ? t('Want your company to connect with 93+ future marketers?', '¿Quieres que tu empresa conecte con más de 93 futuros mercadólogos?')
+    var hook = p === 'sponsors.html' ? t('Want your company to connect with 95 future marketers?', '¿Quieres que tu empresa conecte con más de 93 futuros mercadólogos?')
       : p === 'elevate.html' || p.indexOf('case-') === 0 ? t('Do you run a business? I can audit your website for free.', '¿Tienes un negocio? Te audito la página web gratis.')
       : p === 'events.html' ? t('Want to know what\'s coming up?', '¿Quieres saber qué viene?')
       : t('I\'m AMA UPRM\'s assistant.', 'Soy el asistente de AMA UPRM.');

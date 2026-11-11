@@ -1,3 +1,9 @@
+/* Safety net: animated sections start hidden; if a script error stops main.js, show them all. */
+(function () {
+  function showAll() { document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(function (el) { el.classList.add('visible'); }); }
+  window.addEventListener('error', showAll);
+  window.addEventListener('load', function () { setTimeout(function () { if (!window.AMA_READY) showAll(); }, 1500); });
+})();
 /* AMA UPRM — shared behaviour */
 (function () {
   'use strict';
@@ -261,6 +267,7 @@
     if (a && href === here) { li.classList.add('active'); a.setAttribute('aria-current', 'page'); }
   });
 
+  window.AMA_READY = true;
   /* ---------- Scroll reveal ---------- */
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
@@ -270,8 +277,25 @@
         el.classList.add('visible'); io.unobserve(el);
         if (el.classList.contains('stagger')) setTimeout(function () { el.classList.add('settled'); }, 1500);
       });
-    }, { threshold: 0.12 });
+    // threshold 0: any part on screen reveals it, so tall sections (long lists on phones) never stay hidden.
+    }, { threshold: 0, rootMargin: '0px 0px -6% 0px' });
     document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(function (el) { io.observe(el); });
+    // Fast scrolls can skip an observer callback: anything that has reached or passed the viewport is shown.
+    var pendingReveal = Array.from(document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger'));
+    var revealQueued = false;
+    function revealPassed() {
+      revealQueued = false;
+      var limit = window.innerHeight;
+      pendingReveal = pendingReveal.filter(function (el) {
+        if (el.classList.contains('visible')) return false;
+        if (el.getBoundingClientRect().top < limit) { el.classList.add('visible'); io.unobserve(el); return false; }
+        return true;
+      });
+      if (!pendingReveal.length) window.removeEventListener('scroll', onRevealScroll);
+    }
+    function onRevealScroll() { if (!revealQueued) { revealQueued = true; requestAnimationFrame(revealPassed); } }
+    window.addEventListener('scroll', onRevealScroll, { passive: true });
+    window.addEventListener('load', revealPassed);
 
     /* ---------- Counters ---------- */
     var cio = new IntersectionObserver(function (entries) {
@@ -416,7 +440,7 @@
     var a = e.target.closest('a');
     if (!a) return;
     var href = a.getAttribute('href') || '';
-    if (href.indexOf('membership.html#join') !== -1 || a.closest('#join')) {
+    if ((href.indexOf('membership.html#join') !== -1 || a.closest('#join')) && href.indexOf('docs.google.com/forms') === -1) {
       trackEvent('membership_interest_click', { link_text: a.textContent.trim() });
     }
     if (a.closest('.event') && (a.dataset.analytics === 'event_rsvp_click' || href.indexOf('calendar.google.com/calendar/render?action=TEMPLATE') !== -1)) {

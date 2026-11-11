@@ -106,6 +106,21 @@ try:
         page.clock.set_fixed_time('2026-10-24T12:00:00Z'); page.reload()
         expect(page.locator('#no-upcoming')).to_be_hidden()  # ICC 2027 keeps the upcoming list non-empty
         passed('Dates, category/status filters, empty states and dynamic translations')
+        # Animated sections never stay hidden: tall sections reveal on any overlap, and a script error shows everything.
+        rc=browser.new_context(viewport={'width':375,'height':667}); rc.route('**/*',intercept)
+        rp=rc.new_page()
+        for file in ('index.html','about.html','membership.html','impact.html'):
+            rp.goto(base+file)
+            y=0
+            while y < rp.evaluate('document.body.scrollHeight - innerHeight'):  # the page grows as sections render
+                y+=300; rp.evaluate('(y)=>scrollTo(0,y)',y); rp.wait_for_timeout(25)
+            rp.wait_for_timeout(1200)
+            hidden=rp.evaluate("[...document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger')].filter(e=>e.offsetParent&&!e.classList.contains('visible')).length")
+            assert hidden==0,(file,hidden,'sections still hidden after scrolling')
+        rp.goto(base+'about.html'); rp.evaluate("setTimeout(()=>{throw new Error('simulated failure')},0)"); rp.wait_for_timeout(300)
+        assert rp.evaluate("[...document.querySelectorAll('.reveal,.stagger')].every(e=>e.classList.contains('visible'))"), 'a script error must reveal all sections'
+        rc.close()
+        passed('Animated sections become visible on phones and after a script error')
         tz = browser.new_context(locale='en-US', timezone_id='Asia/Tokyo'); tz.route('**/*', intercept)
         tp = tz.new_page(); tp.clock.set_fixed_time('2026-10-02T02:00:00Z'); tp.goto(base+'events.html')
         assert not tp.locator('#e-job-fair').evaluate("e=>e.classList.contains('past')")
@@ -152,8 +167,8 @@ try:
         passed('110 page/width/language combinations: no overflow, unnamed links or console/runtime errors')
         page.goto(base); page.evaluate('window.scrollTo(0,500)')
         assert page.locator('.hero-content').evaluate('e=>!e.style.transform')
-        assert page.locator('[data-count] .counter-value').first.inner_text() == '93'
-        expect(page.locator('[data-count] .sr-only').first).to_have_text('93')
+        assert page.locator('[data-count] .counter-value').first.inner_text() == '95'
+        expect(page.locator('[data-count] .sr-only').first).to_have_text('95')
         passed('Reduced motion disables hero parallax and renders counters instantly')
         context.close()
         # Graceful fallback if JavaScript or observer APIs are unavailable.
@@ -183,7 +198,7 @@ try:
         ctx=browser.new_context(locale='en-US');ctx.route('**/*',intercept)
         ctx.add_init_script('delete window.IntersectionObserver')
         pg=ctx.new_page();pg.goto(base)
-        expect(pg.locator('[data-count] .counter-value').first).to_have_text('93')
+        expect(pg.locator('[data-count] .counter-value').first).to_have_text('95')
         assert pg.locator('[data-bg]').first.evaluate('e=>Boolean(e.style.backgroundImage)')
         pg.set_viewport_size({'width':390,'height':844});pg.locator('#burger').click()
         expect(pg.locator('#nav a').first).to_be_focused()
