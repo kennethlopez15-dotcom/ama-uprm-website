@@ -1070,3 +1070,4 @@ main{background-color:#fff}
 #past-list>*{opacity:1;transform:none}
 @media(max-width:760px){#past-list{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:700px){.calendar-embed iframe{height:520px}.calendar-actions{flex-direction:column;align-items:flex-start}}
+.calendar-embed{min-height:620px}@media(max-width:700px){.calendar-embed{min-height:520px}}

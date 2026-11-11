@@ -319,10 +319,19 @@
   });
 
   /* ---------- Events: live calendar shown directly (agenda view on phones) ---------- */
-  document.querySelectorAll('iframe[data-src]').forEach(function (frame) {
-    var phone = window.matchMedia('(max-width: 700px)').matches;
-    frame.src = (phone && frame.dataset.srcMobile) || frame.dataset.src;
-  });
+  // Loads on the visitor's first interaction (scroll, tap, mouse or key), so Google's cookies and
+  // scripts never slow the first paint; for a person it appears right away.
+  var calFrames = document.querySelectorAll('iframe[data-src]');
+  if (calFrames.length) {
+    var CAL_EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'scroll', 'keydown', 'wheel'];
+    var loadCal = function () {
+      CAL_EVENTS.forEach(function (e) { window.removeEventListener(e, loadCal, true); });
+      var phone = window.matchMedia('(max-width: 700px)').matches;
+      calFrames.forEach(function (frame) { if (!frame.src) frame.src = (phone && frame.dataset.srcMobile) || frame.dataset.src; });
+    };
+    CAL_EVENTS.forEach(function (e) { window.addEventListener(e, loadCal, { capture: true, passive: true }); });
+    if (location.hash === '#calendar') loadCal();
+  }
 
   /* ---------- Click-to-load embeds: no third-party requests or cookies until asked ---------- */
   document.querySelectorAll('.embed-facade').forEach(function (box) {
