@@ -487,6 +487,9 @@
     var empty = document.getElementById('no-events'); if (empty) empty.hidden = count > 0;
     var label = eventList.querySelector('.past-label');
     if (label) label.hidden = !eventList.querySelector('.event.past:not([hidden])');
+    eventList.querySelectorAll('.month-head').forEach(function (h) {
+      h.hidden = !eventList.querySelector('.event[data-date^="' + h.dataset.month + '"]:not(.past):not([hidden])');
+    });
   }
   /* ---------- Event RSVP (upcoming events only) ---------- */
   function rsvpText(el, en, es) { el.dataset.en = en; el.dataset.es = es; el.textContent = lang() === 'es' ? es : en; return el; }
@@ -548,6 +551,23 @@
       var pa = a.classList.contains('past'), pb = b.classList.contains('past');
       return Number(pa) - Number(pb) || (pa ? b.dataset.date.localeCompare(a.dataset.date) : a.dataset.date.localeCompare(b.dataset.date));
     }).forEach(function (ev) { eventList.appendChild(ev); });
+    // Month headings for upcoming events, so a long semester reads at a glance.
+    var MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var MONTHS_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    var lastMonth = '';
+    eventList.querySelectorAll('.event[data-date]:not(.past)').forEach(function (ev) {
+      var ym = ev.dataset.date.slice(0, 7);
+      if (ym === lastMonth) return;
+      lastMonth = ym;
+      var m = Number(ym.slice(5, 7)) - 1, y = ym.slice(0, 4);
+      var h = document.createElement('h3');
+      h.className = 'month-head';
+      h.dataset.month = ym;
+      h.dataset.en = MONTHS_EN[m] + ' ' + y;
+      h.dataset.es = MONTHS_ES[m].charAt(0).toUpperCase() + MONTHS_ES[m].slice(1) + ' ' + y;
+      h.textContent = lang() === 'es' ? h.dataset.es : h.dataset.en;
+      eventList.insertBefore(h, ev);
+    });
     var firstPast = eventList.querySelector('.event.past');
     if (firstPast) {
       var nPast = eventList.querySelectorAll('.event.past').length;

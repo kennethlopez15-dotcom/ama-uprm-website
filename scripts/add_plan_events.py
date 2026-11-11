@@ -46,7 +46,7 @@ def slug(s):
 def event_html(e):
     d = datetime.date.fromisoformat(e['date'])
     if e.get('tba'):
-        box = f'<div class="date"><strong data-en="Feb" data-es="feb">Feb</strong><span data-en="TBA" data-es="por anunciar">TBA</span></div>'
+        box = f'<div class="date date-tba"><strong data-en="{MON_EN[d.month - 1]}" data-es="{MON_EN[d.month - 1]}">{MON_EN[d.month - 1]}</strong><span>{d.year}</span></div>'
     else:
         box = (f'<div class="date"><strong>{d.day}</strong>'
                f'<span data-en="{MON_EN[d.month - 1]}" data-es="{MON_ES[d.month - 1]}">{MON_EN[d.month - 1]}</span></div>')

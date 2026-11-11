@@ -1042,3 +1042,8 @@ main{background-color:#fff}
 .team-photo{max-width:920px;margin:0 auto;text-align:center}
 .team-photo img{display:block;width:100%;height:auto;border-radius:var(--radius);box-shadow:0 18px 40px rgba(31,48,79,.14)}
 .team-photo figcaption{margin-top:14px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--green)}
+.date.date-tba strong{font-size:1.5rem}
+/* Month headings in the upcoming list */
+#event-list>.month-head{grid-column:1/-1;font-family:var(--font);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--green);margin:22px 0 2px;padding-bottom:6px;border-bottom:1px solid rgba(142,24,37,.18)}
+#event-list>.month-head:first-child{margin-top:0}
+@media(max-width:560px){.date.date-tba strong{font-size:1.05rem;letter-spacing:0}.date.date-tba span{font-size:.62rem;letter-spacing:.06em}}
