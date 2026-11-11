@@ -1077,3 +1077,9 @@ main{background-color:#fff}
 .evidence-links .link{font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
 /* Sponsors: explain that level buttons open an email draft */
 .mailto-hint{text-align:center;font-size:.85rem;color:var(--gray);margin-top:22px}
+/* Events: keep the calendar and the upcoming list close together */
+#calendar{padding-bottom:24px}
+#upcoming-events{padding-top:32px}
+@media(max-width:700px){#calendar{padding-top:40px;padding-bottom:12px}#upcoming-events{padding-top:20px}}
+#upcoming-events .month-label{margin-top:0}
+@media(max-width:700px){.event-filters{gap:8px;margin-bottom:16px}.event-filters .btn{padding:9px 13px;font-size:.66rem;letter-spacing:.06em}.events-note{font-size:.82rem;margin-bottom:12px}}
