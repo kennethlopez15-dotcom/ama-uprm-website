@@ -318,6 +318,12 @@
     if (motion.matches && heroC) { heroC.style.transform = ''; heroC.style.opacity = ''; }
   });
 
+  /* ---------- Events: live calendar shown directly (agenda view on phones) ---------- */
+  document.querySelectorAll('iframe[data-src]').forEach(function (frame) {
+    var phone = window.matchMedia('(max-width: 700px)').matches;
+    frame.src = (phone && frame.dataset.srcMobile) || frame.dataset.src;
+  });
+
   /* ---------- Click-to-load embeds: no third-party requests or cookies until asked ---------- */
   document.querySelectorAll('.embed-facade').forEach(function (box) {
     var btn = box.querySelector('.embed-load');
@@ -440,6 +446,7 @@
         filters.forEach(function (x) { x.classList.remove('btn-green'); x.classList.add('btn-outline-dark'); x.setAttribute('aria-pressed', 'false'); });
         b.classList.add('btn-green'); b.classList.remove('btn-outline-dark');
         b.setAttribute('aria-pressed', 'true');
+        shownUpcoming = PAGE_SIZE;
         filterEvents();
       });
     });
@@ -472,23 +479,26 @@
     });
     return anyUpcoming;
   }
+  // Upcoming events show PAGE_SIZE at a time ("See more events" adds the next PAGE_SIZE).
+  // Hidden events use the hidden attribute, so they take no space.
+  var PAGE_SIZE = 4, shownUpcoming = PAGE_SIZE;
+  var pastList = document.getElementById('past-list');
+  var moreBtn = document.getElementById('more-events');
   function filterEvents() {
     if (!eventList) return;
     var selected = document.querySelector('[data-filter][aria-pressed="true"]');
     var cat = selected ? selected.dataset.filter : 'all';
-    var status = document.getElementById('event-status');
-    var state = status ? status.value : 'all';
-    var count = 0;
+    var match = 0;
     eventList.querySelectorAll('.event').forEach(function (ev) {
-      var past = ev.classList.contains('past');
-      ev.hidden = !((cat === 'all' || ev.dataset.cat === cat) && (state === 'all' || (state === 'past' ? past : !past)));
-      if (!ev.hidden) count++;
+      var ok = cat === 'all' || ev.dataset.cat === cat;
+      if (ok) match++;
+      ev.hidden = !ok || match > shownUpcoming;
     });
-    var empty = document.getElementById('no-events'); if (empty) empty.hidden = count > 0;
-    var label = eventList.querySelector('.past-label');
-    if (label) label.hidden = !eventList.querySelector('.event.past:not([hidden])');
+    if (pastList) pastList.querySelectorAll('.event').forEach(function (ev) { ev.hidden = !(cat === 'all' || ev.dataset.cat === cat); });
+    var empty = document.getElementById('no-events'); if (empty) empty.hidden = match > 0 || !eventList.querySelector('.event');
+    if (moreBtn) moreBtn.hidden = match <= shownUpcoming;
     eventList.querySelectorAll('.month-head').forEach(function (h) {
-      h.hidden = !eventList.querySelector('.event[data-date^="' + h.dataset.month + '"]:not(.past):not([hidden])');
+      h.hidden = !eventList.querySelector('.event[data-date^="' + h.dataset.month + '"]:not([hidden])');
     });
   }
   /* ---------- Event RSVP (upcoming events only) ---------- */
@@ -544,18 +554,24 @@
     var anyUpcoming = markEvents(eventList);
     eventList.querySelectorAll('.event').forEach(addRsvp);
     var notice = document.getElementById('no-upcoming');
-    if (notice && !anyUpcoming) notice.style.display = 'block';
-    // Keep every historical record, with upcoming activities first.
-    // Upcoming in date order; past ones follow, most recent first, under a "Recent activities" label.
-    Array.from(eventList.querySelectorAll('.event[data-date]')).sort(function (a, b) {
-      var pa = a.classList.contains('past'), pb = b.classList.contains('past');
-      return Number(pa) - Number(pb) || (pa ? b.dataset.date.localeCompare(a.dataset.date) : a.dataset.date.localeCompare(b.dataset.date));
+    if (notice) notice.hidden = anyUpcoming;
+    // Upcoming stay here in date order; past events move to the collapsible "Past events" section, newest first.
+    Array.from(eventList.querySelectorAll('.event[data-date]:not(.past)')).sort(function (a, b) {
+      return a.dataset.date.localeCompare(b.dataset.date);
     }).forEach(function (ev) { eventList.appendChild(ev); });
+    var past = Array.from(eventList.querySelectorAll('.event.past')).sort(function (a, b) { return b.dataset.date.localeCompare(a.dataset.date); });
+    var pastBox = document.getElementById('past');
+    if (pastList) {
+      past.forEach(function (ev) { pastList.appendChild(ev); });
+      var countEl = pastBox && pastBox.querySelector('.past-count');
+      if (countEl) countEl.textContent = '(' + past.length + ')';
+      if (pastBox) pastBox.hidden = !past.length;
+    }
     // Month headings for upcoming events, so a long semester reads at a glance.
     var MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     var MONTHS_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     var lastMonth = '';
-    eventList.querySelectorAll('.event[data-date]:not(.past)').forEach(function (ev) {
+    eventList.querySelectorAll('.event[data-date]').forEach(function (ev) {
       var ym = ev.dataset.date.slice(0, 7);
       if (ym === lastMonth) return;
       lastMonth = ym;
@@ -568,19 +584,16 @@
       h.textContent = lang() === 'es' ? h.dataset.es : h.dataset.en;
       eventList.insertBefore(h, ev);
     });
-    var firstPast = eventList.querySelector('.event.past');
-    if (firstPast) {
-      var nPast = eventList.querySelectorAll('.event.past').length;
-      var pastLabel = document.createElement('h3');
-      pastLabel.className = 'past-label';
-      pastLabel.dataset.en = 'Recent activities · ' + nPast;
-      pastLabel.dataset.es = 'Actividades recientes · ' + nPast;
-      pastLabel.textContent = lang() === 'es' ? pastLabel.dataset.es : pastLabel.dataset.en;
-      eventList.insertBefore(pastLabel, firstPast);
-    }
+    if (moreBtn) moreBtn.addEventListener('click', function () {
+      var firstNew = shownUpcoming;
+      shownUpcoming += PAGE_SIZE;
+      filterEvents();
+      // Move focus to the first newly shown event so keyboard users continue from there.
+      var visible = Array.from(eventList.querySelectorAll('.event:not([hidden])'));
+      var target = visible[firstNew];
+      if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); }
+    });
     filters.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
-    var status = document.getElementById('event-status');
-    if (status) status.addEventListener('change', filterEvents);
     filterEvents();
   }
 

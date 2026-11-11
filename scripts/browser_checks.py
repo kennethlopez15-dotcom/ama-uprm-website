@@ -82,22 +82,28 @@ try:
         page.keyboard.press('Space'); expect(page.locator('#faq-answer-1')).to_be_hidden()
         passed('Manual persistence across pages and FAQ keyboard/ARIA/visibility')
         page.goto(base+'events.html')
-        # Counts come from the page's own dates, so adding events never breaks this check.
-        evcount=lambda cmp,day: page.evaluate("([c,d])=>[...document.querySelectorAll('#event-list .event[data-date]')].filter(e=>c==='past'?e.dataset.date<d:e.dataset.date>=d).length",[cmp,day])
-        n_past,n_up=evcount('past','2026-09-29'),evcount('up','2026-09-29')
-        assert n_past>0 and n_up>0
-        expect(page.locator('.event.past')).to_have_count(n_past)
-        page.locator('#event-status').select_option('upcoming')
-        expect(page.locator('.event:visible')).to_have_count(n_up)
-        page.locator('[data-filter=all]').click(); page.locator('#event-status').select_option('past')
-        expect(page.locator('.event:visible')).to_have_count(n_past)
+        # Upcoming: 4 at a time with "See more"; past events live in a closed <details> section.
+        up=page.evaluate("d=>[...document.querySelectorAll('#event-list .event[data-date]')].filter(e=>e.dataset.date>=d).length",'2026-09-29')
+        n_past=page.evaluate("d=>document.querySelectorAll('#past-list .event').length")
+        assert up>4 and n_past>0
+        expect(page.locator('#event-list .event:visible')).to_have_count(4)
+        expect(page.locator('#past')).not_to_have_attribute('open','')
+        page.locator('#more-events').click()
+        expect(page.locator('#event-list .event:visible')).to_have_count(min(8,up))
+        page.locator('[data-filter=elevate]').click()
+        assert page.locator('#event-list .event:visible').count()<=4
+        assert page.evaluate("[...document.querySelectorAll('#event-list .event:not([hidden])')].every(e=>e.dataset.cat==='elevate')")
+        assert page.evaluate("[...document.querySelectorAll('#event-list .month-head:not([hidden])')].every(h=>document.querySelector('#event-list .event[data-date^=\"'+h.dataset.month+'\"]:not([hidden])'))")
+        page.locator('[data-filter=all]').click()
+        expect(page.locator('#event-list .event:visible')).to_have_count(4)
+        page.locator('#past summary').click()
+        expect(page.locator('#past-list .event:visible')).to_have_count(n_past)
         translate(page,'es')
+        expect(page.locator('#past summary')).to_contain_text('Eventos pasados')
         expect(page.locator('.completed-tag').first).to_have_text('Evento finalizado')
         page.clock.set_fixed_time('2027-06-01T12:00:00Z'); page.reload()
-        page.locator('#event-status').select_option('upcoming')
-        expect(page.locator('#no-events')).to_be_visible()  # empty state once every event is past
+        expect(page.locator('#no-upcoming')).to_be_visible()  # every event past: notice instead of an empty list
         page.clock.set_fixed_time('2026-10-24T12:00:00Z'); page.reload()
-        expect(page.locator('.event.past')).to_have_count(evcount('past','2026-10-24'))
         expect(page.locator('#no-upcoming')).to_be_hidden()  # ICC 2027 keeps the upcoming list non-empty
         passed('Dates, category/status filters, empty states and dynamic translations')
         tz = browser.new_context(locale='en-US', timezone_id='Asia/Tokyo'); tz.route('**/*', intercept)

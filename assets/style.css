@@ -1047,3 +1047,26 @@ main{background-color:#fff}
 #event-list>.month-head{grid-column:1/-1;font-family:var(--font);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--green);margin:22px 0 2px;padding-bottom:6px;border-bottom:1px solid rgba(142,24,37,.18)}
 #event-list>.month-head:first-child{margin-top:0}
 @media(max-width:560px){.date.date-tba strong{font-size:1.05rem;letter-spacing:0}.date.date-tba span{font-size:.62rem;letter-spacing:.06em}}
+
+/* Events list: no entrance animation; every event and month heading is visible on load */
+#event-list>*{opacity:1;transform:none;transition:none}
+
+/* ---------- Events page: calendar first, paged upcoming list, collapsible past events ---------- */
+#calendar .month-label,#upcoming-events .month-label{margin-bottom:16px}
+.calendar-embed iframe{height:620px}
+.calendar-actions{display:flex;align-items:center;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;margin-top:16px}
+.calendar-actions p{font-size:.88rem;color:var(--gray);max-width:640px;margin:0}
+.event-filters{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+#event-list{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.more-row{text-align:center;margin-top:24px}
+.past-events{margin-top:40px;border-top:1px solid rgba(31,48,79,.12);padding-top:8px}
+.past-events>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:14px 4px;font-family:var(--serif);font-size:1.35rem;color:var(--green-dark)}
+.past-events>summary::-webkit-details-marker{display:none}
+.past-events>summary::after{content:'';width:10px;height:10px;border-right:2px solid var(--green);border-bottom:2px solid var(--green);transform:rotate(45deg);margin-left:auto;transition:transform .25s var(--ease)}
+.past-events[open]>summary::after{transform:rotate(-135deg)}
+.past-events>summary:focus-visible{outline:3px solid var(--green);outline-offset:4px;border-radius:6px}
+.past-count{font-family:var(--font);font-size:.85rem;color:var(--gray)}
+#past-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:8px 0 4px}
+#past-list>*{opacity:1;transform:none}
+@media(max-width:760px){#past-list{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.calendar-embed iframe{height:520px}.calendar-actions{flex-direction:column;align-items:flex-start}}

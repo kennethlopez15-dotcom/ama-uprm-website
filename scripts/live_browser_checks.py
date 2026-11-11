@@ -54,7 +54,7 @@ try:
                     page.evaluate('(y)=>scrollTo(0,y)',y)
                     page.wait_for_timeout(30)
                 if filename=='events.html':
-                    page.locator('.embed-load').click()
+                    if page.locator('.embed-load').count(): page.locator('.embed-load').click()
                 for frame in page.locator('iframe').all():
                     frame.scroll_into_view_if_needed()
                     try:

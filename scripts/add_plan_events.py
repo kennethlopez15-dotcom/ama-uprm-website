@@ -88,7 +88,7 @@ def main():
     if not new:
         print('events.html: nothing new to add'); return
     block = ''.join(event_html(e) for e in sorted(new, key=lambda e: e['date']))
-    marker = '<div class="stagger" id="event-list">\n'
+    marker = '<div id="event-list">\n'
     assert page.count(marker) == 1, 'event list not found'
     page = page.replace(marker, marker + block, 1)
     open(PAGE, 'w', encoding='utf8').write(page)
