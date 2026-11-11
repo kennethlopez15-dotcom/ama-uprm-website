@@ -1089,3 +1089,9 @@ main{background-color:#fff}
 /* Client logo supplied as a full-bleed image (dark background) */
 .logo-panel.photo-logo{padding:0;background:#0b0b0b;overflow:hidden}
 .logo-panel.photo-logo img{object-fit:cover}
+/* Impact: single baseline stat and secondary measurement details */
+.stats-1{grid-template-columns:minmax(0,1fr);max-width:420px;margin-left:auto;margin-right:auto}
+.measure-details{max-width:920px;margin:28px auto 0;border-top:1px solid rgba(31,48,79,.12)}
+.measure-details>summary{cursor:pointer;padding:14px 4px;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.measure-details>summary:focus-visible{outline:3px solid var(--green);outline-offset:4px;border-radius:6px}
+.measure-details .decision-list{margin-top:4px}
