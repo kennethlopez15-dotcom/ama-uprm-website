@@ -1095,3 +1095,13 @@ main{background-color:#fff}
 .measure-details>summary{cursor:pointer;padding:14px 4px;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
 .measure-details>summary:focus-visible{outline:3px solid var(--green);outline-offset:4px;border-radius:6px}
 .measure-details .decision-list{margin-top:4px}
+
+/* ELEVATE "Our work": equal-height cards; stats share one row and labels wrap inside their column */
+#work .grid-2{align-items:stretch}
+#work .case{display:flex;flex-direction:column}
+#work .case-body{flex:1;display:flex;flex-direction:column}
+#work .case .result{margin-top:auto}
+#work .case .result{flex-wrap:nowrap}
+#work .case .result>div{min-width:0;max-width:calc(50% - 9px)}
+#work .case .result strong{margin-bottom:6px}
+#work .case .result span{display:block;line-height:1.35}
