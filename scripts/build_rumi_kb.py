@@ -15,7 +15,7 @@ OUT = ROOT / 'assets' / 'rumi' / 'kb.json'
 PAGES = ['index.html', 'about.html', 'elevate.html', 'programs.html', 'events.html',
          'membership.html', 'sponsors.html', 'blog.html', 'blog-post.html',
          'blog-marketing-week-2026.html', 'blog-fuerza-y-esperanza-2026.html',
-         'case-ppm.html', 'case-cancer-relief.html', 'impact.html', 'ai.html', 'accessibility.html']
+         'case-ppm.html', 'case-cancer-relief.html', 'case-san-german.html', 'impact.html', 'ai.html', 'accessibility.html']
 VOID = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'}
 SKIP = {'script', 'style', 'noscript', 'svg', 'header', 'nav', 'footer', 'form', 'title', 'head'}
 BLOCK = {'h1', 'h2', 'h3', 'h4', 'p', 'li', 'dt', 'dd', 'blockquote', 'td', 'button'}
