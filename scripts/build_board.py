@@ -7,7 +7,7 @@ Usage (from the site folder):
 Only the <section id="team"> block of about.html is replaced. Pending positions
 ("name": null) stay in board.json and are not shown.
 """
-import html, json, os, re, sys
+import html, json, os, re, sys, urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'scripts', 'board.json')
@@ -38,7 +38,7 @@ def card(p):
         ph = f'<div class="ph has-img" data-bg="url({esc(p["photo"])})" role="img" aria-label="{esc(name)}"></div>'
     else:
         ph = f'<div class="ph initials" role="img" aria-label="{esc(name)}"><span aria-hidden="true">{esc(initials(name))}</span></div>'
-    mail = p.get('email') or f'ama@uprm.edu?subject=For {name}'
+    mail = p.get('email') or 'ama@uprm.edu?subject=' + urllib.parse.quote('For ' + name)
     return (f'<div class="member">{ph}<h4>{esc(name)}</h4>'
             f'<span data-en="{esc(p["en"])}" data-es="{esc(p["es"])}">{esc(p["en"])}</span>'
             f'<a href="mailto:{esc(mail)}" data-en="Email" data-es="Correo">Email</a></div>')

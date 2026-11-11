@@ -82,17 +82,22 @@ try:
         page.keyboard.press('Space'); expect(page.locator('#faq-answer-1')).to_be_hidden()
         passed('Manual persistence across pages and FAQ keyboard/ARIA/visibility')
         page.goto(base+'events.html')
-        expect(page.locator('.event.past')).to_have_count(9)
+        # Counts come from the page's own dates, so adding events never breaks this check.
+        evcount=lambda cmp,day: page.evaluate("([c,d])=>[...document.querySelectorAll('#event-list .event[data-date]')].filter(e=>c==='past'?e.dataset.date<d:e.dataset.date>=d).length",[cmp,day])
+        n_past,n_up=evcount('past','2026-09-29'),evcount('up','2026-09-29')
+        assert n_past>0 and n_up>0
+        expect(page.locator('.event.past')).to_have_count(n_past)
         page.locator('#event-status').select_option('upcoming')
-        expect(page.locator('.event:visible')).to_have_count(9)
-        page.locator('[data-filter=service]').click()
-        expect(page.locator('#no-events')).to_be_visible()
+        expect(page.locator('.event:visible')).to_have_count(n_up)
         page.locator('[data-filter=all]').click(); page.locator('#event-status').select_option('past')
-        expect(page.locator('.event:visible')).to_have_count(9)
+        expect(page.locator('.event:visible')).to_have_count(n_past)
         translate(page,'es')
         expect(page.locator('.completed-tag').first).to_have_text('Evento finalizado')
+        page.clock.set_fixed_time('2027-06-01T12:00:00Z'); page.reload()
+        page.locator('#event-status').select_option('upcoming')
+        expect(page.locator('#no-events')).to_be_visible()  # empty state once every event is past
         page.clock.set_fixed_time('2026-10-24T12:00:00Z'); page.reload()
-        expect(page.locator('.event.past')).to_have_count(13)
+        expect(page.locator('.event.past')).to_have_count(evcount('past','2026-10-24'))
         expect(page.locator('#no-upcoming')).to_be_hidden()  # ICC 2027 keeps the upcoming list non-empty
         passed('Dates, category/status filters, empty states and dynamic translations')
         tz = browser.new_context(locale='en-US', timezone_id='Asia/Tokyo'); tz.route('**/*', intercept)

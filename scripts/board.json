@@ -11,14 +11,14 @@
           "name": "Kristal E. Serrano Rivera",
           "en": "President",
           "es": "Presidenta",
-          "photo": "assets/img/avatar-kristal-serrano.webp?v=2",
+          "photo": "assets/img/avatar-kristal-serrano-2027.webp",
           "email": "kristal.serrano@upr.edu"
         },
         {
           "name": "Sara I. Ribón",
           "en": "Executive Vice-President",
           "es": "Vicepresidenta Ejecutiva",
-          "photo": "assets/img/avatar-sara-ribon.webp?v=2",
+          "photo": "assets/img/avatar-sara-ribon-2027.webp",
           "email": "sara.ribon@upr.edu"
         }
       ]
@@ -32,7 +32,8 @@
           "name": "María F. Rivera",
           "en": "VP of Membership",
           "es": "VP de Membresía",
-          "photo": "assets/img/avatar-maria-rivera.webp"
+          "photo": "assets/img/avatar-maria-rivera.webp",
+          "email": "maria.rivera204@upr.edu"
         },
         {
           "name": "Marianna I. Farrel",
@@ -42,7 +43,8 @@
         {
           "name": "Carlos Melendez",
           "en": "ICC Coordinator",
-          "es": "Coordinación de ICC"
+          "es": "Coordinación de ICC",
+          "photo": "assets/img/avatar-carlos-melendez.webp"
         }
       ]
     },
@@ -54,7 +56,8 @@
         {
           "name": "Kaleb Ríos",
           "en": "VP of Finance",
-          "es": "VP de Finanzas"
+          "es": "VP de Finanzas",
+          "photo": "assets/img/avatar-kaleb-rios.webp"
         },
         {
           "name": "Juliann Cordero",
@@ -70,7 +73,7 @@
       "es": "Servicio Comunitario",
       "people": [
         {
-          "name": "Anelis",
+          "name": "Anelis Hiraldo",
           "en": "VP of Community Service",
           "es": "VP de Servicio Comunitario",
           "photo": "assets/img/avatar-anelis.webp"
@@ -95,18 +98,20 @@
         {
           "name": "Angellyvette Torres",
           "en": "VP of Professional Development",
-          "es": "VP de Desarrollo Profesional"
+          "es": "VP de Desarrollo Profesional",
+          "photo": "assets/img/avatar-angellyvette-torres.webp"
         },
         {
-          "name": null,
+          "name": "Hilary Bosquez",
           "en": "Event Coordinator",
-          "es": "Coordinación de eventos"
+          "es": "Coordinación de eventos",
+          "photo": "assets/img/avatar-hilary.webp"
         },
         {
           "name": "Amanda L. Rivera",
           "en": "Agency Director",
           "es": "Dirección de la agencia",
-          "photo": "assets/img/avatar-amanda-rivera.webp?v=2",
+          "photo": "assets/img/avatar-amanda-rivera-2027.webp",
           "email": "amanda.rivera@upr.edu"
         },
         {
@@ -132,7 +137,8 @@
         {
           "name": "Indhira Vargas",
           "en": "Social Media Manager",
-          "es": "Gestión de redes sociales"
+          "es": "Gestión de redes sociales",
+          "photo": "assets/img/avatar-indhira-vargas.webp"
         },
         {
           "name": "Daitza Torres",
