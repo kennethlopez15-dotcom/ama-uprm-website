@@ -93,6 +93,7 @@ async function chat(request, env, ctx, cors) {
 const FORM_KINDS = {
   membership_application: 'Membership application',
   contact_form: 'Contact message',
+  sponsor_inquiry: 'Sponsor inquiry (website form)',
   event_rsvp: 'Event RSVP',
   rumi_sponsor: 'Sponsor lead (RUMi)',
   rumi_elevate: 'ELEVATE client lead (RUMi)'

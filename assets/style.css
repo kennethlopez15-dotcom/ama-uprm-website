@@ -1076,6 +1076,9 @@ main{background-color:#fff}
 .evidence-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;margin-top:18px}
 .evidence-links .link{font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
 /* Sponsors: explain that level buttons open an email draft */
+.sponsor-form{max-width:640px;margin:36px auto 0;scroll-margin-top:96px}
+.sponsor-form h3{margin:0}
+.sponsor-form .form-note{color:var(--gray);margin:0}
 .mailto-hint{text-align:center;font-size:.85rem;color:var(--gray);margin-top:22px}
 /* Events: keep the calendar and the upcoming list close together */
 #calendar{padding-bottom:24px}

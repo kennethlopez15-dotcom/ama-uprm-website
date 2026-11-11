@@ -454,6 +454,14 @@
     if (/^https?:/i.test(href) && href.indexOf(location.hostname) === -1 && /instagram|linkedin|youtube|spotify|facebook/i.test(href)) {
       trackEvent('social_click', { network: (href.match(/instagram|linkedin|youtube|spotify|facebook/i) || [''])[0].toLowerCase() });
     }
+    /* Sponsor level buttons: preselect the level in the inquiry form and count the intent */
+    if (a.dataset.level && a.closest('#packages')) {
+      var sel = document.querySelector('#inquire select[name=level]');
+      if (sel) sel.value = a.dataset.level;
+      trackEvent('sponsor_inquiry_click', { subject: a.dataset.level });
+      var first = document.querySelector('#inquire input[name=name]');
+      if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 0);
+    }
     if (href.indexOf('sponsors.html#packages') !== -1 || (a.closest('#packages') && href.indexOf('mailto:') !== 0)) {
       trackEvent('sponsor_package_click', { link_text: a.textContent.trim() });
     }

@@ -221,7 +221,7 @@ try:
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_calendar_click').length")==1
         assert pg.evaluate("dataLayer.filter(x=>x[1]==='event_rsvp_click').length")==0
         passed('Mocked calendar click tracking with analytics enabled')
-        for file,sel,ev in [('sponsors.html','a[href*="AMPLIFY%20Partnership%202027"]:not([href*="Custom"])','sponsor_inquiry_click'),('sponsors.html','a[href*="Custom"]','sponsor_inquiry_click'),('elevate.html','a[href*="docs.google.com/forms"]','elevate_inquiry_click'),('membership.html','#join a[href*="docs.google.com/forms"]','membership_form_open')]:
+        for file,sel,ev in [('sponsors.html','#packages a[data-level]:not([data-level="Custom"])','sponsor_inquiry_click'),('sponsors.html','#packages a[data-level="Custom"]','sponsor_inquiry_click'),('elevate.html','a[href*="docs.google.com/forms"]','elevate_inquiry_click'),('membership.html','#join a[href*="docs.google.com/forms"]','membership_form_open')]:
             pg.goto(base+file)
             pg.evaluate("document.addEventListener('click',e=>{if(e.target.closest('a'))e.preventDefault();},true)")
             pg.evaluate("s=>document.querySelector(s).click()",sel)
