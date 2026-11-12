@@ -260,6 +260,7 @@ nav li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
 .event+.event{margin-top:14px}
 .date{background:var(--green);color:#fff;border-radius:14px;text-align:center;padding:12px 8px}
 .date strong{display:block;font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--gold)}
+.date.date-range strong{font-size:1.25rem;line-height:1.5;white-space:nowrap}
 .date span{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase}
 .event h2,.event h3{font-size:1.1rem;color:var(--green-dark)}
 .event p{font-size:.9rem;color:var(--gray)}
