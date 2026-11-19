@@ -613,6 +613,35 @@
         "elevate",
         "hire"
       ]
+    },
+    {
+      "id": "how_rumi_works",
+      "keywords": [
+        "de donde sacas",
+        "donde sacas",
+        "de donde viene",
+        "where do you get",
+        "where do u get",
+        "ur information",
+        "your information",
+        "where is this coming from",
+        "que ia",
+        "que inteligencia",
+        "what ai",
+        "que modelo",
+        "what model",
+        "chatgpt",
+        "eres una ia",
+        "eres un bot",
+        "are you an ai",
+        "are you a bot",
+        "ai agent",
+        "running on",
+        "como funcionas",
+        "how do you work"
+      ],
+      "en": "I answer from **this site's information**, the chapter's 2026–27 Chapter Plan and a curated FAQ written by members. For open questions I use **free AI models** in order — Groq, then Cloudflare Workers AI, then OVHcloud — and if they're busy I answer from my own knowledge base. **Emails and phone numbers are masked** before your question reaches any AI model, so please don't share sensitive details. I can make mistakes. More on [Meet RUMi](ai.html).",
+      "es": "Contesto con **la información de este sitio**, el Chapter Plan 2026–27 del capítulo y un FAQ escrito por miembros. Para preguntas abiertas uso **modelos de IA gratuitos** en orden — Groq, luego Cloudflare Workers AI y luego OVHcloud — y si están ocupados contesto con mi propia base de conocimiento. **Los correos y teléfonos se ocultan** antes de que tu pregunta llegue a un modelo de IA, así que no compartas datos sensibles. Puedo equivocarme. Más en [Conoce a RUMi](ai.html)."
     }
   ]
 }
