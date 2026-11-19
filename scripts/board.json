@@ -39,13 +39,15 @@
           "name": "Marianna I. Farrel",
           "en": "Recruitment & Retention",
           "es": "Reclutamiento y Retención",
-          "photo": "assets/img/avatar-marianna-farrel.webp"
+          "photo": "assets/img/avatar-marianna-farrel.webp",
+          "email": "marianna.farrel@upr.edu"
         },
         {
           "name": "Carlos Melendez",
           "en": "ICC Coordinator",
           "es": "Coordinación de ICC",
-          "photo": "assets/img/avatar-carlos-melendez.webp"
+          "photo": "assets/img/avatar-carlos-melendez.webp",
+          "email": "carlos.melendez31@upr.edu"
         }
       ]
     },
@@ -58,13 +60,15 @@
           "name": "Kaleb Ríos",
           "en": "VP of Finance",
           "es": "VP de Finanzas",
-          "photo": "assets/img/avatar-kaleb-rios.webp"
+          "photo": "assets/img/avatar-kaleb-rios.webp",
+          "email": "kaleb.rios@upr.edu"
         },
         {
           "name": "Juliann Cordero",
           "en": "Fundraising Coordinator",
           "es": "Coordinación de recaudaciones",
-          "photo": "assets/img/avatar-juliann-cordero.webp"
+          "photo": "assets/img/avatar-juliann-cordero.webp",
+          "email": "julianna.cordero@upr.edu"
         }
       ]
     },
@@ -101,7 +105,8 @@
           "name": "Angellyvette Torres",
           "en": "VP of Professional Development",
           "es": "VP de Desarrollo Profesional",
-          "photo": "assets/img/avatar-angellyvette-torres.webp"
+          "photo": "assets/img/avatar-angellyvette-torres.webp",
+          "email": "angellyvette.torres@upr.edu"
         },
         {
           "name": "Hilary Bosquez",
@@ -114,7 +119,7 @@
           "en": "Agency Director",
           "es": "Dirección de la agencia",
           "photo": "assets/img/avatar-amanda-rivera-2027.webp",
-          "email": "amanda.rivera@upr.edu"
+          "email": "amanda.rivera30@upr.edu"
         },
         {
           "name": "Kenneth López",
@@ -135,20 +140,23 @@
           "name": "Alexandra Ramos",
           "en": "VP of Communication",
           "es": "VP de Comunicaciones",
-          "photo": "assets/img/avatar-alexandra-ramos.webp"
+          "photo": "assets/img/avatar-alexandra-ramos.webp",
+          "email": "alexandra.ramos23@upr.edu"
         },
         {
           "name": "Indhira Vargas",
           "en": "Social Media Manager",
           "es": "Gestión de redes sociales",
-          "photo": "assets/img/avatar-indhira-vargas.webp"
+          "photo": "assets/img/avatar-indhira-vargas.webp",
+          "email": "indhira.vargas@upr.edu"
         },
         {
           "name": "Daitza Torres",
           "en": "Content Creator",
           "es": "Creación de contenido",
           "reports_to": "Social Media Manager",
-          "photo": "assets/img/avatar-daitza-torres.webp"
+          "photo": "assets/img/avatar-daitza-torres.webp",
+          "email": "daitza.torres@upr.edu"
         },
         {
           "name": null,
@@ -160,7 +168,8 @@
           "name": "Lara Seda",
           "en": "Graphic Designer",
           "es": "Diseño gráfico",
-          "photo": "assets/img/avatar-lara-seda.webp"
+          "photo": "assets/img/avatar-lara-seda.webp",
+          "email": "lara.seda@upr.edu"
         },
         {
           "name": null,
@@ -180,7 +189,8 @@
           "name": "Edgar Soto",
           "en": "Chapter Advisor",
           "es": "Consejero del capítulo",
-          "photo": "assets/img/avatar-edgar-soto.webp?v=2"
+          "photo": "assets/img/avatar-edgar-soto.webp?v=2",
+          "email": "edgar.soto@upr.edu"
         },
         {
           "name": "Liane Soto",
